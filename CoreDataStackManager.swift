@@ -17,7 +17,7 @@ import CoreData
  *
  */
 
-private let SQLITE_FILE_NAME = "FavoriteActors.sqlite"
+private let SQLITE_FILE_NAME = "Virtual-Tourist.sqlite"
 
 class CoreDataStackManager {
     

@@ -115,7 +115,6 @@
 				1F27F8351BFFFE5700839C10 /* Assets.xcassets */,
 				1F27F8371BFFFE5700839C10 /* LaunchScreen.storyboard */,
 				1F27F83A1BFFFE5700839C10 /* Info.plist */,
-				1F27F8321BFFFE5700839C10 /* Virtual_Tourist.xcdatamodeld */,
 			);
 			path = "Virtual-Tourist";
 			sourceTree = "<group>";
@@ -141,6 +140,7 @@
 		1F27F8621C0001AE00839C10 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				1F27F8321BFFFE5700839C10 /* Virtual_Tourist.xcdatamodeld */,
 				1F27F8601C0001A400839C10 /* CoreDataStackManager.swift */,
 				1F27FBA31C00023B00839C10 /* Pin.swift */,
 				1F27FBA51C00024A00839C10 /* Photo.swift */,
