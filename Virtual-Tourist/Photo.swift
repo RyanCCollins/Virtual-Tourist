@@ -11,21 +11,27 @@ import CoreData
 
 class Photo: NSManagedObject {
     /* Define dictionary keys */
-    struct Keys {
-        static let ID = "id"
-        static let ImagePath = "imagePath"
-        static let Description = "descriptioString"
-        static let Title = "titleString"
-        static let User = "userString"
-    }
+
     
     /* Create our managed variables */
     @NSManaged var id: NSNumber
-    @NSManaged var imagePath: String
-    @NSManaged var descriptionString: String
     @NSManaged var titleString: String
-    @NSManaged var userString: String
     @NSManaged var pin : Pin
+    @NSManaged var largeImageFilePath : String?
+    @NSManaged var thumbnailImageFilePath : String?
+    @NSManaged var mediumImageFilePath : String?
+    
+    var images : [String : UIImage]? {
+        
+        if let thumbnail = thumbnailImageFilePath, large = largeImageFilePath, medium = mediumImageFilePath {
+            
+            let thumbnailFile = fileNameByDeletingPathExtension(fromString: thumbnailImageFilePath!)
+            
+            let mediumFile = fileNameByDeletingPathExtension(fromString: mediumImageFilePath)
+            
+        }
+        
+    }
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -42,10 +48,28 @@ class Photo: NSManagedObject {
         super.init(entity: entity!, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        id = dictionary[Keys.ID] as! Int
-        imagePath = dictionary[Keys.ImagePath] as! String
-        titleString = dictionary[Keys.Title] as! String
-        descriptionString = dictionary[Keys.Description] as! String
-        userString = dictionary[Keys.User] as! String
+        id = dictionary[FlickrClient.JSONResponseKeys.ID] as! Int
+        thumbnailImageFilePath = dictionary[FlickrClient.JSONResponseKeys.Extras.ThumbnailURL] as? String
+        titleString = dictionary[FlickrClient.JSONResponseKeys.Title] as! String
+        mediumImageFilePath = dictionary[FlickrClient.JSONResponseKeys.Extras.MediumURL] as? String
+        largeImageFilePath = dictionary[FlickrClient.JSONResponseKeys.Extras.LargeURL] as? String
     }
+    
+    func getImage(fromFilePath filepath: String?) -> UIImage? {
+        if filepath == nil || filepath == "" {
+            return 
+        }
+        return FlickrClient.Caches.imageCache.imageWithIdentifier(filepath)!
+    }
+    
+    var largeImage: UIImage? {
+        get {
+            
+            return FlickrClient.Caches.imageCache.imageWithIdentifier(largeImageFilePath!)
+        }
+        set {
+            FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: imagePath!)
+        }
+    }
+    
 }

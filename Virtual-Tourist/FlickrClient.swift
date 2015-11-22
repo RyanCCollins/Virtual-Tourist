@@ -16,7 +16,7 @@ class FlickrClient: NSObject {
     var photos = [Photo]()
         
         /* Task returned for GETting data from the Parse server */
-        func taskForGETMethod(method: String, parameters: [String : AnyObject]?, queryParameters: [String : AnyObject]?, completionHandler: (results: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
+        func taskForGETMethod(method: String, parameters: [String : AnyObject]?, queryParameters: [String : AnyObject]?, completionHandler: (results: AnyObject?, error: NSError?) -> Void) -> NSURLSessionDataTask {
             
             var urlString = Constants.Base_URL_Secure + method
             
@@ -61,112 +61,6 @@ class FlickrClient: NSObject {
             task.resume()
             return task
         }
-        
-//        /* Task returned for POSTing data from the Parse server */
-//        func taskForPOSTMethod (method: String, JSONBody: [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-//            let urlString = Constants.baseURLSecure + method
-//            let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
-//            
-//            request.HTTPMethod = HTTPRequest.POST
-//            request.addValue(Constants.app_id, forHTTPHeaderField: "X-Parse-Application-Id")
-//            request.addValue(Constants.api_key, forHTTPHeaderField: "X-Parse-REST-API-Key")
-//            
-//            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//            request.addValue("application/json", forHTTPHeaderField: "Accept")
-//            
-//            do {
-//                
-//                request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(JSONBody, options: .PrettyPrinted)
-//            } catch {
-//                
-//                request.HTTPBody = nil
-//                completionHandler(result: nil, error: Errors.constructError(domain: "ParseClient", userMessage: ErrorMessages.JSONSerialization))
-//                
-//            }
-//            
-//            /* Create a session and then a task.  Parse results if no error. */
-//            let session = NSURLSession.sharedSession()
-//            
-//            let task = session.dataTaskWithRequest(request) { data, response, error in
-//                
-//                if error != nil {
-//                    
-//                    completionHandler(result: nil, error: Errors.constructError(domain: "ParseClient", userMessage: ErrorMessages.Status.Network))
-//                    
-//                } else {
-//                    
-//                    /* GUARD: Did we get a successful response code in the realm of 2XX? */
-//                    self.guardForHTTPResponses(response as? NSHTTPURLResponse) {proceed, error in
-//                        if error != nil {
-//                            
-//                            completionHandler(result: nil, error: error)
-//                            
-//                        }
-//                    }
-//                    
-//                    /* Parse the results and return in the completion handler with an error if there is one. */
-//                    ParseClient.parseJSONDataWithCompletionHandler(data!, completionHandler: completionHandler)
-//                    
-//                }
-//            }
-//            task.resume()
-//            return task
-//        }
-//        
-//        
-//        /* Update a user's location */
-//        func taskForPUTMethod(method: String, objectId: String, JSONBody : [String : AnyObject], completionHandler: (result: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-//            
-//            let urlString = ParseClient.Constants.baseURLSecure + method + "/" + objectId
-//            
-//            let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
-//            
-//            request.HTTPMethod = HTTPRequest.PUT
-//            request.addValue(Constants.app_id, forHTTPHeaderField: "X-Parse-Application-Id")
-//            request.addValue(Constants.api_key, forHTTPHeaderField: "X-Parse-REST-API-Key")
-//            
-//            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-//            request.addValue("application/json", forHTTPHeaderField: "Accept")
-//            
-//            do {
-//                
-//                request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(JSONBody, options: .PrettyPrinted)
-//                
-//            } catch {
-//                request.HTTPBody = nil
-//                completionHandler(result: nil, error: Errors.constructError(domain: "ParseClient", userMessage: ErrorMessages.JSONSerialization))
-//                
-//            }
-//            
-//            /*Create a session and then a task.  Parse results if no error. */
-//            let session = NSURLSession.sharedSession()
-//            
-//            let task = session.dataTaskWithRequest(request) { data, response, error in
-//                
-//                if error != nil {
-//                    
-//                    completionHandler(result: nil, error: Errors.constructError(domain: "ParseClient", userMessage: ErrorMessages.Status.Network))
-//                    
-//                } else {
-//                    
-//                    /* GUARD: Did we get a successful response code of 2XX? */
-//                    self.guardForHTTPResponses(response as? NSHTTPURLResponse) {proceed, error in
-//                        if error != nil {
-//                            
-//                            completionHandler(result: nil, error: error)
-//                            
-//                        }
-//                    }
-//                    
-//                    /* Parse the results and return in the completion handler with an error if there is one. */
-//                    ParseClient.parseJSONDataWithCompletionHandler(data!, completionHandler: completionHandler)
-//                    
-//                }
-//            }
-//            task.resume()
-//            return task
-//            
-//        }
     
         /* Helper Function: Convert JSON to a Foundation object */
         class func parseJSONDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
@@ -175,7 +69,7 @@ class FlickrClient: NSObject {
             do {
                 parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
             } catch {
-                completionHandler(result: nil, error: Errors.constructError(domain: "ParseClient", userMessage: ErrorMessages.Parse))
+                completionHandler(result: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Parse))
             }
             
             completionHandler(result: parsedResult, error: nil)
@@ -242,20 +136,6 @@ class FlickrClient: NSObject {
             let escapedString = string.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
             return escapedString!
         }
-        
-        /* Helper function, creates JSON Body for POSTing to Parse, keeping data encapsulated within each client */
-//        func makeDictionaryForPostLocation(mediaURL: String, mapString: String) -> [String : AnyObject]{
-//            let dictionary: [String : AnyObject] = [
-//                ParseClient.JSONResponseKeys.UniqueKey : UdaciousClient.sharedInstance().IDKey!,
-//                ParseClient.JSONResponseKeys.FirstName : UdaciousClient.sharedInstance().firstName!,
-//                ParseClient.JSONResponseKeys.LastName : UdaciousClient.sharedInstance().lastName!,
-//                ParseClient.JSONResponseKeys.Latitude : UdaciousClient.sharedInstance().latitude!,
-//                ParseClient.JSONResponseKeys.Longitude : UdaciousClient.sharedInstance().longitude!,
-//                ParseClient.JSONResponseKeys.GEODescriptor : mapString,
-//                ParseClient.JSONResponseKeys.MediaURL : mediaURL
-//            ]
-//            return dictionary
-//        }
     
         /* Singleton shared instance of ParseClient */
         class func sharedInstance() -> FlickrClient {
@@ -299,5 +179,9 @@ class FlickrClient: NSObject {
             }
             return Singleton.dateFormatter
         }
+    
+    struct Caches {
+        static let imageCache = ImageCache()
     }
+}
 

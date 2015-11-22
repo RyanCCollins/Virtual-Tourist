@@ -106,6 +106,14 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         return fetchResultsController
     }()
     
+    func fetchPhotosForPin(pin: Pin) {
+        dispatch_async(GlobalUserInteractiveQueue, {
+            
+            FlickrClient.sharedInstance().
+            
+        })
+    }
+    
     @IBAction func didTapCrosshairUpInside(sender: AnyObject) {
         let location = mapView.userLocation.coordinate
         centerMapOnLocation(location)

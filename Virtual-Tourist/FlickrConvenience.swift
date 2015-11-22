@@ -10,10 +10,10 @@ import Foundation
 
 extension FlickrClient {
     
-    func fetchPhotos(withLatitude latitude: NSNumber, longitude: NSNumber, completionHandler: (success: Bool, results: [Photo]?, error: NSError?)-> Void) {
+    func fetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, results: [Photo]?, error: NSError?)-> Void) {
         
         let parameters: [String : AnyObject] = [
-            "bbox" : boundingBoxForGETImages(Double(latitude), longitude: Double(longitude))
+            "bbox" : boundingBoxForGETImages(Double(pin.latitude), longitude: Double(pin.longitude))
         ]
         
         
@@ -21,11 +21,38 @@ extension FlickrClient {
             
             if error != nil {
                 print(error)
+                completionHandler(success: false, results: nil, error: error)
             } else {
-                print(results)
+                
+                if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages] {
+                    
+                    pin.countOfPhotoPages = pages as? NSNumber
+                    
+                    for photo in photoArray {
+                        
+                        let thumbNailURL = photo[JSONResponseKeys.Extras.ThumbnailURL] as! String
+                        
+                        let mediumURL = photo[JSONResponseKeys.Extras.MediumURL] as! String
+                        
+                        let largeURL = photo[JSONResponseKeys.Extras.LargeURL] as! String
+                        
+                        let dictionary: [String : AnyObject] = [
+                            
+                        ]
+                        
+                        let photo = Photo(dictionary: <#T##[String : AnyObject]#>, context: <#T##NSManagedObjectContext#>)
+                        
+                    }
+                    
+                }
+
             }
             
         }
+    }
+    
+    func getImages(forPhoto photo: Photo, completionHandler: (success: Bool, error: NSError?) -> Void) {
+        
     }
     
     private func boundingBoxForGETImages(latitude: Double, longitude: Double) -> String {
@@ -36,6 +63,10 @@ extension FlickrClient {
         let top_right_latitude = max(latitude + Constants.Values.Bounding_Box_Half_Width, Constants.Values.Lat_Max)
         
         return "\(bottom_left_longitude),\(bottom_left_latitude),\(top_right_longitude),\(top_right_latitude)"
+    }
+    
+    private func randomPageFromResults() -> Int {
+        
     }
     
 }

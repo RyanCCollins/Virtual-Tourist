@@ -32,7 +32,7 @@ extension FlickrClient {
         }
         
         struct Values {
-            static let Extras = "url_m"
+            static let AllExtras = "url_m, url_t, url_b"
             static let Data_Format = "json"
             static let No_JSON_Callback = "1"
             static let Safe_Search = "2"
@@ -43,22 +43,21 @@ extension FlickrClient {
             static let Lon_Min = -180.0
             static let Lon_Max = 180.0
             static let Media_Type = "photos"
-            static let Pages = 1
-            static let Per_Page = 96
+            static let Per_Page = 12
         }
         
         struct SearchMethodArguments {
             static let dictionary: [String : AnyObject ] = [
-                Constants.Keys.Extras : Constants.Values.Extras,
+                Constants.Keys.Extras : Constants.Values.AllExtras,
                 Constants.Keys.Safe_Search : Constants.Values.Safe_Search,
                 Constants.Keys.Media_Type : Constants.Values.Media_Type,
                 Constants.Keys.Data_Format : Constants.Values.Data_Format,
                 Constants.Keys.No_JSON_Callback : Constants.Values.No_JSON_Callback,
-                Constants.Keys.Page : Constants.Values.Pages,
                 Constants.Keys.Per_Page : Constants.Values.Per_Page,
                 Constants.Keys.BBox: ""
             ]
         }
+        
     }
     
     struct Methods {
@@ -66,6 +65,25 @@ extension FlickrClient {
     }
     
     struct JSONResponseKeys {
+        static let Status = "stat"
+        static let Code = "code"
+        static let Message = "message"
+        static let Photo = "photo"
+        static let Photos = "photos"
+        static let Pages = "pages"
+        static let ID = "id"
+        static let Title = "title"
+        
+        struct StatusMessage {
+            static let OK = "ok"
+            static let Fail = "fail"
+        }
+        
+        struct Extras {
+            static let MediumURL = "url_m"
+            static let ThumbnailURL = "url_t"
+            static let LargeURL = "url_b"
+        }
         
     }
     
