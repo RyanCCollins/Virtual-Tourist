@@ -1,5 +1,5 @@
 //
-//  PhotoAlbumViewController.swift
+//  GalleryViewController.swift
 //  Virtual-Tourist
 //
 //  Created by Ryan Collins on 11/20/15.
@@ -7,12 +7,9 @@
 //
 
 import UIKit
-import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController  {
-    @IBOutlet weak var mapView: MKMapView!
-    @IBOutlet weak var collectionView: UICollectionView!
+class GalleryViewController: UIViewController{
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,9 +22,6 @@ class PhotoAlbumViewController: UIViewController  {
         // Dispose of any resources that can be recreated.
     }
     
-    func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin?) {
-        
-    }
 
     /*
     // MARK: - Navigation

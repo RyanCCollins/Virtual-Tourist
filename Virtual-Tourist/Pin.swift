@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import MapKit
 
 class Pin: NSManagedObject {
     
@@ -17,7 +18,6 @@ class Pin: NSManagedObject {
         static let GEODescriptor = "geoDescriptor"
         static let Latitude = "latitude"
         static let Longitude = "longitude"
-        static let CreatedAt = "createdAt"
         static let UpdatedAt = "updatedAt"
         static let Photos = "photos"
     }
@@ -50,4 +50,18 @@ class Pin: NSManagedObject {
         geoDescriptor = dictionary[Keys.GEODescriptor] as! String
 
     }
+    
+    /* Convenience init, takes a given annotation and creates a Pin object to be stored in core data */
+    convenience init(annotation: Annotation, context: NSManagedObjectContext) {
+        let dictionary: [String : AnyObject] = [
+            Keys.ID : 0,
+            Keys.Latitude : annotation.coordinate.longitude,
+            Keys.Longitude : annotation.coordinate.latitude,
+            Keys.GEODescriptor : annotation.GEODescriptor,
+            Keys.UpdatedAt : annotation.updateDate
+            
+        ]
+        self.init(dictionary: dictionary, context: context)
+    }
+    
 }
