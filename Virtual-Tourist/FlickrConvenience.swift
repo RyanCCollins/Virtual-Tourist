@@ -10,26 +10,25 @@ import Foundation
 
 extension FlickrClient {
     
-    func taskForGETImages(withBBoxParameters parameters: [String : AnyObject], completionHandler: (success: Bool, results: [Photo]?, error: NSError?)-> Void) {
-        var mutableParameters = parameters
+    func fetchPhotos(withLatitude latitude: NSNumber, longitude: NSNumber, completionHandler: (success: Bool, results: [Photo]?, error: NSError?)-> Void) {
         
-        mutableParameters[Constants.Keys.BBox] = [
-            "bbox" : boundingBoxForGETImages(parameters[Constants.Keys.Latitude] as! Double, longitude: parameters[Constants.Keys.Latitude] as! Double),
+        let parameters: [String : AnyObject] = [
+            "bbox" : boundingBoxForGETImages(Double(latitude), longitude: Double(longitude))
         ]
         
         
-        taskForGETMethod(Methods.SEARCH, parameters: mutableParameters, queryParameters: nil) {results, error in
+        taskForGETMethod(Methods.SEARCH, parameters: parameters, queryParameters: nil) {results, error in
             
             if error != nil {
-                
+                print(error)
             } else {
-                
+                print(results)
             }
             
         }
     }
     
-    func boundingBoxForGETImages(latitude: Double, longitude: Double) -> String {
+    private func boundingBoxForGETImages(latitude: Double, longitude: Double) -> String {
         
         let bottom_left_longitude = max(latitude - Constants.Values.Bounding_Box_Half_Width, Constants.Values.Lon_Min)
         let bottom_left_latitude = max(longitude - Constants.Values.Bounding_Box_Half_Height, Constants.Values.Lat_Min)

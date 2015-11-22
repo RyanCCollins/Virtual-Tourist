@@ -26,7 +26,7 @@
 		1F27FBB81C00D35D00839C10 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBB71C00D35D00839C10 /* GlobalConstants.swift */; };
 		1F27FBBA1C00DE8A00839C10 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F27FBB91C00DE8A00839C10 /* MapKit.framework */; };
 		1F27FBBC1C00EDF700839C10 /* PhotoAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */; };
-		1F27FBBE1C00F39E00839C10 /* Annotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBBD1C00F39E00839C10 /* Annotation.swift */; };
+		1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,7 +76,7 @@
 		1F27FBB71C00D35D00839C10 /* GlobalConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalConstants.swift; sourceTree = "<group>"; };
 		1F27FBB91C00DE8A00839C10 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAnnotationView.swift; sourceTree = "<group>"; };
-		1F27FBBD1C00F39E00839C10 /* Annotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Annotation.swift; sourceTree = "<group>"; };
+		1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtendsUIViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,6 +179,7 @@
 				1F27FBA71C00027200839C10 /* PhotoAlbumViewController.swift */,
 				1F27FBA91C0009A100839C10 /* GalleryViewController.swift */,
 				1F27F82D1BFFFE5600839C10 /* PinLocationViewController.swift */,
+				1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -187,7 +188,6 @@
 			isa = PBXGroup;
 			children = (
 				1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */,
-				1F27FBBD1C00F39E00839C10 /* Annotation.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -355,13 +355,13 @@
 				1F27FBA41C00023B00839C10 /* Pin.swift in Sources */,
 				1F27FBB51C00CCC600839C10 /* FlickrConstants.swift in Sources */,
 				1F27F82E1BFFFE5600839C10 /* PinLocationViewController.swift in Sources */,
+				1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */,
 				1F27F8611C0001A400839C10 /* CoreDataStackManager.swift in Sources */,
 				1F27FBAA1C0009A100839C10 /* GalleryViewController.swift in Sources */,
 				1F27F8341BFFFE5700839C10 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				1F27F82C1BFFFE5600839C10 /* AppDelegate.swift in Sources */,
 				1F27FBB31C00CCBC00839C10 /* FlickrConvenience.swift in Sources */,
 				1F27FBB81C00D35D00839C10 /* GlobalConstants.swift in Sources */,
-				1F27FBBE1C00F39E00839C10 /* Annotation.swift in Sources */,
 				1F27FBB11C00CB7400839C10 /* FlickrClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

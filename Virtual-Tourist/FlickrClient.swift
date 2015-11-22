@@ -11,8 +11,9 @@ import Foundation
 
 class FlickrClient: NSObject {
 
-        var session: NSURLSession?
-        var lastPostObjectId: String?
+    var session: NSURLSession?
+    var lastPostObjectId: String?
+    var photos = [Photo]()
         
         /* Task returned for GETting data from the Parse server */
         func taskForGETMethod(method: String, parameters: [String : AnyObject]?, queryParameters: [String : AnyObject]?, completionHandler: (results: AnyObject!, error: NSError?) -> Void) -> NSURLSessionDataTask {

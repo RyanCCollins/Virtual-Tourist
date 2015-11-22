@@ -14,7 +14,7 @@ protocol PinLocationPickerViewControllerDelegate {
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin?)
 }
 
-class PinLocationViewController: UIViewController, NSFetchedResultsController {
+class PinLocationViewController: UIViewController, NSFetchedResultsControllerDelegate {
     @IBOutlet weak var mapView: MKMapView!
     let regionRadius: CLLocationDistance = 1000
     
@@ -42,23 +42,23 @@ class PinLocationViewController: UIViewController, NSFetchedResultsController {
         
         let coordinate = mapView.convertPoint(point, toCoordinateFromView: mapView)
         
-        let annotation = Annotation()
+        let pin = Pin(location: coordinate, context: sharedContext)
         
         switch sender.state {
         case .Began :
             print("Began adding pin")
-            annotation.setCoordinate(coordinate)
-            self.currentPin = Pin(annotation: annotation, context: sharedContext)
-            mapView.addAnnotation(annotation)
+            pin.setNewCoordinate(coordinate)
+            self.currentPin = pin
+            mapView.addAnnotation(pin)
             
         case .Changed :
             print("Changed Pin location")
-            annotation.setCoordinate(coordinate)
+            pin.setNewCoordinate(coordinate)
         case .Ended :
             print("Ended moving pin")
-            annotation.setCoordinate(coordinate)
+            pin.setNewCoordinate(coordinate)
             // prefetch images here
-
+            
             CoreDataStackManager.sharedInstance().saveContext()
         default :
             return
@@ -66,10 +66,44 @@ class PinLocationViewController: UIViewController, NSFetchedResultsController {
         
     }
     
-    lazy var fetchedResultsController: NSFetchedResultsController {
+    func fetchPhotos(forPin pin: Pin) {
+        FlickrClient.sharedInstance().fetchPhotos(withLatitude: pin.latitude, longitude: pin.longitude, completionHandler: {success,results, error in
+            if error != nil {
+                print(error)
+            } else {
+                print(results)
+            }
+        })
+    }
+    
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        switch type {
+        case .Insert :
+            mapView.addAnnotation(anObject as! Pin)
+        case .Update :
+            mapView.removeAnnotation(anObject as! Pin)
+        case .Delete :
+            mapView.removeAnnotation(anObject as! Pin)
+            mapView.addAnnotation(anObject as! Pin)
+        default :
+            break
+        }
+    }
+    
+    lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
         
+        let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
+        do {
+            try fetchResultsController.performFetch()
+        } catch let error {
+            print(error)
+        }
+        
+        
+        
+        return fetchResultsController
     }()
     
     @IBAction func didTapCrosshairUpInside(sender: AnyObject) {
