@@ -15,6 +15,7 @@ extension FlickrClient {
         
         static let Base_URL_Secure = "https://api.flickr.com/services/rest/"
         static let API_Key = "05851cc43d9794ea18fa650d03310676"
+        static let Photo_Source_URL = "https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}"
         
         
         struct Keys {
@@ -29,10 +30,12 @@ extension FlickrClient {
             static let Data_Format = "data_format"
             static let Extras = "extras"
             static let Media_Type = "media"
+            static let Method = "method"
+            static let APIKey = "api_key"
         }
         
         struct Values {
-            static let AllExtras = "url_m, url_t, url_b"
+            static let AllExtras = "url_m"
             static let Data_Format = "json"
             static let No_JSON_Callback = "1"
             static let Safe_Search = "2"
@@ -44,25 +47,14 @@ extension FlickrClient {
             static let Lon_Max = 180.0
             static let Media_Type = "photos"
             static let Per_Page = 12
-        }
-        
-        struct SearchMethodArguments {
-            static let dictionary: [String : AnyObject ] = [
-                Constants.Keys.Extras : Constants.Values.AllExtras,
-                Constants.Keys.Safe_Search : Constants.Values.Safe_Search,
-                Constants.Keys.Media_Type : Constants.Values.Media_Type,
-                Constants.Keys.Data_Format : Constants.Values.Data_Format,
-                Constants.Keys.No_JSON_Callback : Constants.Values.No_JSON_Callback,
-                Constants.Keys.Per_Page : Constants.Values.Per_Page,
-                Constants.Keys.BBox: ""
-            ]
+            
+            struct Methods {
+                static let SEARCH = "flickr.photos.search"
+            }
         }
         
     }
-    
-    struct Methods {
-        static let SEARCH = "flickr.photos.search"
-    }
+
     
     struct JSONResponseKeys {
         static let Status = "stat"
@@ -78,8 +70,7 @@ extension FlickrClient {
             static let OK = "ok"
             static let Fail = "fail"
         }
-        
-        struct Extras {
+        struct ImageSizes {
             static let MediumURL = "url_m"
             static let ThumbnailURL = "url_t"
             static let LargeURL = "url_b"

@@ -10,6 +10,7 @@ import UIKit
 import CoreData
 import MapKit
 
+@objc(Pin)
 
 class Pin: NSManagedObject, MKAnnotation {
     
@@ -17,16 +18,13 @@ class Pin: NSManagedObject, MKAnnotation {
     struct Keys {
         static let Latitude = "latitude"
         static let Longitude = "longitude"
-        static let UpdatedAt = "updatedAt"
         static let Photos = "photos"
     }
     
     /* Create our managed variables */
     @NSManaged var latitude: NSNumber
     @NSManaged var longitude: NSNumber
-    @NSManaged var geoDescriptor: String
-    @NSManaged var photos: [Photo]
-    @NSManaged var updatedAt: NSDate
+    @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     
     /* Include standard Core Data init method */
@@ -35,20 +33,17 @@ class Pin: NSManagedObject, MKAnnotation {
     }
     
     /* Custom init */
-    init(location: CLLocationCoordinate2D, context: NSManagedObjectContext) {
+    init(coordinate: CLLocationCoordinate2D, context: NSManagedObjectContext) {
         
         /* Get associated entity from our context */
-        let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: context)
+        let entity = NSEntityDescription.entityForName("Pin", inManagedObjectContext: context)!
         
         /* Super, get to work! */
-        super.init(entity: entity!, insertIntoManagedObjectContext: context)
+        super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        latitude = NSNumber(double: location.latitude)
-        longitude = NSNumber(double: location.longitude)
-        updatedAt = computedDate()
-        geoDescriptor = computedGEODescriptor()
-        photos = [Photo]()
+        latitude = coordinate.latitude 
+        longitude = coordinate.longitude
     }
     
     
@@ -58,51 +53,41 @@ class Pin: NSManagedObject, MKAnnotation {
             return CLLocationCoordinate2DMake(Double(latitude), Double(longitude))
         }
         set {
-            self.latitude = coordinate.latitude
-            self.longitude = coordinate.longitude
+            print("Set coordinate")
+            self.latitude = newValue.latitude
+            self.longitude = newValue.longitude
         }
     }
     
-    func setNewCoordinate(newCoordinate: CLLocationCoordinate2D) {
-        willChangeValueForKey("coordinate")
-        
-        self.updatedAt = computedDate()
-        self.coordinate = newCoordinate
-        didChangeValueForKey("coordinate")
-        
-        self.geoDescriptor = computedGEODescriptor()
-        
-        didChangeValueForKey("coordinate")
-
-        
-    }
+//    func setNewCoordinate(newCoordinate: CLLocationCoordinate2D) {
+//        willChangeValueForKey("coordinate")
+//        
+//        self.coordinate = newCoordinate
+//        
+//        didChangeValueForKey("coordinate")
+//
+//        
+//    }
     
-    func computedGEODescriptor()-> String {
-        
-        let geocodeLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        
-        var geocodeString = "Unkown Place"
-        
-        CLGeocoder().reverseGeocodeLocation(geocodeLocation, completionHandler: {(placemarks, error) in
-            
-            if placemarks?.count > 0 {
-                let placemark = placemarks![0]
-                
-                if placemark.thoroughfare != nil && placemark.subThoroughfare != nil {
-                
-                    geocodeString = placemark.thoroughfare! + ", " + placemark.subThoroughfare!
-
-                }
-            }
-        })
-        return geocodeString
-    }
-    
-    func computedDate()-> NSDate {
-        let date = NSDate()
-        let calendar = NSCalendar.currentCalendar()
-        let components = calendar.components([.Month, .Day, .Year, .Hour, .Minute, .Second, .TimeZone], fromDate: date)
-        return calendar.dateFromComponents(components)!
-    }
+//    func computedGEODescriptor()-> String {
+//        
+//        let geocodeLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+//        
+//        var geocodeString = "Unkown Place"
+//        
+//        CLGeocoder().reverseGeocodeLocation(geocodeLocation, completionHandler: {(placemarks, error) in
+//            
+//            if placemarks?.count > 0 {
+//                let placemark = placemarks![0]
+//                
+//                if placemark.thoroughfare != nil && placemark.subThoroughfare != nil {
+//                
+//                    geocodeString = placemark.thoroughfare! + ", " + placemark.subThoroughfare!
+//
+//                }
+//            }
+//        })
+//        return geocodeString
+//    }
     
 }

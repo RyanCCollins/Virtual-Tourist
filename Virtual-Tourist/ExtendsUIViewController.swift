@@ -37,4 +37,19 @@ extension UIViewController {
         self.presentViewController(alertController, animated: true, completion: nil)
         
     }
+
+}
+
+extension UIView {
+    func fadeIn(duration: NSTimeInterval = 0.1, delay: NSTimeInterval = 0.0, completion: ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
+        UIView.animateWithDuration(duration, delay: delay, options: .CurveEaseIn, animations: {
+            self.alpha = 1.0
+            }, completion: completion)
+    }
+    
+    func fadeOut(duration: NSTimeInterval = 0.1, delay: NSTimeInterval = 0.0, completion: ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
+        UIView.animateWithDuration(duration, delay: delay, options: .CurveEaseIn, animations: {
+            self.alpha = 0.2
+            }, completion: completion)
+    }
 }

@@ -17,21 +17,8 @@ class Photo: NSManagedObject {
     @NSManaged var id: NSNumber
     @NSManaged var titleString: String
     @NSManaged var pin : Pin
-    @NSManaged var largeImageFilePath : String?
-    @NSManaged var thumbnailImageFilePath : String?
-    @NSManaged var mediumImageFilePath : String?
-    
-    var images : [String : UIImage]? {
-        
-        if let thumbnail = thumbnailImageFilePath, large = largeImageFilePath, medium = mediumImageFilePath {
-            
-            let thumbnailFile = fileNameByDeletingPathExtension(fromString: thumbnailImageFilePath!)
-            
-            let mediumFile = fileNameByDeletingPathExtension(fromString: mediumImageFilePath)
-            
-        }
-        
-    }
+    @NSManaged var filePath : String?
+    @NSManaged var fileURL : String?
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -39,7 +26,7 @@ class Photo: NSManagedObject {
     }
     
     /* Custom init */
-    init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
+    init(dictionary: [String : AnyObject], pin: Pin, context: NSManagedObjectContext) {
         
         /* Get associated entity from our context */
         let entity = NSEntityDescription.entityForName("Photo", inManagedObjectContext: context)
@@ -49,27 +36,35 @@ class Photo: NSManagedObject {
         
         /* Assign our properties */
         id = dictionary[FlickrClient.JSONResponseKeys.ID] as! Int
-        thumbnailImageFilePath = dictionary[FlickrClient.JSONResponseKeys.Extras.ThumbnailURL] as? String
-        titleString = dictionary[FlickrClient.JSONResponseKeys.Title] as! String
-        mediumImageFilePath = dictionary[FlickrClient.JSONResponseKeys.Extras.MediumURL] as? String
-        largeImageFilePath = dictionary[FlickrClient.JSONResponseKeys.Extras.LargeURL] as? String
+        self.pin = pin
+        filePath = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL]?.lastPathComponent
+        fileURL = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as? String
     }
     
-    func getImage(fromFilePath filepath: String?) -> UIImage? {
-        if filepath == nil || filepath == "" {
-            return 
-        }
-        return FlickrClient.Caches.imageCache.imageWithIdentifier(filepath)!
-    }
     
-    var largeImage: UIImage? {
+    var image: UIImage? {
         get {
-            
-            return FlickrClient.Caches.imageCache.imageWithIdentifier(largeImageFilePath!)
+            return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath!)
         }
         set {
-            FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: imagePath!)
+            FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: filePath!)
         }
     }
     
+//    func getImage(fromFilePath filepath: String?) -> UIImage? {
+//        return FlickrClient.Caches.imageCache.imageWithIdentifier(filepath)!
+//    }
+//    
+//    func setImage(fromFilePath filepath: String?) -> UIImage? {
+//        FlickrClient.Caches.imageCache.storeImage(UIImage(, withIdentifier: filePath!)
+//    }
+    
+}
+
+extension String {
+    var fileName: String {
+        get {
+            return (self as NSString).lastPathComponent
+        }
+    }
 }

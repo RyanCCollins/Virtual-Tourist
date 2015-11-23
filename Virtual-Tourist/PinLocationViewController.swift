@@ -18,7 +18,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     @IBOutlet weak var mapView: MKMapView!
     let regionRadius: CLLocationDistance = 1000
     
-    var currentPin: Pin?
+    var pinToAdd: Pin? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,31 +34,32 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         longPressRecognizer.minimumPressDuration = 2.0
         mapView.addGestureRecognizer(longPressRecognizer)
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
+        configureAnnotations()
     }
     
     func addAnnotation(sender: UIGestureRecognizer) {
 
-        let point = sender.locationInView(mapView)
-        
-        let coordinate = mapView.convertPoint(point, toCoordinateFromView: mapView)
-        
-        let pin = Pin(location: coordinate, context: sharedContext)
-        
+        let point: CGPoint = sender.locationInView(mapView)
+        print(point)
+        let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
+        print(coordinate)
         switch sender.state {
         case .Began :
             print("Began adding pin")
-            pin.setNewCoordinate(coordinate)
-            self.currentPin = pin
-            mapView.addAnnotation(pin)
+            pinToAdd = Pin(coordinate: coordinate, context: sharedContext)
+            print(pinToAdd)
+            mapView.addAnnotation(pinToAdd!)
             
         case .Changed :
             print("Changed Pin location")
-            pin.setNewCoordinate(coordinate)
+            pinToAdd!.willChangeValueForKey("coordinate")
+            pinToAdd!.coordinate = coordinate
+            pinToAdd!.willChangeValueForKey("coordinate")
         case .Ended :
             print("Ended moving pin")
-            pin.setNewCoordinate(coordinate)
             // prefetch images here
-            
+            let newPin = pinToAdd
+            fetchPhotos(forPin: newPin!)
             CoreDataStackManager.sharedInstance().saveContext()
         default :
             return
@@ -66,15 +67,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
     }
     
-    func fetchPhotos(forPin pin: Pin) {
-        FlickrClient.sharedInstance().fetchPhotos(withLatitude: pin.latitude, longitude: pin.longitude, completionHandler: {success,results, error in
-            if error != nil {
-                print(error)
-            } else {
-                print(results)
-            }
-        })
-    }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
@@ -93,25 +85,43 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
         
+        fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
         let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
+
         do {
             try fetchResultsController.performFetch()
         } catch let error {
             print(error)
         }
         
-        
-        
         return fetchResultsController
     }()
     
-    func fetchPhotosForPin(pin: Pin) {
-        dispatch_async(GlobalUserInteractiveQueue, {
+    func configureAnnotations() {
+        mapView.removeAnnotations(mapView.annotations)
+        mapView.addAnnotations(fetchedResultsController.fetchedObjects as! [Pin])
+        
+    }
+    
+    func fetchPhotos(forPin pin: Pin) {
             
-            FlickrClient.sharedInstance().
+        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
+            
+            if success {
+
+                CoreDataStackManager.sharedInstance().saveContext()
+                
+            } else {
+                
+                self.alertController(withTitles: ["Ok", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
+                        self.fetchPhotos(forPin: pin)
+                }])
+                
+            }
             
         })
+        
     }
     
     @IBAction func didTapCrosshairUpInside(sender: AnyObject) {
@@ -187,6 +197,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
 
 }
 
+/* Map view extension methods */
 extension PinLocationViewController: MKMapViewDelegate {
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         saveMapState()
@@ -195,26 +206,42 @@ extension PinLocationViewController: MKMapViewDelegate {
     func mapView(mapView: MKMapView, didAddAnnotationViews views: [MKAnnotationView]) {
         print("Added a new location")
         
-
+    }
+    
+    func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
+        let selectedPin = view.annotation as! Pin
+        galleryViewController.pinToShow = selectedPin
+        
+        navigationController?.pushViewController(galleryViewController, animated: true)
         
     }
     
     /* create a mapView indicator */
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         
-        let pin = "pin"
-        
-        var pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pin)
-        if pinAnnotationView  == nil {
-            pinAnnotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: pin)
-  
-        } else {
+        if let annotation = annotation as? Pin {
             
-            pinAnnotationView?.annotation = annotation
+            let pinId = "pin"
             
+            var annotationViewToReturn: MKPinAnnotationView
+            
+            /* If we are reusing the annotation view, set a new annotation */
+            if let pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pinId) as? MKPinAnnotationView {
+                
+                pinAnnotationView.annotation = annotation
+                annotationViewToReturn = pinAnnotationView
+                
+            } else {
+                /* If new annotation view, configure and return */
+                annotationViewToReturn = MKPinAnnotationView(annotation: annotation, reuseIdentifier: pinId)
+                annotationViewToReturn.animatesDrop = true
+                annotationViewToReturn.draggable = true
+                annotationViewToReturn.canShowCallout = false
+            }
+            return annotationViewToReturn
         }
-        
-        return pinAnnotationView
-        
+        return nil
     }
+    
 }

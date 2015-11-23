@@ -8,32 +8,29 @@
 
 import UIKit
 import Foundation
+import CoreData
 
 class FlickrClient: NSObject {
 
-    var session: NSURLSession?
-    var lastPostObjectId: String?
     var photos = [Photo]()
         
         /* Task returned for GETting data from the Parse server */
-        func taskForGETMethod(method: String, parameters: [String : AnyObject]?, queryParameters: [String : AnyObject]?, completionHandler: (results: AnyObject?, error: NSError?) -> Void) -> NSURLSessionDataTask {
+    func taskForGETMethod(var urlString: String, parameters: [String : AnyObject]?, completionHandler: (results: AnyObject?, error: NSError?) -> Void) -> NSURLSessionDataTask {
             
-            var urlString = Constants.Base_URL_Secure + method
             
             /* If our request includes parameters, add those parameters to our URL */
-            if parameters != nil {
-                urlString += FlickrClient.stringByEscapingParameters(parameters!, queryParameters: queryParameters)
-
+        if parameters != nil {
+            if let parameters = parameters {
+                urlString += FlickrClient.stringByEscapingParameters(parameters)
+                print(urlString)
             }
-            
-            
+        }
+
             let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
             
             request.HTTPMethod = HTTPRequest.GET
-//            request.addValue(Constants.app_id, forHTTPHeaderField: "X-Parse-Application-Id")
-//            request.addValue(Constants.api_key, forHTTPHeaderField: "X-Parse-REST-API-Key")
-            
-            
+
+
             /*Create a session and then a task */
             let session = NSURLSession.sharedSession()
             let task = session.dataTaskWithRequest(request) { data, response, error in
@@ -68,26 +65,26 @@ class FlickrClient: NSObject {
             var parsedResult: AnyObject!
             do {
                 parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+                print("ParsedResults \(parsedResult)")
             } catch {
                 completionHandler(result: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Parse))
             }
+            
+            
             
             completionHandler(result: parsedResult, error: nil)
         }
         
         /* Helper Function: Given an optional dictionary of parameters and an optional dictionary of query parameters, convert to a URL encoded string */
-        class func stringByEscapingParameters(parameters: [String : AnyObject]?, queryParameters: [String : AnyObject]?) -> String {
+        class func stringByEscapingParameters(parameters: [String : AnyObject]?) -> String {
             print(parameters)
             var components = [String]()
             
             
             if parameters != nil {
-                components.append(URLString(fromParameters: parameters!, withSeperator: ":"))
+                components.append(URLString(fromParameters: parameters!, withSeperator: "="))
             }
             
-            if queryParameters != nil {
-                components.append(URLString(fromParameters: queryParameters!, withSeperator: "="))
-            }
             
             return (!components.isEmpty ? "?" : "") + components.joinWithSeparator("&")
             
@@ -182,6 +179,18 @@ class FlickrClient: NSObject {
     
     struct Caches {
         static let imageCache = ImageCache()
+    }
+    
+    var sharedContext: NSManagedObjectContext {
+        
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
+    
+    /* Update configuration when new images should be fetched */
+    func updateConfig(completionHandler: (success: Bool, error: NSError?)-> Void) {
+//        let parameters: [String : AnyObject]()
+//        
+//        taskForFetchPhotos(forPin: <#T##Pin#>, completionHandler: <#T##(success: Bool, results: [Photo]?, error: NSError?) -> Void#>)
     }
 }
 

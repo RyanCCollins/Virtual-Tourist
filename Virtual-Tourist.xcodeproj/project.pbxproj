@@ -27,9 +27,9 @@
 		1F27FBBA1C00DE8A00839C10 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F27FBB91C00DE8A00839C10 /* MapKit.framework */; };
 		1F27FBBC1C00EDF700839C10 /* PhotoAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */; };
 		1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */; };
-		1FAB2C961C021EAA0043CE15 /* Annotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C951C021EAA0043CE15 /* Annotation.swift */; };
 		1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C971C024FEB0043CE15 /* ImageCache.swift */; };
 		1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C991C02516E0043CE15 /* Config.swift */; };
+		1FAB2C9C1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,9 +80,9 @@
 		1F27FBB91C00DE8A00839C10 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAnnotationView.swift; sourceTree = "<group>"; };
 		1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtendsUIViewController.swift; sourceTree = "<group>"; };
-		1FAB2C951C021EAA0043CE15 /* Annotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Annotation.swift; sourceTree = "<group>"; };
 		1FAB2C971C024FEB0043CE15 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		1FAB2C991C02516E0043CE15 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumCollectionViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,7 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */,
-				1FAB2C951C021EAA0043CE15 /* Annotation.swift */,
+				1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -359,10 +359,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F27FBA61C00024A00839C10 /* Photo.swift in Sources */,
-				1FAB2C961C021EAA0043CE15 /* Annotation.swift in Sources */,
 				1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */,
 				1F27FBBC1C00EDF700839C10 /* PhotoAnnotationView.swift in Sources */,
 				1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */,
+				1FAB2C9C1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift in Sources */,
 				1F27FBA81C00027200839C10 /* PhotoAlbumViewController.swift in Sources */,
 				1F27FBA41C00023B00839C10 /* Pin.swift in Sources */,
 				1F27FBB51C00CCC600839C10 /* FlickrConstants.swift in Sources */,
