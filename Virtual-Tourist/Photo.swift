@@ -9,16 +9,17 @@
 import UIKit
 import CoreData
 
+@objc(Photo)
+
 class Photo: NSManagedObject {
     /* Define dictionary keys */
 
     
     /* Create our managed variables */
-    @NSManaged var id: NSNumber
     @NSManaged var titleString: String
     @NSManaged var pin : Pin
     @NSManaged var filePath : String?
-    @NSManaged var fileURL : String?
+    @NSManaged var fileURL : String
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -35,10 +36,10 @@ class Photo: NSManagedObject {
         super.init(entity: entity!, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        id = dictionary[FlickrClient.JSONResponseKeys.ID] as! Int
         self.pin = pin
         filePath = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL]?.lastPathComponent
-        fileURL = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as? String
+        fileURL = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as! String
+        titleString = dictionary[FlickrClient.JSONResponseKeys.Title] as! String
     }
     
     

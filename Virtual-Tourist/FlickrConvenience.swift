@@ -13,7 +13,8 @@ extension FlickrClient {
     
     func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
         
-        let parameters = dictionaryForGetImages(pin.latitude, longitude: pin.longitude)
+        let parameters = dictionaryForGetImages(forPin: pin)
+        
         taskForGETMethod(Constants.Base_URL_Secure, parameters: parameters) {results, error in
             
             if error != nil {
@@ -22,29 +23,20 @@ extension FlickrClient {
                 
             } else {
                 
-                if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages] {
-                    
-                    pin.countOfPhotoPages = pages as? NSNumber
-                    
-                    for photo in photoArray {
+                if results != nil {
+                    if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages], currentPage = photosDictionary[JSONResponseKeys.Page] {
+                        
+                        print(photosDictionary)
+                        
+                        pin.countOfPhotoPages = (pages as? NSNumber)!
+                        pin.currentPage = currentPage as? NSNumber
+                        print(pages)
+                        
+                        photoArray.map(){
+                            Photo(dictionary: $0, pin: pin, context: self.sharedContext)
+                        }
 
-                        let mediumURL = photo[JSONResponseKeys.ImageSizes.MediumURL] as! String
-                        
-                        let dictionary: [String : AnyObject] = [
-                            FlickrClient.JSONResponseKeys.ImageSizes.MediumURL : mediumURL
-                        ]
-                        
-                        let photo = Photo(dictionary: dictionary, pin: pin, context: self.sharedContext)
-                        
-                        self.downloadResource(forPhoto: photo, completionHandler: {success, error in
-                            if error != nil {
-                                print(error)
-                            } else {
-
-                            CoreDataStackManager.sharedInstance().saveContext()
-                                
-                            }
-                        })
+                        CoreDataStackManager.sharedInstance().saveContext()
                         
                     }
                     
@@ -54,28 +46,27 @@ extension FlickrClient {
             
         }
     }
+
     
-    func downloadResource(forPhoto photo: Photo, completionHandler: (success: Bool, error: NSError?) -> Void) {
-        taskForGETMethod(photo.fileURL!, parameters: nil, completionHandler: {results, error in
-            
-            if error != nil {
-                completionHandler(success: false, error: error)
+    func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
+        
+        /* Get next page of photos */
+        if pin.currentPage != nil && pin.countOfPhotoPages != nil {
+            if Int(pin.countOfPhotoPages!) > Int(pin.currentPage!) {
+                let intValue = Int(pin.currentPage!) + 1
+                let nextPage = NSNumber(integer: intValue)
+                pin.currentPage = nextPage
             } else {
-                
-                if let results = results {
-                    let image = UIImage(data: results as! NSData)
-                    photo.image = image
-                    completionHandler(success: true, error: nil)
-                }
-                
+                pin.currentPage = 1
             }
-            
-        })
-    }
-    
-    private func dictionaryForGetImages(latitude: NSNumber, longitude: NSNumber) -> [String : AnyObject] {
+        } else {
+            pin.currentPage = 1
+        }
+
+        
         let parameters: [String : AnyObject ] = [
-            "method" : "flickr.photos.search",
+            Constants.Keys.Method : Constants.Values.Methods.SEARCH,
+            Constants.Keys.Page : pin.currentPage as! Int,
             Constants.Keys.APIKey : Constants.API_Key,
             Constants.Keys.Extras : Constants.Values.AllExtras,
             Constants.Keys.Safe_Search : Constants.Values.Safe_Search,
@@ -83,17 +74,17 @@ extension FlickrClient {
             Constants.Keys.Data_Format : Constants.Values.Data_Format,
             Constants.Keys.No_JSON_Callback : Constants.Values.No_JSON_Callback,
             Constants.Keys.Per_Page : Constants.Values.Per_Page,
-            Constants.Keys.BBox: boundingBoxForGETImages(Double(latitude), longitude: Double(longitude))
+            Constants.Keys.BBox: boundingBoxForGETImages(forPin: pin)
         ]
         return parameters
     }
     
-    private func boundingBoxForGETImages(latitude: Double, longitude: Double) -> String {
+    private func boundingBoxForGETImages(forPin pin: Pin) -> String {
         
-        let bottom_left_longitude = max(latitude - Constants.Values.Bounding_Box_Half_Width, Constants.Values.Lon_Min)
-        let bottom_left_latitude = max(longitude - Constants.Values.Bounding_Box_Half_Height, Constants.Values.Lat_Min)
-        let top_right_longitude = min(longitude + Constants.Values.Bounding_Box_Half_Height, Constants.Values.Lon_Max)
-        let top_right_latitude = min(latitude + Constants.Values.Bounding_Box_Half_Width, Constants.Values.Lat_Max)
+        let bottom_left_longitude = max(Double(pin.longitude) - Constants.Values.Bounding_Box_Half_Width, Constants.Values.Lon_Min)
+        let bottom_left_latitude = max(Double(pin.latitude) - Constants.Values.Bounding_Box_Half_Height, Constants.Values.Lat_Min)
+        let top_right_longitude = min(Double(pin.longitude) + Constants.Values.Bounding_Box_Half_Height, Constants.Values.Lon_Max)
+        let top_right_latitude = min(Double(pin.latitude) + Constants.Values.Bounding_Box_Half_Width, Constants.Values.Lat_Max)
         
         return "\(bottom_left_longitude),\(bottom_left_latitude),\(top_right_longitude),\(top_right_latitude)"
     }

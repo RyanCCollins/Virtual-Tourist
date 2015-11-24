@@ -11,7 +11,7 @@ import MapKit
 import CoreData
 
 protocol PinLocationPickerViewControllerDelegate {
-    func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin?)
+    func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin)
 }
 
 class PinLocationViewController: UIViewController, NSFetchedResultsControllerDelegate {
@@ -46,8 +46,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         switch sender.state {
         case .Began :
             print("Began adding pin")
-            pinToAdd = Pin(coordinate: coordinate, context: sharedContext)
-            print(pinToAdd)
+            pinToAdd = Pin(coordinate: coordinate, context: scratchContext)
             mapView.addAnnotation(pinToAdd!)
             
         case .Changed :
@@ -58,8 +57,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         case .Ended :
             print("Ended moving pin")
             // prefetch images here
-            let newPin = pinToAdd
-            fetchPhotos(forPin: newPin!)
+            let newPin = Pin(coordinate: (pinToAdd?.coordinate)!, context: sharedContext)
+            fetchPhotos(forPin: newPin)
             CoreDataStackManager.sharedInstance().saveContext()
         default :
             return
@@ -82,6 +81,12 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         }
     }
     
+    lazy var scratchContext: NSManagedObjectContext = {
+        var context = NSManagedObjectContext()
+        context.persistentStoreCoordinator = CoreDataStackManager.sharedInstance().persistentStoreCoordinator
+        return context
+    }()
+    
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
         
@@ -101,26 +106,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     func configureAnnotations() {
         mapView.removeAnnotations(mapView.annotations)
         mapView.addAnnotations(fetchedResultsController.fetchedObjects as! [Pin])
-        
-    }
-    
-    func fetchPhotos(forPin pin: Pin) {
-            
-        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
-            
-            if success {
-
-                CoreDataStackManager.sharedInstance().saveContext()
-                
-            } else {
-                
-                self.alertController(withTitles: ["Ok", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
-                        self.fetchPhotos(forPin: pin)
-                }])
-                
-            }
-            
-        })
         
     }
     
@@ -145,6 +130,26 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         ]
         
         NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
+        
+    }
+    
+    func fetchPhotos(forPin pin: Pin) {
+        
+        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
+            
+            if success {
+                
+                CoreDataStackManager.sharedInstance().saveContext()
+                
+            } else {
+                
+                self.alertController(withTitles: ["Ok", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
+                    self.fetchPhotos(forPin: pin)
+                    }])
+                
+            }
+            
+        })
         
     }
     
@@ -210,8 +215,10 @@ extension PinLocationViewController: MKMapViewDelegate {
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
-        let selectedPin = view.annotation as! Pin
-        galleryViewController.pinToShow = selectedPin
+        
+        let pin = view.annotation as! Pin
+        
+        galleryViewController.pinLocation(self, didPickPin: pin)
         
         navigationController?.pushViewController(galleryViewController, animated: true)
         

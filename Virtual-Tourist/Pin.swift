@@ -26,6 +26,7 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var longitude: NSNumber
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
+    @NSManaged var currentPage: NSNumber?
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -42,7 +43,7 @@ class Pin: NSManagedObject, MKAnnotation {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        latitude = coordinate.latitude 
+        latitude = coordinate.latitude
         longitude = coordinate.longitude
     }
     
@@ -58,36 +59,5 @@ class Pin: NSManagedObject, MKAnnotation {
             self.longitude = newValue.longitude
         }
     }
-    
-//    func setNewCoordinate(newCoordinate: CLLocationCoordinate2D) {
-//        willChangeValueForKey("coordinate")
-//        
-//        self.coordinate = newCoordinate
-//        
-//        didChangeValueForKey("coordinate")
-//
-//        
-//    }
-    
-//    func computedGEODescriptor()-> String {
-//        
-//        let geocodeLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-//        
-//        var geocodeString = "Unkown Place"
-//        
-//        CLGeocoder().reverseGeocodeLocation(geocodeLocation, completionHandler: {(placemarks, error) in
-//            
-//            if placemarks?.count > 0 {
-//                let placemark = placemarks![0]
-//                
-//                if placemark.thoroughfare != nil && placemark.subThoroughfare != nil {
-//                
-//                    geocodeString = placemark.thoroughfare! + ", " + placemark.subThoroughfare!
-//
-//                }
-//            }
-//        })
-//        return geocodeString
-//    }
     
 }

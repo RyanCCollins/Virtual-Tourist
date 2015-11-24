@@ -25,9 +25,11 @@ class FlickrClient: NSObject {
                 print(urlString)
             }
         }
+        
+            let url = NSURL(string: urlString)!
+        print(url)
+            let request = NSMutableURLRequest(URL: url)
 
-            let request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
-            
             request.HTTPMethod = HTTPRequest.GET
 
 
@@ -35,7 +37,7 @@ class FlickrClient: NSObject {
             let session = NSURLSession.sharedSession()
             let task = session.dataTaskWithRequest(request) { data, response, error in
                 if error != nil {
-                    
+                    print(error)
                     completionHandler(results: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Status.Network))
                     
                 } else {
@@ -43,7 +45,7 @@ class FlickrClient: NSObject {
                     /* GUARD: Did we get a successful response code of 2XX? */
                     self.guardForHTTPResponses(response as? NSHTTPURLResponse) {proceed, error in
                         if error != nil {
-                            
+                            print(response)
                             completionHandler(results: nil, error: error)
                             
                         }
@@ -62,7 +64,7 @@ class FlickrClient: NSObject {
         /* Helper Function: Convert JSON to a Foundation object */
         class func parseJSONDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
             
-            var parsedResult: AnyObject!
+            var parsedResult: AnyObject?
             do {
                 parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
                 print("ParsedResults \(parsedResult)")
@@ -74,7 +76,8 @@ class FlickrClient: NSObject {
             
             completionHandler(result: parsedResult, error: nil)
         }
-        
+    
+    
         /* Helper Function: Given an optional dictionary of parameters and an optional dictionary of query parameters, convert to a URL encoded string */
         class func stringByEscapingParameters(parameters: [String : AnyObject]?) -> String {
             print(parameters)
@@ -83,6 +86,7 @@ class FlickrClient: NSObject {
             
             if parameters != nil {
                 components.append(URLString(fromParameters: parameters!, withSeperator: "="))
+                print(components)
             }
             
             
@@ -156,6 +160,7 @@ class FlickrClient: NSObject {
                 } else {
                     statusError = Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Status.InvalidResponse)
                 }
+                print(response?.statusCode)
                 completionHandler(proceed: false, error: statusError)
                 return
             }

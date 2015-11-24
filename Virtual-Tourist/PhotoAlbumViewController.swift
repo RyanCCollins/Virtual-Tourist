@@ -10,18 +10,30 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController  {
+class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     
-    @IBOutlet weak var collectionButton: UIBarButtonItem!
+    @IBOutlet weak var noPhotosLabel: UILabel!
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    @IBOutlet weak var collectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     let regionRadius: CLLocationDistance = 1000
+    var selectedPin: Pin!
     
-    func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin?) {
+    /* Pin picker delegate method, loads photos and centers map on pin */
+    func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         
+        selectedPin = pin
     }
     
-    var pinToShow: Pin?
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        flowLayout.sectionInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
+        flowLayout.minimumLineSpacing = 4
+        flowLayout.minimumInteritemSpacing = 4
+        let contentSize: CGFloat = ((collectionView.bounds.width / 3) - 8)
+        flowLayout.itemSize = CGSize(width: contentSize, height: contentSize)
+    }
     
     var selectedIndexPaths = [NSIndexPath]()
     var instertedIndexPaths = [NSIndexPath]()
@@ -32,10 +44,57 @@ class PhotoAlbumViewController: UIViewController  {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        centerMapOnLocation(forPin: pinToShow!)
+        mapView.addAnnotation(selectedPin)
+        centerMapOnLocation(forPin: selectedPin)
+        performFetch()
+        
+    }
+    
+    func performFetch(){
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch let error as NSError {
+            alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
+                self.performFetch()
+            }])
+        }
     }
     
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
+        if selectedIndexPaths.count == 0 {
+            return
+        } else {
+            
+            for index in selectedIndexPaths {
+                
+                let photoToDelete = fetchedResultsController.objectAtIndexPath(index) as! NSManagedObject
+                sharedContext.deleteObject(photoToDelete)
+            }
+
+            selectedIndexPaths.removeAll()
+            configureCollectionButton()
+            CoreDataStackManager.sharedInstance().saveContext()
+            //Get new photos?
+        }
+    }
+    
+    func downloadNewPhotos(forPin pin: Pin) {
+        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
+            
+            if success {
+                
+                CoreDataStackManager.sharedInstance().saveContext()
+                
+            } else {
+                
+                self.alertController(withTitles: ["OK", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
+                    self.downloadNewPhotos(forPin: pin)
+                }])
+                
+            }
+            
+        })
     }
     
     /* Core data */
@@ -45,7 +104,8 @@ class PhotoAlbumViewController: UIViewController  {
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetchRequest = NSFetchRequest(entityName: "Photo")
-        fetchRequest.predicate = NSPredicate(format: "pin == %@", self.pinToShow!)
+        fetchRequest.sortDescriptors = []
+        fetchRequest.predicate = NSPredicate(format: "pin == %@", self.selectedPin)
         
         let fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
@@ -53,20 +113,7 @@ class PhotoAlbumViewController: UIViewController  {
         
         return fetchedResultsController
     }()
-    
-    func attemptToDownload(photo: Photo) {
-        
-        FlickrClient.sharedInstance().downloadResource(forPhoto: photo, completionHandler: {success, error in
-            CoreDataStackManager.sharedInstance().saveContext()
-            if error != nil {
-                self.alertController(withTitles: ["OK", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.attemptToDownload(photo)
-                }])
-            }
 
-        })
-        
-    }
     
 }
 
@@ -74,7 +121,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         if controller.fetchedObjects?.count > 0 {
-            
+            print("No images fetched")
         }
         
         collectionView.performBatchUpdates({
@@ -105,6 +152,13 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         }
     }
     
+    func configureCollectionButton() {
+        if selectedIndexPaths.count > 0 {
+            collectionButton.setTitle("Delete Selected Images", forState: .Normal)
+        } else {
+            collectionButton.setTitle("New Collection", forState: .Normal)
+        }
+    }
     
 }
 
@@ -122,44 +176,35 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
         if photo.image != nil {
-            configureUIState(forCell: cell, atIndexPath: indexPath)
+            cell.imageView.fadeIn()
         } else {
-            cell.imageView.image = stockPhoto
+            cell.imageView.image = cell.stockPhoto
+            performFetch()
         }
         
         return cell
     }
-    
-    func configureUIState(forCell cell: PhotoAlbumCollectionViewCell, atIndexPath indexPath: NSIndexPath) {
-        
-        
-        
-    }
-    
-    func downloadPhotos() {
-        let task = FlickrClient.sharedInstance()
-    }
+
+
     
     func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
         
-        if cell.activityIndicator.isAnimating() {
-            
+        if cell.isUpdating {
             return false
-            
         }
         return true
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
-        let image = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
+        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        if image.filePath == nil || image.filePath == "" {
+        if photo.filePath == nil || photo.filePath == "" {
             
             cell.isReloading(true)
             /* Try refetching here */
-            
+            performFetch()
             return
         }
         
@@ -170,6 +215,8 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         }
         
         /* COnfigure cell and update UI */
+        cell.isSelected(true)
+        configureCollectionButton()
     }
     
 }
@@ -202,8 +249,8 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
     
     func centerMapOnLocation(forPin pin: Pin) {
         
-        let coordinateRegion = MKCoordinateRegionMakeWithDistance(pin.coordinate, regionRadius * 4.0, regionRadius * 4.0)
-        mapView.setRegion(coordinateRegion, animated: true)
+        let coordinateRegion = MKCoordinateRegionMakeWithDistance(pin.coordinate, regionRadius * 20.0, regionRadius * 20.0)
+        mapView.setRegion(coordinateRegion, animated: false)
         
     }
 }

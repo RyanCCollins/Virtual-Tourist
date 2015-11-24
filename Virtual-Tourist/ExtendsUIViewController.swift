@@ -29,9 +29,7 @@ extension UIViewController {
                 alertController.addAction(action)
                 
             }
-            
-            
-            
+
         }
         
         self.presentViewController(alertController, animated: true, completion: nil)
@@ -41,15 +39,15 @@ extension UIViewController {
 }
 
 extension UIView {
-    func fadeIn(duration: NSTimeInterval = 0.1, delay: NSTimeInterval = 0.0, completion: ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
+    func fadeIn(duration: NSTimeInterval = 0.1, delay: NSTimeInterval = 0.0, alpha: CGFloat = 1.0, completion: ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
         UIView.animateWithDuration(duration, delay: delay, options: .CurveEaseIn, animations: {
-            self.alpha = 1.0
+            self.alpha = alpha
             }, completion: completion)
     }
     
-    func fadeOut(duration: NSTimeInterval = 0.1, delay: NSTimeInterval = 0.0, completion: ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
+    func fadeOut(duration: NSTimeInterval = 0.1, delay: NSTimeInterval = 0.0, endAlpha alpha: CGFloat = 0.2, completion: ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
         UIView.animateWithDuration(duration, delay: delay, options: .CurveEaseIn, animations: {
-            self.alpha = 0.2
+            self.alpha = alpha
             }, completion: completion)
     }
 }

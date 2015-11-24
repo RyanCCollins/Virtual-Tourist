@@ -14,7 +14,7 @@ extension FlickrClient {
         
         
         static let Base_URL_Secure = "https://api.flickr.com/services/rest/"
-        static let API_Key = "05851cc43d9794ea18fa650d03310676"
+        static let API_Key = "9a20ed67f3b6ca6c9f8a5c66e62903f0"
         static let Photo_Source_URL = "https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}"
         
         
@@ -26,8 +26,8 @@ extension FlickrClient {
             static let Per_Page = "per_page"
             static let Safe_Search = "safe_search"
             static let BBox = "bbox"
-            static let No_JSON_Callback = "no_json_callback"
-            static let Data_Format = "data_format"
+            static let No_JSON_Callback = "nojsoncallback"
+            static let Data_Format = "format"
             static let Extras = "extras"
             static let Media_Type = "media"
             static let Method = "method"
@@ -37,8 +37,8 @@ extension FlickrClient {
         struct Values {
             static let AllExtras = "url_m"
             static let Data_Format = "json"
-            static let No_JSON_Callback = "1"
-            static let Safe_Search = "2"
+            static let No_JSON_Callback = 1
+            static let Safe_Search = 2
             static let Bounding_Box_Half_Height = 1.5
             static let Bounding_Box_Half_Width = 0.36
             static let Lat_Min = -90.0
@@ -63,6 +63,7 @@ extension FlickrClient {
         static let Photo = "photo"
         static let Photos = "photos"
         static let Pages = "pages"
+        static let Page =  "page"
         static let ID = "id"
         static let Title = "title"
         

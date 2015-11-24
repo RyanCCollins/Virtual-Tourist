@@ -13,6 +13,7 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     let stockPhoto = UIImage(named: "missing-resource")
     let selectedColor = UIColor.grayColor()
+    var isUpdating = false
     
     override func prepareForReuse() {
         super.prepareForReuse()
