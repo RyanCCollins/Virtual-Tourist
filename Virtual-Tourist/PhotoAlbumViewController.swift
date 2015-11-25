@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate  {
+class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate, UIGestureRecognizerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     
     @IBOutlet weak var noPhotosLabel: UILabel!
@@ -49,6 +49,11 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             }
         })
         
+        let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
+        gestureRecognizer.delegate = self
+        
+        collectionView.addGestureRecognizer(gestureRecognizer)
+        
     }
     
     
@@ -59,6 +64,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         flowLayout.minimumInteritemSpacing = 4
         let contentSize: CGFloat = ((collectionView.bounds.width / 3) - 8)
         flowLayout.itemSize = CGSize(width: contentSize, height: contentSize)
+        
+        
+        
     }
     
     func performFetch(callbackHandler: ((success:Bool)->Void)?) {
@@ -96,7 +104,16 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     func downloadNewPhotos(forPin pin: Pin) {
         
-        pin.photos?.removeAll()
+        /* Loop through and delete photos from shared context */
+        for photo in fetchedResultsController.fetchedObjects as! [Photo] {
+            
+            sharedContext.deleteObject(photo)
+            
+        }
+        
+        CoreDataStackManager.sharedInstance().saveContext()
+        
+        
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
             if error != nil {
@@ -225,6 +242,24 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
             return false
         }
         return true
+    }
+    
+    func handLongPress(gestureRecognizer: UIGestureRecognizer) {
+//        if gestureRecognizer.state != .Ended {
+//            return
+//        }
+//        
+//        let point = gestureRecognizer.locationInView(collectionView)
+//        
+//        let index = collectionView.indexPathForItemAtPoint(point)
+//        
+//        guard index != nil else {
+//            return
+//        }
+//        
+//        let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
+        
+        
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {

@@ -131,7 +131,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchPhotos(forPin pin: Pin) {
-        if pin.photos == nil {
+//        if pin.photos == nil {
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
             if success {
@@ -147,7 +147,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             }
             
         })
-        }
+//        }
     }
     
     func restoreMapRegionState(animated: Bool) {

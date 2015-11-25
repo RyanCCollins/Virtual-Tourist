@@ -3,8 +3,50 @@
 <plist version="1.0">
 <dict>
 	<key>SchemeUserState</key>
-	<dict/>
+	<dict>
+		<key>PhotoSlider-PhotoSlider.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>PhotoSlider.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-Virtual-Tourist.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>SDWebImage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+	</dict>
 	<key>SuppressBuildableAutocreation</key>
-	<dict/>
+	<dict>
+		<key>1AD0DB034EECBB5FB46EC000F528118C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>A0F402E152537A526389AA1A309D1CAB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D4767EBC3C92FFE41FCA6B2399594451</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>FE6177B9800121E62A9689DD3AB48667</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
 </dict>
 </plist>
