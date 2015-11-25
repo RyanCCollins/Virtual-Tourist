@@ -14,6 +14,8 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     let stockPhoto = UIImage(named: "missing-resource")
     let selectedColor = UIColor.grayColor()
     var isUpdating = false
+//    let gestureRecognizer = UIGestureRecognizer(target: view, action: "isSelected:")
+    
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -23,6 +25,8 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     }
     
     func isReloading(reloading: Bool) {
+        
+        activityIndicator.hidden = !reloading
         if reloading {
             activityIndicator.startAnimating()
             imageView.alpha = 0.0

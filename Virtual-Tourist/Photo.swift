@@ -51,15 +51,6 @@ class Photo: NSManagedObject {
             FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: filePath!)
         }
     }
-    
-//    func getImage(fromFilePath filepath: String?) -> UIImage? {
-//        return FlickrClient.Caches.imageCache.imageWithIdentifier(filepath)!
-//    }
-//    
-//    func setImage(fromFilePath filepath: String?) -> UIImage? {
-//        FlickrClient.Caches.imageCache.storeImage(UIImage(, withIdentifier: filePath!)
-//    }
-    
 }
 
 extension String {

@@ -46,7 +46,7 @@ extension FlickrClient {
             static let Lon_Min = -180.0
             static let Lon_Max = 180.0
             static let Media_Type = "photos"
-            static let Per_Page = 12
+            static let Per_Page = 24
             
             struct Methods {
                 static let SEARCH = "flickr.photos.search"

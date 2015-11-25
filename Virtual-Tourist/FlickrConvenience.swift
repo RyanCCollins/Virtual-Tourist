@@ -30,13 +30,31 @@ extension FlickrClient {
                         
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
-                        print(pages)
                         
                         photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
-
+                        
                         CoreDataStackManager.sharedInstance().saveContext()
+                        
+                        var proceed = true
+                        
+                        for photo in pin.photos! {
+                            self.taskForGETImageFromURL(photo.fileURL, withSize: nil, completionHandler: {data, error in
+     
+                                if error != nil {
+                                    
+                                    proceed = false
+                                    
+                                } else {
+                                    
+                                    photo.image = UIImage(data: data as! NSData)
+                                    CoreDataStackManager.sharedInstance().saveContext()
+                                }
+                            })
+                        }
+                        
+                        completionHandler(success: proceed, error: nil)
                         
                     }
                     
@@ -46,22 +64,14 @@ extension FlickrClient {
             
         }
     }
+    
+
 
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         
         /* Get next page of photos */
-        if pin.currentPage != nil && pin.countOfPhotoPages != nil {
-            if Int(pin.countOfPhotoPages!) > Int(pin.currentPage!) {
-                let intValue = Int(pin.currentPage!) + 1
-                let nextPage = NSNumber(integer: intValue)
-                pin.currentPage = nextPage
-            } else {
-                pin.currentPage = 1
-            }
-        } else {
-            pin.currentPage = 1
-        }
+        pin.incrementCurrentPage()
 
         
         let parameters: [String : AnyObject ] = [

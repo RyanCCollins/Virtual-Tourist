@@ -31,10 +31,11 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
         /* Add long press gesture recognizer for adding pins */
         let longPressRecognizer = UILongPressGestureRecognizer()
-        longPressRecognizer.minimumPressDuration = 2.0
+        longPressRecognizer.minimumPressDuration = 1.5
         mapView.addGestureRecognizer(longPressRecognizer)
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
         configureAnnotations()
+        
     }
     
     func addAnnotation(sender: UIGestureRecognizer) {
@@ -45,20 +46,16 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         print(coordinate)
         switch sender.state {
         case .Began :
-            print("Began adding pin")
-            pinToAdd = Pin(coordinate: coordinate, context: scratchContext)
+
+            pinToAdd = Pin(coordinate: coordinate, context: sharedContext)
             mapView.addAnnotation(pinToAdd!)
-            
         case .Changed :
-            print("Changed Pin location")
             pinToAdd!.willChangeValueForKey("coordinate")
             pinToAdd!.coordinate = coordinate
-            pinToAdd!.willChangeValueForKey("coordinate")
+            pinToAdd!.didChangeValueForKey("coordinate")
         case .Ended :
-            print("Ended moving pin")
-            // prefetch images here
-            let newPin = Pin(coordinate: (pinToAdd?.coordinate)!, context: sharedContext)
-            fetchPhotos(forPin: newPin)
+
+            fetchPhotos(forPin: pinToAdd!)
             CoreDataStackManager.sharedInstance().saveContext()
         default :
             return
@@ -134,23 +131,23 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchPhotos(forPin pin: Pin) {
-        
+        if pin.photos == nil {
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
             if success {
-                
+
                 CoreDataStackManager.sharedInstance().saveContext()
                 
             } else {
                 
                 self.alertController(withTitles: ["Ok", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
                     self.fetchPhotos(forPin: pin)
-                    }])
+                }])
                 
             }
             
         })
-        
+        }
     }
     
     func restoreMapRegionState(animated: Bool) {
@@ -171,11 +168,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             mapView.setRegion(savedRegion, animated: animated)
         }
         
-        
-    }
-    
-    /* Add an annotation for any saved location */
-    func annotationsForSavedLocations() {
         
     }
     
@@ -206,11 +198,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
 extension PinLocationViewController: MKMapViewDelegate {
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         saveMapState()
-    }
-    
-    func mapView(mapView: MKMapView, didAddAnnotationViews views: [MKAnnotationView]) {
-        print("Added a new location")
-        
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {

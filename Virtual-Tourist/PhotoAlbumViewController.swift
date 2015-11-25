@@ -17,6 +17,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
+    
     let regionRadius: CLLocationDistance = 1000
     var selectedPin: Pin!
     
@@ -24,15 +25,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         
         selectedPin = pin
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        flowLayout.sectionInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
-        flowLayout.minimumLineSpacing = 4
-        flowLayout.minimumInteritemSpacing = 4
-        let contentSize: CGFloat = ((collectionView.bounds.width / 3) - 8)
-        flowLayout.itemSize = CGSize(width: contentSize, height: contentSize)
     }
     
     var selectedIndexPaths = [NSIndexPath]()
@@ -44,26 +36,48 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
-        performFetch()
+        performFetch({success in
+            if !success {
+                self.noPhotosLabel.hidden = false
+            } else {
+                self.noPhotosLabel.hidden = true
+            }
+        })
         
     }
     
-    func performFetch(){
+    
+    override func viewDidLayoutSubviews() {
+        
+        flowLayout.sectionInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
+        flowLayout.minimumLineSpacing = 4
+        flowLayout.minimumInteritemSpacing = 4
+        let contentSize: CGFloat = ((collectionView.bounds.width / 3) - 8)
+        flowLayout.itemSize = CGSize(width: contentSize, height: contentSize)
+    }
+    
+    func performFetch(callbackHandler: ((success:Bool)->Void)?) {
         
         do {
             try fetchedResultsController.performFetch()
+
         } catch let error as NSError {
             alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-                self.performFetch()
+                self.performFetch(nil)
             }])
         }
     }
     
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
         if selectedIndexPaths.count == 0 {
-            return
+            
+            downloadNewPhotos(forPin: selectedPin)
+            
         } else {
             
             for index in selectedIndexPaths {
@@ -76,17 +90,16 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             configureCollectionButton()
             CoreDataStackManager.sharedInstance().saveContext()
             //Get new photos?
+            performFetch(nil)
         }
     }
     
     func downloadNewPhotos(forPin pin: Pin) {
+        
+        pin.photos?.removeAll()
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
-            if success {
-                
-                CoreDataStackManager.sharedInstance().saveContext()
-                
-            } else {
+            if error != nil {
                 
                 self.alertController(withTitles: ["OK", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
                     self.downloadNewPhotos(forPin: pin)
@@ -165,6 +178,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
+            print(sections)
             return sections.numberOfObjects
         }
         return 1
@@ -175,13 +189,30 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        if photo.image != nil {
+        cell.isReloading(true)
+        
+        if photo.filePath == nil || photo.filePath == "" {
+            cell.imageView.image = cell.stockPhoto
+            cell.imageView.fadeIn()
+            performFetch(nil)
+        } else if photo.image != nil {
+            cell.imageView.image = photo.image
             cell.imageView.fadeIn()
         } else {
-            cell.imageView.image = cell.stockPhoto
-            performFetch()
+            
+            print(photo.filePath)
+            if let data = NSData(contentsOfFile: photo.filePath!) {
+                print("Made it")
+                photo.image = UIImage(data: data)
+                
+                dispatch_async(GlobalMainQueue, {
+                    cell.imageView.image = photo.image
+                })
+                
+            }
         }
         
+        cell.isReloading(false)
         return cell
     }
 
@@ -204,18 +235,20 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
             
             cell.isReloading(true)
             /* Try refetching here */
-            performFetch()
+            performFetch(nil)
             return
         }
         
         if let indexPath = selectedIndexPaths.indexOf(indexPath) {
             selectedIndexPaths.removeAtIndex(indexPath)
+            cell.isSelected(false)
         } else {
             selectedIndexPaths.append(indexPath)
+            cell.isSelected(true)
         }
         
         /* COnfigure cell and update UI */
-        cell.isSelected(true)
+        
         configureCollectionButton()
     }
     

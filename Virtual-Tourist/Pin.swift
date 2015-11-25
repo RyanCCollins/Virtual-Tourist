@@ -60,4 +60,13 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
+    /* Helps deal with our NSNumber to Int bridging */
+    func incrementCurrentPage() {
+        var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
+        if currentPage <= count {
+            currentPage++
+            self.currentPage = currentPage
+        }
+    }
+    
 }

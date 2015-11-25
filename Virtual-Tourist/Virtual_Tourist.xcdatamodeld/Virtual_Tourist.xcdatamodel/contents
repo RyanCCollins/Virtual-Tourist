@@ -8,12 +8,13 @@
     </entity>
     <entity name="Pin" representedClassName="Pin" syncable="YES">
         <attribute name="countOfPhotoPages" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="currentPage" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES"/>
         <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0" syncable="YES"/>
         <relationship name="photos" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Photo" inverseName="pin" inverseEntity="Photo" syncable="YES"/>
     </entity>
     <elements>
         <element name="Photo" positionX="-9" positionY="36" width="128" height="105"/>
-        <element name="Pin" positionX="-9" positionY="36" width="128" height="105"/>
+        <element name="Pin" positionX="-9" positionY="36" width="128" height="120"/>
     </elements>
 </model>
