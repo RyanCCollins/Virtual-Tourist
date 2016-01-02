@@ -14,7 +14,7 @@ class FlickrClient: NSObject {
     
     typealias CompletionHandler = (result: AnyObject!, error: NSError?) -> Void
         
-    /* Task returned for GETting data from the Parse server */
+    /* Task returned for GETting data from the server */
     func taskForGETMethod(var urlString: String, parameters: [String : AnyObject]?, completionHandler: CompletionHandler) -> NSURLSessionDataTask {
             
             
