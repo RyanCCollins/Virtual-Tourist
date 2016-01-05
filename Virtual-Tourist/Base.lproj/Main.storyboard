@@ -99,23 +99,17 @@
                                                 <imageView userInteractionEnabled="NO" alpha="0.10000000000000001" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="m7o-OQ-c2L">
                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
                                                 </imageView>
-                                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="6iQ-ul-Nu8">
-                                                    <rect key="frame" x="32" y="31" width="37" height="37"/>
-                                                </activityIndicatorView>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
                                         <constraints>
                                             <constraint firstAttribute="trailing" secondItem="m7o-OQ-c2L" secondAttribute="trailing" id="FrT-RQ-zst"/>
-                                            <constraint firstItem="6iQ-ul-Nu8" firstAttribute="centerY" secondItem="m7o-OQ-c2L" secondAttribute="centerY" id="J1T-vj-Csx"/>
                                             <constraint firstAttribute="bottom" secondItem="m7o-OQ-c2L" secondAttribute="bottom" id="Me3-VG-wN4"/>
-                                            <constraint firstItem="6iQ-ul-Nu8" firstAttribute="centerX" secondItem="m7o-OQ-c2L" secondAttribute="centerX" id="bq7-Ge-hlV"/>
                                             <constraint firstItem="m7o-OQ-c2L" firstAttribute="top" secondItem="kmN-Ta-bZq" secondAttribute="top" id="nc3-t7-071"/>
                                             <constraint firstItem="m7o-OQ-c2L" firstAttribute="leading" secondItem="kmN-Ta-bZq" secondAttribute="leading" id="yxi-VH-hXa"/>
                                         </constraints>
                                         <size key="customSize" width="100" height="100"/>
                                         <connections>
-                                            <outlet property="activityIndicator" destination="6iQ-ul-Nu8" id="mPf-bg-mMB"/>
                                             <outlet property="imageView" destination="m7o-OQ-c2L" id="YW0-m9-7xZ"/>
                                         </connections>
                                     </collectionViewCell>
@@ -137,14 +131,19 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="DCc-3Q-1FR">
+                                <rect key="frame" x="282" y="281" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="5n3-ie-TXe" secondAttribute="trailing" id="8BQ-CT-3Lf"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="top" secondItem="7Tk-rh-XTF" secondAttribute="bottom" constant="-2" id="BfL-BP-tao"/>
+                            <constraint firstItem="DCc-3Q-1FR" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="DjX-aJ-AoE"/>
                             <constraint firstAttribute="trailing" secondItem="mCN-iR-A90" secondAttribute="trailing" id="HTE-qd-dWO"/>
                             <constraint firstItem="n6N-vt-vvR" firstAttribute="top" secondItem="mCN-iR-A90" secondAttribute="bottom" id="NPe-QD-thm"/>
                             <constraint firstItem="5n3-ie-TXe" firstAttribute="top" secondItem="9wF-2m-NNZ" secondAttribute="bottom" id="PCp-S6-4hm"/>
+                            <constraint firstItem="DCc-3Q-1FR" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="QAg-fM-d0y"/>
                             <constraint firstItem="u8z-nt-Zd4" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="ZHH-bw-Mf2"/>
                             <constraint firstItem="7Tk-rh-XTF" firstAttribute="top" secondItem="5n3-ie-TXe" secondAttribute="bottom" id="d0u-bg-voK"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="fKV-nj-UCK"/>
@@ -155,12 +154,13 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="DCc-3Q-1FR" id="gbY-4N-Y85"/>
                         <outlet property="collectionButton" destination="mCN-iR-A90" id="MPu-Ui-khl"/>
                         <outlet property="collectionView" destination="7Tk-rh-XTF" id="4Ws-Nx-Oip"/>
                         <outlet property="flowLayout" destination="0Qj-AP-YgY" id="Qbg-3K-Ren"/>
                         <outlet property="mapView" destination="5n3-ie-TXe" id="IBF-Fs-w5c"/>
                         <outlet property="noPhotosLabel" destination="u8z-nt-Zd4" id="5Zg-LA-uQz"/>
-                        <segue destination="avs-Bz-MbW" kind="show" identifier="showGallery" id="WgQ-Fi-bEh"/>
+                        <segue destination="avs-Bz-MbW" kind="modal" identifier="showGallery" id="WgQ-Fi-bEh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Nh3-YY-gbF" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -178,12 +178,17 @@
                     <view key="view" contentMode="scaleToFill" id="Njr-Sk-dQg">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tsf-Uh-0GY">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </imageView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4a0-cN-1aK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1184" y="527"/>
+            <point key="canvasLocation" x="1239" y="527"/>
         </scene>
     </scenes>
     <resources>

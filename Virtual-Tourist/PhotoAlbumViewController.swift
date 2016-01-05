@@ -12,6 +12,7 @@ import CoreData
 
 class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate, UIGestureRecognizerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     @IBOutlet weak var noPhotosLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
@@ -43,12 +44,21 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
         
-        performFetch()
+        
         
         let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
         gestureRecognizer.delegate = self
         
         collectionView.addGestureRecognizer(gestureRecognizer)
+        
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        collectionButton.enabled = false
+        
+    }
+    
+    func configureDisplay(){
         
     }
     
@@ -64,23 +74,25 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     func performFetch() {
+        sharedContext.performBlock({
+            do {
+                
+                try self.fetchedResultsController.performFetch()
+                
+            } catch let error as NSError {
+                self.alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
+                    self.performFetch()
+                    }])
+            }
+        })
         
-        do {
-            
-            try fetchedResultsController.performFetch()
-
-        } catch let error as NSError {
-            alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-                self.performFetch()
-            }])
-        }
     }
     
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
-            downloadNewPhotos(forPin: selectedPin)
+            selectedPin.fetchThumbnails()
             
         } else {
             
@@ -97,32 +109,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             //Get new photos?
             performFetch()
         }
-    }
-    
-    func downloadNewPhotos(forPin pin: Pin) {
-        
-        /* Loop through and delete photos from shared context */
-        for photo in fetchedResultsController.fetchedObjects as! [Photo] {
-            
-            sharedContext.deleteObject(photo)
-            
-        }
-        
-
-        CoreDataStackManager.sharedInstance().saveContext()
-        
-        
-        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
-            
-            if error != nil {
-                
-                self.alertController(withTitles: ["OK", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.downloadNewPhotos(forPin: pin)
-                }])
-                
-            }
-            
-        })
     }
     
     /* Core data */
@@ -192,11 +178,14 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
-            print(sections)
-            return sections.numberOfObjects
+        if fetchedResultsController.sections != nil {
+            if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
+                print(sections)
+                return sections.numberOfObjects
+            }
+        } else {
+            return 1
         }
-        return 1
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -204,29 +193,15 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        cell.activityIndicator.startAnimating()
-        
-        if photo.image != nil {
-            cell.imageView.image = photo.image
+        if photo.imageThumb != nil {
+            cell.imageView.image = photo.imageThumb
             cell.imageView.fadeIn()
-            cell.activityIndicator.stopAnimating()
         } else {
-
-            print(photo.filePath)
-            if let data = NSData(contentsOfFile: photo.filePath!) {
-                print("Made it")
-                photo.image = UIImage(data: data)
-                
-                dispatch_async(GlobalMainQueue, {
-                    cell.imageView.image = photo.image
-                    cell.activityIndicator.stopAnimating()
-                    cell.activityIndicator.fadeOut()
-                    cell.imageView.fadeIn()
-                })
-                
-            }
+            
+            cell.imageView.image = cell.stockPhoto
+            
         }
-        
+            
         return cell
     }
 

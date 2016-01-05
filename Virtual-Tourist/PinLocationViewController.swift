@@ -39,43 +39,44 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
     }
     
+
+    
+    /* Work flow for dropping pins, saving and fetching */
+    /* Add or move a single annotation, when beginning, create a pin, when ending, get new photos for the pin */
     func addAnnotation(sender: UIGestureRecognizer) {
-
+        
         let point: CGPoint = sender.locationInView(mapView)
-
         let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
-
+        
         switch sender.state {
         case .Began :
-
+            
             pinToAdd = Pin(coordinate: coordinate, context: sharedContext)
             mapView.addAnnotation(pinToAdd!)
         case .Changed :
             pinToAdd!.willChangeValueForKey("coordinate")
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
-            fetchPhotos(forPin: pinToAdd!)
-            CoreDataStackManager.sharedInstance().saveContext()
+            pinToAdd?.getNewPhotos()
         case .Ended :
-
-            fetchPhotos(forPin: pinToAdd!)
-            CoreDataStackManager.sharedInstance().saveContext()
+            pinToAdd?.getNewPhotos()
         default :
             return
         }
         
     }
     
-    
+    /* Monitor the fetched results controller for changes */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert :
             mapView.addAnnotation(anObject as! Pin)
         case .Update :
             mapView.removeAnnotation(anObject as! Pin)
+            mapView.addAnnotation(anObject as! Pin)
         case .Delete :
             mapView.removeAnnotation(anObject as! Pin)
-            mapView.addAnnotation(anObject as! Pin)
+            
         default :
             break
         }
@@ -93,7 +94,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
         let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
-
         do {
             try fetchResultsController.performFetch()
         } catch let error {
@@ -115,27 +115,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         centerMapOnLocation(location)
     }
     
-    func fetchPhotos(forPin pin: Pin) {
-        if pin.photos != nil {
-            pin.photos = nil
-            
-        }
-        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
-            
-            if success {
-
-                CoreDataStackManager.sharedInstance().saveContext()
-                
-            } else {
-                
-                self.alertController(withTitles: ["Ok", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.fetchPhotos(forPin: pin)
-                }])
-                
-            }
-            
-        })
-    }
     
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext
@@ -157,7 +136,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         mapView.setRegion(region, animated: true)
     }
     
-    /* The following three functions save and restore the map stay, helping to persist map annotations between sessions */
+    /* The following three functions save and restore the map state, helping to persist map annotations between sessions */
     func restoreMapRegionState(animated: Bool) {
         
         if let regionDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {

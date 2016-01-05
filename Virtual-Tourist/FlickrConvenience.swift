@@ -11,14 +11,8 @@ import UIKit
 
 extension FlickrClient {
     
-    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
-        
-        /* increment the current page in order to get new photos */
-        if pin.currentPage == 0 || pin.currentPage == nil {
-            pin.currentPage = 1
-        } else {
-            pin.incrementCurrentPage()
-        }
+    func taskForFetchPhotoURLs(forPin pin: Pin, completionHandler: (success: Bool, results: AnyObject?, error: NSError?)-> Void) {
+    
         
         let parameters = dictionaryForGetImages(forPin: pin)
         
@@ -26,14 +20,13 @@ extension FlickrClient {
             
             if error != nil {
                 
-                completionHandler(success: false, error: error)
+                completionHandler(success: false, results: nil, error: error)
                 
             } else {
                 
                 if results != nil {
                     if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages], currentPage = photosDictionary[JSONResponseKeys.Page] {
                         
-                        print(photosDictionary)
                         
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
@@ -41,27 +34,11 @@ extension FlickrClient {
                         photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
-                        
+                    
                         CoreDataStackManager.sharedInstance().saveContext()
                         
-                        var proceed = true
                         
-                        for photo in pin.photos! {
-                            self.taskForGETImageFromURL(photo.fileURL, withSize: nil, completionHandler: {data, error in
-     
-                                if error != nil {
-                                    
-                                    proceed = false
-                                    
-                                } else {
-                                    
-                                    photo.image = UIImage(data: data as! NSData)
-                                    CoreDataStackManager.sharedInstance().saveContext()
-                                }
-                            })
-                        }
-                        
-                        completionHandler(success: proceed, error: nil)
+                        completionHandler(success: true, results: results, error: nil)
                         
                     }
                     
@@ -72,14 +49,9 @@ extension FlickrClient {
         }
     }
     
-
-
+    
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
-        
-        /* Get next page of photos */
-        pin.incrementCurrentPage()
-
         
         let parameters: [String : AnyObject ] = [
             Constants.Keys.Method : Constants.Values.Methods.SEARCH,

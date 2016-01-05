@@ -8,6 +8,12 @@
 ////
 //
 //import Foundation
+//private let _documentsDirectoryURL: NSURL = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
+//private let _fileURL: NSURL = _documentsDirectoryURL.URLByAppendingPathComponent("Virtual_Tourist-Context")
+//
+//class Config: NSObject, NSCoding {
+//    
+//}
 //
 ///* The config class handles configuration for downloading images from Flickr for given file sizes.  It also handles when images should be updated and directs the FlickrClient to use stored images if possible. */
 //
@@ -127,3 +133,5 @@
 //    }
 //}
 //
+
+

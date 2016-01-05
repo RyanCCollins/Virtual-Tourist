@@ -14,8 +14,6 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     let selectedColor = UIColor.grayColor()
     var isUpdating = false
     
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
     override func awakeFromNib() {
         super.awakeFromNib()
         

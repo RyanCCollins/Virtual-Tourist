@@ -223,10 +223,6 @@ class FlickrClient: NSObject {
             return Singleton.dateFormatter
         }
     
-    struct Caches {
-        static let imageCache = ImageCache()
-    }
-    
     var sharedContext: NSManagedObjectContext {
         
         return CoreDataStackManager.sharedInstance().managedObjectContext

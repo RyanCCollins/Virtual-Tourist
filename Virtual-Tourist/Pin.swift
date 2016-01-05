@@ -27,6 +27,7 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
+    @NSManaged var needsNewPhotosFromFlickr: Bool
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -57,18 +58,87 @@ class Pin: NSManagedObject, MKAnnotation {
             print("Set coordinate")
             self.latitude = newValue.latitude
             self.longitude = newValue.longitude
+            self.needsNewPhotosFromFlickr = true
+        }
+    }
+        
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
+    
+    /* Handles all logic for fetching photos for a pin, abstracting it away from view controllers,
+     * Make sure to proceed with completion handler within view controllers for error management.
+     */
+    
+    func getNewPhotos() {
+        paginate()
+        
+        if needsNewPhotosFromFlickr {
+            FlickrClient.sharedInstance().taskForFetchPhotoURLs(forPin: self, completionHandler: {success, results, error in
+                
+                if error != nil {
+                    /* Todo: Report error */
+                    print(error)
+                } else {
+                    
+                    self.fetchThumbnails()
+                    
+                }
+
+                
+            })
+        } else {
+            
+            fetchThumbnails()
+            
         }
     }
     
-    /* Helps deal with our NSNumber to Int bridging */
-    func incrementCurrentPage() {
-        var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
-        if currentPage <= count {
-            currentPage++
-            self.currentPage = currentPage
+    func paginate() {
+        var total = countOfPhotoPages as! Int, current = currentPage as! Int
+        if current < total {
+            let nextPage = current++
+            currentPage = nextPage as NSNumber
+            needsNewPhotosFromFlickr = false
         } else {
-            currentPage = 1
+            
+            needsNewPhotosFromFlickr = true
+            
         }
+    }
+    
+    func fetchThumbnails() {
+            
+        if self.photos != nil {
+            for photo in self.photos! {
+                print("Got a photo: \(photo)")
+                photo.loadThumbnails({success, error in
+                    if error != nil {
+                        print(error)
+                    } else {
+                        
+                        print("Successfully got thumbnail URLS")
+                    }
+                })
+                
+            }
+        } else {
+            
+            self.getNewPhotos()
+            
+        }
+    }
+    
+    /* Deletes all associated photos */
+    func deleteAllAssociatedPhotos(completionHandler: () -> Void) {
+        if photos != nil {
+            for photo in photos! {
+                sharedContext.performBlockAndWait({
+                    self.sharedContext.deleteObject(photo)
+                })
+            }
+        }
+        completionHandler()
     }
     
 }
