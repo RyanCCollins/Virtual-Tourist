@@ -19,15 +19,15 @@ class FlickrClient: NSObject {
             
             
         /* If our request includes parameters, add those parameters to our URL */
-    if parameters != nil {
-        if let parameters = parameters {
-            urlString += FlickrClient.stringByEscapingParameters(parameters)
-            print(urlString)
+        if parameters != nil {
+            if let parameters = parameters {
+                urlString += FlickrClient.stringByEscapingParameters(parameters)
+                print(urlString)
+            }
         }
-    }
     
         let url = NSURL(string: urlString)!
-    print(url)
+
         let request = NSMutableURLRequest(URL: url)
 
         request.HTTPMethod = HTTPRequest.GET

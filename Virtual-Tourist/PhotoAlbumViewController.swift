@@ -35,19 +35,15 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Do any additional setup after loading the view.
+        /* Set collection view delegate and data source */
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        /* Add annotations to map for selected pin and center */
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
-        performFetch({success in
-            if !success {
-                self.noPhotosLabel.hidden = false
-            } else {
-                self.noPhotosLabel.hidden = true
-            }
-        })
+        
+        performFetch()
         
         let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
         gestureRecognizer.delegate = self
@@ -56,7 +52,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
     }
     
-    
+    /* Setup flowlayout upon layout of subviews */
     override func viewDidLayoutSubviews() {
         
         flowLayout.sectionInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
@@ -65,23 +61,23 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         let contentSize: CGFloat = ((collectionView.bounds.width / 3) - 8)
         flowLayout.itemSize = CGSize(width: contentSize, height: contentSize)
         
-        
-        
     }
     
-    func performFetch(callbackHandler: ((success:Bool)->Void)?) {
+    func performFetch() {
         
         do {
+            
             try fetchedResultsController.performFetch()
 
         } catch let error as NSError {
             alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-                self.performFetch(nil)
+                self.performFetch()
             }])
         }
     }
     
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
+        /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
             downloadNewPhotos(forPin: selectedPin)
@@ -96,9 +92,10 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 
             selectedIndexPaths.removeAll()
             configureCollectionButton()
+            
             CoreDataStackManager.sharedInstance().saveContext()
             //Get new photos?
-            performFetch(nil)
+            performFetch()
         }
     }
     
@@ -111,6 +108,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             
         }
         
+
         CoreDataStackManager.sharedInstance().saveContext()
         
         
@@ -206,17 +204,14 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        cell.isReloading(true)
+        cell.activityIndicator.startAnimating()
         
-        if photo.filePath == nil || photo.filePath == "" {
-            cell.imageView.image = cell.stockPhoto
-            cell.imageView.fadeIn()
-            performFetch(nil)
-        } else if photo.image != nil {
+        if photo.image != nil {
             cell.imageView.image = photo.image
             cell.imageView.fadeIn()
+            cell.activityIndicator.stopAnimating()
         } else {
-            
+
             print(photo.filePath)
             if let data = NSData(contentsOfFile: photo.filePath!) {
                 print("Made it")
@@ -224,12 +219,14 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
                 
                 dispatch_async(GlobalMainQueue, {
                     cell.imageView.image = photo.image
+                    cell.activityIndicator.stopAnimating()
+                    cell.activityIndicator.fadeOut()
+                    cell.imageView.fadeIn()
                 })
                 
             }
         }
         
-        cell.isReloading(false)
         return cell
     }
 
@@ -264,21 +261,18 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
-        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        
-        if photo.filePath == nil || photo.filePath == "" {
-            
-            cell.isReloading(true)
-            /* Try refetching here */
-            performFetch(nil)
-            return
-        }
-        
-        if let indexPath = selectedIndexPaths.indexOf(indexPath) {
-            selectedIndexPaths.removeAtIndex(indexPath)
+//        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
+//        
+//        if photo.filePath == nil || photo.filePath == "" {
+//            
+//            /* Try refetching here */
+//            performFetch(nil)
+//            return
+//        }
+//        
+        if selectedIndexPaths.contains(indexPath) {
             cell.isSelected(false)
         } else {
-            selectedIndexPaths.append(indexPath)
             cell.isSelected(true)
         }
         
@@ -286,7 +280,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         configureCollectionButton()
     }
-    
+
 }
 
 extension PhotoAlbumViewController: MKMapViewDelegate {

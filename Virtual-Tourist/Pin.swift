@@ -66,6 +66,8 @@ class Pin: NSManagedObject, MKAnnotation {
         if currentPage <= count {
             currentPage++
             self.currentPage = currentPage
+        } else {
+            currentPage = 1
         }
     }
     

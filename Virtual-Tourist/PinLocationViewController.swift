@@ -10,6 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
+/* Protocol for passing pin to delegate */
 protocol PinLocationPickerViewControllerDelegate {
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin)
 }
@@ -22,8 +23,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
+        /* Map view delegate */
         mapView.delegate = self
         mapView.userInteractionEnabled = true
         
@@ -41,9 +42,9 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     func addAnnotation(sender: UIGestureRecognizer) {
 
         let point: CGPoint = sender.locationInView(mapView)
-        print(point)
+
         let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
-        print(coordinate)
+
         switch sender.state {
         case .Began :
 
@@ -53,6 +54,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             pinToAdd!.willChangeValueForKey("coordinate")
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
+            fetchPhotos(forPin: pinToAdd!)
+            CoreDataStackManager.sharedInstance().saveContext()
         case .Ended :
 
             fetchPhotos(forPin: pinToAdd!)
@@ -101,6 +104,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }()
     
     func configureAnnotations() {
+        
         mapView.removeAnnotations(mapView.annotations)
         mapView.addAnnotations(fetchedResultsController.fetchedObjects as! [Pin])
         
@@ -111,27 +115,11 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         centerMapOnLocation(location)
     }
     
-    var filePath : String {
-        let manager = NSFileManager.defaultManager()
-        let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first! as NSURL
-        return url.URLByAppendingPathComponent("mapRegion").path!
-    }
-    
-    func saveMapState() {
-        
-        let dictionary = [
-            "latitude" : mapView.region.center.latitude,
-            "longitude" : mapView.region.center.longitude,
-            "latitudeDelta" : mapView.region.span.latitudeDelta,
-            "longitudeDelta" : mapView.region.span.longitudeDelta
-        ]
-        
-        NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
-        
-    }
-    
     func fetchPhotos(forPin pin: Pin) {
-//        if pin.photos == nil {
+        if pin.photos != nil {
+            pin.photos = nil
+            
+        }
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
             if success {
@@ -147,28 +135,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             }
             
         })
-//        }
-    }
-    
-    func restoreMapRegionState(animated: Bool) {
-        
-        if let regionDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {
-            
-            let longitude = regionDictionary["longitude"] as! CLLocationDegrees
-            let latitude =  regionDictionary["latitude"] as! CLLocationDegrees
-            let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            
-            let latitudeDelta = regionDictionary["latitudeDelta"] as! CLLocationDegrees
-            let longitudeDelta = regionDictionary["longitudeDelta"] as! CLLocationDegrees
-            
-            let span = MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
-            
-            let savedRegion = MKCoordinateRegion(center: center, span: span)
-            
-            mapView.setRegion(savedRegion, animated: animated)
-        }
-        
-        
     }
     
     var sharedContext: NSManagedObjectContext {
@@ -190,12 +156,55 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         let region = MKCoordinateRegion(center: center, span: MKCoordinateSpanMake(0.01, 0.01))
         mapView.setRegion(region, animated: true)
     }
-
-
+    
+    /* The following three functions save and restore the map stay, helping to persist map annotations between sessions */
+    func restoreMapRegionState(animated: Bool) {
+        
+        if let regionDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {
+            
+            let longitude = regionDictionary["longitude"] as! CLLocationDegrees
+            let latitude =  regionDictionary["latitude"] as! CLLocationDegrees
+            let center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            
+            let latitudeDelta = regionDictionary["latitudeDelta"] as! CLLocationDegrees
+            let longitudeDelta = regionDictionary["longitudeDelta"] as! CLLocationDegrees
+            
+            let span = MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
+            
+            let savedRegion = MKCoordinateRegion(center: center, span: span)
+            
+            mapView.setRegion(savedRegion, animated: animated)
+        }
+        
+        
+    }
+    
+    var filePath : String {
+        let manager = NSFileManager.defaultManager()
+        let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first! as NSURL
+        return url.URLByAppendingPathComponent("mapRegion").path!
+    }
+    
+    func saveMapState() {
+        
+        let dictionary = [
+            "latitude" : mapView.region.center.latitude,
+            "longitude" : mapView.region.center.longitude,
+            "latitudeDelta" : mapView.region.span.latitudeDelta,
+            "longitudeDelta" : mapView.region.span.longitudeDelta
+        ]
+        
+        NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
+        
+    }
+    
+    
 }
 
 /* Map view extension methods */
 extension PinLocationViewController: MKMapViewDelegate {
+    
+    /* Save map state when region changes. */
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         saveMapState()
     }

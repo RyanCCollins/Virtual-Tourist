@@ -13,6 +13,13 @@ extension FlickrClient {
     
     func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
         
+        /* increment the current page in order to get new photos */
+        if pin.currentPage == 0 || pin.currentPage == nil {
+            pin.currentPage = 1
+        } else {
+            pin.incrementCurrentPage()
+        }
+        
         let parameters = dictionaryForGetImages(forPin: pin)
         
         taskForGETMethod(Constants.Base_URL_Secure, parameters: parameters) {results, error in
