@@ -28,7 +28,7 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
     var needsNewPhotosFromFlickr: Bool = true
-    dynamic var countOfLoadedPhotos = 0
+    typealias CompletionHandler = (success: Bool, error: NSError?) -> Void
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -70,27 +70,24 @@ class Pin: NSManagedObject, MKAnnotation {
      * Make sure to proceed with completion handler within view controllers for error management.
      */
     
-    func getNewPhotos(completionHandler: (success: Bool, error: NSError?)-> Void) {
+    func getNewPhotos(completionHandler: CompletionHandler) {
         paginate()
         
         if needsNewPhotosFromFlickr {
-            FlickrClient.sharedInstance().taskForFetchPhotoURLs(forPin: self, completionHandler: {success, results, error in
+            FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, results, error in
                 
                 if error != nil {
                     /* Todo: Report error */
                     completionHandler(success: false, error: error)
                 } else {
                     
-                    self.fetchThumbnails()
+                    self.fetchThumbnails(completionHandler)
+                    
                     
                 }
 
                 
             })
-        } else {
-            
-            fetchThumbnails()
-            
         }
     }
     
@@ -106,29 +103,7 @@ class Pin: NSManagedObject, MKAnnotation {
             
         }
     }
-    
-    func fetchThumbnails(completionHandler:) {
-            
-        if self.photos != nil {
-            for photo in self.photos! {
-                print("Got a photo: \(photo)")
-                
-                photo.loadThumbnails({success, error in
-                    if error != nil {
-                        print(error)
-                    } else {
-                        self.countOfLoadedPhotos++
-                        print("Successfully got thumbnail URLS")
-                    }
-                })
-                
-            }
-        } else {
-            
-            self.getNewPhotos()
-            
-        }
-    }
+
     
     /* Deletes all associated photos */
     func deleteAllAssociatedPhotos(completionHandler: () -> Void) {

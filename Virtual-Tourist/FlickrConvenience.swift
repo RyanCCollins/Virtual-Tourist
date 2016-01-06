@@ -11,7 +11,7 @@ import UIKit
 
 extension FlickrClient {
     
-    func taskForFetchPhotoURLs(forPin pin: Pin, completionHandler: (success: Bool, results: AnyObject?, error: NSError?)-> Void) {
+    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, results: AnyObject?, error: NSError?)-> Void) {
     
         
         let parameters = dictionaryForGetImages(forPin: pin)
@@ -34,7 +34,23 @@ extension FlickrClient {
                         _ = photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
-                    
+                        
+                        for photo in self.photos! {
+                            print("Got a photo: \(photo)")
+                            
+                            photo.loadThumbnails({success, error in
+                                if error != nil {
+                                    print(error)
+                                    completionHandler(success: false, error: error)
+                                } else {
+                                    print("Successfully got thumbnail URLS")
+                                    completionHandler(success: true, error: nil)
+                                }
+                            })
+                            
+                        }
+                    }
+                        
                         CoreDataStackManager.sharedInstance().saveContext()
                         
                         
