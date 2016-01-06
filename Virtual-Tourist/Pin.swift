@@ -70,7 +70,7 @@ class Pin: NSManagedObject, MKAnnotation {
      * Make sure to proceed with completion handler within view controllers for error management.
      */
     
-    func getNewPhotos() {
+    func getNewPhotos(completionHandler: (success: Bool, error: NSError?)-> Void) {
         paginate()
         
         if needsNewPhotosFromFlickr {
@@ -78,6 +78,7 @@ class Pin: NSManagedObject, MKAnnotation {
                 
                 if error != nil {
                     /* Todo: Report error */
+                    completionHandler(success: false, error: error)
                 } else {
                     
                     self.fetchThumbnails()
@@ -106,7 +107,7 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
-    func fetchThumbnails() {
+    func fetchThumbnails(completionHandler:) {
             
         if self.photos != nil {
             for photo in self.photos! {

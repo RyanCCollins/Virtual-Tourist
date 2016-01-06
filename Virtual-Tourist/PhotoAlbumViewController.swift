@@ -26,6 +26,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         
         selectedPin = pin
+        performFetch()
     }
     
     var selectedIndexPaths = [NSIndexPath]()
@@ -49,7 +50,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         gestureRecognizer.delegate = self
         
         collectionView.addGestureRecognizer(gestureRecognizer)
-        performFetch()
+        
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -189,21 +190,17 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
  
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
         
-        if let photo = fetchedResultsController.fetchedObjects[indexPath] objectAtIndexPath(indexPath) as? Photo {
-            if photo != nil {
+        if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
             if photo.imageThumb != nil {
                 cell.imageView.image = photo.imageThumb
                 cell.imageView.fadeIn()
+                return cell
             }
-        } else {
-            
-            cell.imageView.image = cell.stockPhoto
-            
+        
         }
-            
+        cell.imageView.image = cell.stockPhoto
         return cell
     }
-
 
     
     func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -216,19 +213,19 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     }
     
     func handLongPress(gestureRecognizer: UIGestureRecognizer) {
-//        if gestureRecognizer.state != .Ended {
-//            return
-//        }
-//        
-//        let point = gestureRecognizer.locationInView(collectionView)
-//        
-//        let index = collectionView.indexPathForItemAtPoint(point)
-//        
-//        guard index != nil else {
-//            return
-//        }
-//        
-//        let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
+        if gestureRecognizer.state != .Ended {
+            return
+        }
+        
+        let point = gestureRecognizer.locationInView(collectionView)
+        
+        let index = collectionView.indexPathForItemAtPoint(point)
+        
+        guard index != nil else {
+            return
+        }
+        
+        let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
         
         
     }
