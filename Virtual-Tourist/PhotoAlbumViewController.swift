@@ -39,28 +39,24 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* Set collection view delegate and data source */
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.allowsMultipleSelection = true
         
         /* Add annotations to map for selected pin and center */
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
         
-        
-        
         let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
         gestureRecognizer.delegate = self
         
         collectionView.addGestureRecognizer(gestureRecognizer)
-        
+        performFetch()
     }
     
     override func viewWillAppear(animated: Bool) {
         collectionButton.enabled = false
-        
+        activityIndicator.startAnimating()
     }
     
-    func configureDisplay(){
-        
-    }
     
     /* Setup flowlayout upon layout of subviews */
     override func viewDidLayoutSubviews() {
@@ -180,22 +176,25 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if fetchedResultsController.sections != nil {
             if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
-                print(sections)
                 return sections.numberOfObjects
             }
         } else {
-            return 1
+            return 24
         }
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        
+        // Due to bugs with NSInternalInconsistencyException, doing a bit of checking here:
+ 
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
         
-        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        
-        if photo.imageThumb != nil {
-            cell.imageView.image = photo.imageThumb
-            cell.imageView.fadeIn()
+        if let photo = fetchedResultsController.fetchedObjects[indexPath] objectAtIndexPath(indexPath) as? Photo {
+            if photo != nil {
+            if photo.imageThumb != nil {
+                cell.imageView.image = photo.imageThumb
+                cell.imageView.fadeIn()
+            }
         } else {
             
             cell.imageView.image = cell.stockPhoto

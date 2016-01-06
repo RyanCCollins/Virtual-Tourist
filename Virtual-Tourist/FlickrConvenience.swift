@@ -31,7 +31,7 @@ extension FlickrClient {
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
                         
-                        photoArray.map(){
+                        _ = photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
                     

@@ -27,7 +27,8 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
-    @NSManaged var needsNewPhotosFromFlickr: Bool
+    var needsNewPhotosFromFlickr: Bool = true
+    dynamic var countOfLoadedPhotos = 0
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -55,7 +56,6 @@ class Pin: NSManagedObject, MKAnnotation {
             return CLLocationCoordinate2DMake(Double(latitude), Double(longitude))
         }
         set {
-            print("Set coordinate")
             self.latitude = newValue.latitude
             self.longitude = newValue.longitude
             self.needsNewPhotosFromFlickr = true
@@ -78,7 +78,6 @@ class Pin: NSManagedObject, MKAnnotation {
                 
                 if error != nil {
                     /* Todo: Report error */
-                    print(error)
                 } else {
                     
                     self.fetchThumbnails()
@@ -112,11 +111,12 @@ class Pin: NSManagedObject, MKAnnotation {
         if self.photos != nil {
             for photo in self.photos! {
                 print("Got a photo: \(photo)")
+                
                 photo.loadThumbnails({success, error in
                     if error != nil {
                         print(error)
                     } else {
-                        
+                        self.countOfLoadedPhotos++
                         print("Successfully got thumbnail URLS")
                     }
                 })
