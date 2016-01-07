@@ -35,7 +35,7 @@ extension FlickrClient {
         }
         
         struct Values {
-            static let AllExtras = "url_m"
+            static let AllExtras = "url_m, url_t"
             static let Data_Format = "json"
             static let No_JSON_Callback = 1
             static let Safe_Search = 2

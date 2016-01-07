@@ -55,11 +55,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
             fetchPhotos(forPin: pinToAdd!)
-            CoreDataStackManager.sharedInstance().saveContext()
         case .Ended :
-
             fetchPhotos(forPin: pinToAdd!)
-            CoreDataStackManager.sharedInstance().saveContext()
         default :
             return
         }
@@ -116,21 +113,28 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchPhotos(forPin pin: Pin) {
-        if pin.photos != nil {
-            pin.photos = nil
-            
+        if pin.needsNewPhotos {
+                
         }
+        CoreDataStackManager.sharedInstance().saveContext()
+        print("Fetching Thumbnails Now")
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
             if success {
-
-                CoreDataStackManager.sharedInstance().saveContext()
+                print("Successfully loaded thumbnails")
+                pin.fetchThumbnail( {success, error in
+                    
+                    if error != nil {
+                        pin.loadingError = error
+                    } else {
+                        CoreDataStackManager.sharedInstance().saveContext()
+                    }
+                    
+                })
                 
             } else {
                 
-                self.alertController(withTitles: ["Ok", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.fetchPhotos(forPin: pin)
-                }])
+                pin.loadingError = error
                 
             }
             

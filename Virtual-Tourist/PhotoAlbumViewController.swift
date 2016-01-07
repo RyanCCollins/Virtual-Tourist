@@ -17,6 +17,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     let regionRadius: CLLocationDistance = 1000
     var selectedPin: Pin!
@@ -25,6 +26,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         
         selectedPin = pin
+        subscribeToImageLoadingNotifications()
     }
     
     var selectedIndexPaths = [NSIndexPath]()
@@ -49,6 +51,30 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         gestureRecognizer.delegate = self
         
         collectionView.addGestureRecognizer(gestureRecognizer)
+    }
+    
+    func subscribeToImageLoadingNotifications() {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoadingThumbnails", name: Notifications.didFinishLoadingThumbails, object: selectedPin)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "isLoadingThumbnails", name: Notifications.willFinishLoadingThumbnails, object: selectedPin)
+    }
+    
+    func isLoadingThumbnails() {
+        print("Notification for isLoadingThumbnails Received")
+        view.alpha = 0.6
+        activityIndicator.startAnimating()
+    }
+    
+    func didFinishLoadingThumbnails() {
+        print("Notification for didFinishLoadingThumbnails Received")
+        collectionView.reloadData()
+        self.activityIndicator.stopAnimating()
+        view.fadeIn(0.3, delay: 0.0, alpha: 1.0, completion: {_ in})
+        
+        if selectedPin.loadingError != nil {
+            alertController(withTitles: ["Ok", "Retry"], message: (selectedPin.loadingError?.localizedDescription)!, callbackHandler: [nil, {Void in
+                    self.selectedPin.fetchThumbnail(nil)
+                }])
+        }
         
     }
     
@@ -116,13 +142,26 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             
             if error != nil {
                 
-                self.alertController(withTitles: ["OK", "Retry"], message: (error?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.downloadNewPhotos(forPin: pin)
-                }])
+                self.handleErrors(forPin: pin, error: pin.loadingError!)
                 
+            } else {
+                pin.fetchThumbnail({success, error in
+                    if error != nil {
+                        self.handleErrors(forPin: pin, error: pin.loadingError!)
+                    }
+                    
+                })
             }
             
         })
+    }
+    
+    func handleErrors(forPin pin: Pin, error: NSError) {
+        activityIndicator.stopAnimating()
+        view.fadeIn()
+        alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
+            self.downloadNewPhotos(forPin: pin)
+        }])
     }
     
     /* Core data */
@@ -204,28 +243,27 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        cell.activityIndicator.startAnimating()
+        //cell.activityIndicator.startAnimating()
         
-        if photo.image != nil {
-            cell.imageView.image = photo.image
-            cell.imageView.fadeIn()
-            cell.activityIndicator.stopAnimating()
-        } else {
-
-            print(photo.filePath)
-            if let data = NSData(contentsOfFile: photo.filePath!) {
-                print("Made it")
-                photo.image = UIImage(data: data)
-                
-                dispatch_async(GlobalMainQueue, {
-                    cell.imageView.image = photo.image
-                    cell.activityIndicator.stopAnimating()
-                    cell.activityIndicator.fadeOut()
-                    cell.imageView.fadeIn()
-                })
+        if photo.imageThumb != nil {
+            print(">>>Photo for cell: \(indexPath.row) is \(photo.imageThumb?.description)")
+            cell.imageView.image = photo.imageThumb
+            
+        } else if photo.filePath != nil {
+            
+            if let data = NSData(contentsOfFile: (photo.filePath?.thumbnailName)!) {
+                photo.imageThumb = UIImage(data: data)
+                cell.imageView.image = photo.imageThumb
                 
             }
+        } else {
+            cell.imageView.image = cell.stockPhoto
+            
         }
+        
+        cell.activityIndicator.stopAnimating()
+        cell.activityIndicator.fadeOut()
+        cell.imageView.fadeIn()
         
         return cell
     }
@@ -283,6 +321,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
 
 }
 
+/* Handles showing the map view for pins selected */
 extension PhotoAlbumViewController: MKMapViewDelegate {
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         if let annotation = annotation as? Pin {

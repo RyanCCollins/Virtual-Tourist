@@ -29,6 +29,8 @@ var GlobalBackgroundQueue: dispatch_queue_t {
     return dispatch_get_global_queue(Int(QOS_CLASS_BACKGROUND.rawValue), 0)
 }
 
+/* typealias for completion block handlers */
+typealias CallbackHandler = (success: Bool, error: NSError?) -> Void
 
 /* Define global errors */
 struct GlobalErrors : ErrorType {
@@ -56,6 +58,13 @@ struct ErrorMessages {
         static let Network = "Could not connect to the network.  Please try again."
     }
     
+}
+
+/* Definies globally the notification messages that are passed through the app */
+struct Notifications {
+    static let didFinishLoadingThumbails = "PinDidFinishLoadingThumbnails"
+    static let didFinishLoadingThumbnailsWithEror = "PinDidFinishLoadingThumbnailsWithError"
+    static let willFinishLoadingThumbnails = "PinWillFinishLoadingThumbnails"
 }
 
 /* Helper function to construct errors project wide */

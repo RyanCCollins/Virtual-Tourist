@@ -19,7 +19,14 @@ class Photo: NSManagedObject {
     @NSManaged var titleString: String
     @NSManaged var pin : Pin
     @NSManaged var filePath : String?
-    @NSManaged var fileURL : String
+    @NSManaged var url_t : String?
+    @NSManaged var url_m: String?
+    
+    struct Status {
+        var isLoading = false
+    }
+    
+    var loadingStatus = Status()
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -38,12 +45,27 @@ class Photo: NSManagedObject {
         /* Assign our properties */
         self.pin = pin
         filePath = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL]?.lastPathComponent
-        fileURL = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as! String
+        url_t = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.ThumbnailURL] as? String
         titleString = dictionary[FlickrClient.JSONResponseKeys.Title] as! String
+        url_m = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as? String
     }
     
+    /* Convenience for getting images for URLs */
+    func getImage(fromURL url: String, callback: (success: Bool, error: NSError?)-> Void) {
+        loadingStatus.isLoading = true
+        
+        FlickrClient.sharedInstance().taskForGETImageFromURL(url, completionHandler: {success, error in
+            self.loadingStatus.isLoading = false
+            if error != nil {
+                callback(success: false, error: error)
+            } else {
+                callback(success: true, error: nil)
+            }
+            
+        })
+    }
     
-    var image: UIImage? {
+    var imageFull: UIImage? {
         get {
             return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath!)
         }
@@ -51,12 +73,37 @@ class Photo: NSManagedObject {
             FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: filePath!)
         }
     }
-}
-
-extension String {
-    var fileName: String {
+    
+    var imageThumb: UIImage? {
         get {
-            return (self as NSString).lastPathComponent
+            return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
+        }
+        set {
+            FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
         }
     }
+}
+
+/* Helps to bridge string & NSString functions for getting filepath & filename for different files: */
+extension String {
+    var path: String {
+        get {
+            return ns.lastPathComponent
+        }
+    }
+    var name: String {
+        get {
+            return ns.stringByDeletingPathExtension
+        }
+    }
+    var thumbnailName: String {
+        get {
+            let returnVal = name + "_t" + ns.pathExtension
+            return returnVal
+        }
+    }
+    var ns: NSString {
+        return self as NSString
+    }
+    
 }

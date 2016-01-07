@@ -27,6 +27,8 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
+    var needsNewPhotos: Bool = true
+    var loadingError: NSError?
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -54,21 +56,50 @@ class Pin: NSManagedObject, MKAnnotation {
             return CLLocationCoordinate2DMake(Double(latitude), Double(longitude))
         }
         set {
-            print("Set coordinate")
             self.latitude = newValue.latitude
             self.longitude = newValue.longitude
         }
     }
     
-    /* Helps deal with our NSNumber to Int bridging */
-    func incrementCurrentPage() {
-        var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
-        if currentPage <= count {
-            currentPage++
-            self.currentPage = currentPage
-        } else {
-            currentPage = 1
+    /* Convenience method for fetching thumbnails from pin's photos, using NSNotifications to avoid messy callbacks */
+    func fetchThumbnail(completionHandler: CallbackHandler?) {
+        loadingError = nil
+        
+        NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
+        if photos != nil {
+            for photo in self.photos! {
+                photo.getImage(fromURL: photo.url_t!, callback: {success, error in
+                    if error != nil {
+                        self.loadingError = error
+                    }
+                })
+            }
         }
+        /* Need to handle the loading error if one occurs, otherwise this will post that this execution did finish. */
+        NSNotificationCenter.defaultCenter().postNotificationName(Notifications.didFinishLoadingThumbails, object: self)
+        
+        if let completionHandler = completionHandler {
+        if loadingError != nil {
+            completionHandler(success: false, error: loadingError)
+        } else {
+            completionHandler(success: true, error: nil)
+        }
+        }
+    }
+    
+    /* Helps deal with our NSNumber to Int bridging */
+    func incrementCurrentPage()-> Void {
+        if self.currentPage != nil {
+            var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
+            if currentPage < count {
+                currentPage++
+                self.currentPage = currentPage
+                needsNewPhotos = false
+                return
+            }
+        }
+        self.currentPage = 1
+        needsNewPhotos = true
     }
     
 }

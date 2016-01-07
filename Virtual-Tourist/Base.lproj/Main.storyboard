@@ -137,9 +137,13 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="C8z-6b-YaC">
+                                <rect key="frame" x="282" y="281" width="37" height="37"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="C8z-6b-YaC" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="0n2-VB-ffy"/>
                             <constraint firstAttribute="trailing" secondItem="5n3-ie-TXe" secondAttribute="trailing" id="8BQ-CT-3Lf"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="top" secondItem="7Tk-rh-XTF" secondAttribute="bottom" constant="-2" id="BfL-BP-tao"/>
                             <constraint firstAttribute="trailing" secondItem="mCN-iR-A90" secondAttribute="trailing" id="HTE-qd-dWO"/>
@@ -149,12 +153,14 @@
                             <constraint firstItem="7Tk-rh-XTF" firstAttribute="top" secondItem="5n3-ie-TXe" secondAttribute="bottom" id="d0u-bg-voK"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="fKV-nj-UCK"/>
                             <constraint firstItem="u8z-nt-Zd4" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="hcp-dG-buj"/>
+                            <constraint firstItem="C8z-6b-YaC" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="ntV-Nv-zVq"/>
                             <constraint firstItem="5n3-ie-TXe" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="qG7-kj-7AM"/>
                             <constraint firstItem="7Tk-rh-XTF" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="w3C-ME-PZ1"/>
                             <constraint firstAttribute="trailing" secondItem="7Tk-rh-XTF" secondAttribute="trailing" id="w9L-nm-cV9"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="C8z-6b-YaC" id="tDw-AE-n2N"/>
                         <outlet property="collectionButton" destination="mCN-iR-A90" id="MPu-Ui-khl"/>
                         <outlet property="collectionView" destination="7Tk-rh-XTF" id="4Ws-Nx-Oip"/>
                         <outlet property="flowLayout" destination="0Qj-AP-YgY" id="Qbg-3K-Ren"/>

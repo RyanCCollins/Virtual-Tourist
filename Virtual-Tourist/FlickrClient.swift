@@ -61,13 +61,7 @@ class FlickrClient: NSObject {
     }
     
     
-    func taskForGETImageFromURL(url: String, withSize size: String?, completionHandler:CompletionHandler) -> NSURLSessionDataTask {
-        
-        var urlString = url
-        
-        if size != nil {
-            urlString += size!
-        }
+    func taskForGETImageFromURL(url: String, completionHandler:CompletionHandler) -> NSURLSessionDataTask {
         
         let url = NSURL(string: url)!
 

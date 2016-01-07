@@ -44,25 +44,6 @@ extension FlickrClient {
                         
                         CoreDataStackManager.sharedInstance().saveContext()
                         
-                        var proceed = true
-                        
-                        for photo in pin.photos! {
-                            self.taskForGETImageFromURL(photo.fileURL, withSize: nil, completionHandler: {data, error in
-     
-                                if error != nil {
-                                    
-                                    proceed = false
-                                    
-                                } else {
-                                    
-                                    photo.image = UIImage(data: data as! NSData)
-                                    CoreDataStackManager.sharedInstance().saveContext()
-                                }
-                            })
-                        }
-                        
-                        completionHandler(success: proceed, error: nil)
-                        
                     }
                     
                 }
@@ -71,8 +52,6 @@ extension FlickrClient {
             
         }
     }
-    
-
 
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
