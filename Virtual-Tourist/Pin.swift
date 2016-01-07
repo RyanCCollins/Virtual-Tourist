@@ -82,6 +82,7 @@ class Pin: NSManagedObject, MKAnnotation {
                     completionHandler(success: false, error: error)
                 } else {
                     self.photos = photos
+                    print(photos)
                     CoreDataStackManager.sharedInstance().saveContext()
                     
                 }

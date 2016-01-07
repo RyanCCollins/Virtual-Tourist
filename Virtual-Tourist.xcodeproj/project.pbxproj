@@ -27,7 +27,6 @@
 		1F27FBBA1C00DE8A00839C10 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F27FBB91C00DE8A00839C10 /* MapKit.framework */; };
 		1F27FBBC1C00EDF700839C10 /* PhotoAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */; };
 		1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */; };
-		1F459E291C3C4839000CDC8F /* Geocoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F459E281C3C4839000CDC8F /* Geocoder.swift */; };
 		1F459E2B1C3C5E83000CDC8F /* PhotoDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F459E2A1C3C5E82000CDC8F /* PhotoDatabase.swift */; };
 		1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C971C024FEB0043CE15 /* ImageCache.swift */; };
 		1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C991C02516E0043CE15 /* Config.swift */; };
@@ -83,7 +82,6 @@
 		1F27FBB91C00DE8A00839C10 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		1F27FBBB1C00EDF700839C10 /* PhotoAnnotationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAnnotationView.swift; sourceTree = "<group>"; };
 		1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtendsUIViewController.swift; sourceTree = "<group>"; };
-		1F459E281C3C4839000CDC8F /* Geocoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Geocoder.swift; sourceTree = "<group>"; };
 		1F459E2A1C3C5E82000CDC8F /* PhotoDatabase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoDatabase.swift; sourceTree = "<group>"; };
 		1FAB2C971C024FEB0043CE15 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		1FAB2C991C02516E0043CE15 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
@@ -186,7 +184,6 @@
 				1F27F8601C0001A400839C10 /* CoreDataStackManager.swift */,
 				1F27FBA31C00023B00839C10 /* Pin.swift */,
 				1F27FBA51C00024A00839C10 /* Photo.swift */,
-				1F459E281C3C4839000CDC8F /* Geocoder.swift */,
 				1FAB2C971C024FEB0043CE15 /* ImageCache.swift */,
 				1F459E2A1C3C5E82000CDC8F /* PhotoDatabase.swift */,
 				1FAB2C991C02516E0043CE15 /* Config.swift */,
@@ -441,7 +438,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1F27FBA61C00024A00839C10 /* Photo.swift in Sources */,
-				1F459E291C3C4839000CDC8F /* Geocoder.swift in Sources */,
 				1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */,
 				1F27FBBC1C00EDF700839C10 /* PhotoAnnotationView.swift in Sources */,
 				1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */,
