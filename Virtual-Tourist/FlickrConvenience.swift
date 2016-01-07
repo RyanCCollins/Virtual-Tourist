@@ -11,7 +11,7 @@ import UIKit
 
 extension FlickrClient {
     
-    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, results: AnyObject?, error: NSError?)-> Void) {
+    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, photos: [Photo]?, error: NSError?)-> Void) {
     
         
         let parameters = dictionaryForGetImages(forPin: pin)
@@ -20,7 +20,7 @@ extension FlickrClient {
             
             if error != nil {
                 
-                completionHandler(success: false, results: nil, error: error)
+                completionHandler(success: false, photos: nil, error: error)
                 
             } else {
                 
@@ -31,30 +31,12 @@ extension FlickrClient {
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
                         
-                        _ = photoArray.map(){
+                        let photos = photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
                         
-                        for photo in self.photos! {
-                            print("Got a photo: \(photo)")
-                            
-                            photo.loadThumbnails({success, error in
-                                if error != nil {
-                                    print(error)
-                                    completionHandler(success: false, error: error)
-                                } else {
-                                    print("Successfully got thumbnail URLS")
-                                    completionHandler(success: true, error: nil)
-                                }
-                            })
-                            
-                        }
-                    }
                         
-                        CoreDataStackManager.sharedInstance().saveContext()
-                        
-                        
-                        completionHandler(success: true, results: results, error: nil)
+                        completionHandler(success: true, photos: photos, error: nil)
                         
                     }
                     
@@ -64,8 +46,7 @@ extension FlickrClient {
             
         }
     }
-    
-    
+
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         

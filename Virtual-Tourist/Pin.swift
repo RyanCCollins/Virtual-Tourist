@@ -74,21 +74,31 @@ class Pin: NSManagedObject, MKAnnotation {
         paginate()
         
         if needsNewPhotosFromFlickr {
-            FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, results, error in
+            
+            FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
                 if error != nil {
                     /* Todo: Report error */
                     completionHandler(success: false, error: error)
                 } else {
-                    
-                    self.fetchThumbnails(completionHandler)
-                    
+                    self.photos = photos
+                    CoreDataStackManager.sharedInstance().saveContext()
                     
                 }
 
                 
             })
         }
+        
+        for photo in self.photos! {
+            photo.loadThumbnails({success, error in
+                if error != nil {
+                    completionHandler(success: false, error: error)
+                }
+                
+            })
+        }
+        completionHandler(success: true, error: nil)
     }
     
     func paginate() {

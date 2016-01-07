@@ -73,7 +73,9 @@ class Photo: NSManagedObject {
         }
     }
     
+    
     func loadThumbnails(callbackHandler: (success: Bool, error: NSError?)-> Void) {
+        
         self.thumbnailStatus.isLoading = true
         
         FlickrClient.sharedInstance().taskForGETImageFromURL(self.thumbnailURL!, withSize: nil, completionHandler: {data, error in
@@ -107,6 +109,7 @@ class Photo: NSManagedObject {
                 
                 self.fullImageStatus.isLoading = false
                 callbackHandler(success: false, error: error)
+                
             } else {
                 
                 self.imageFull = UIImage(data: data as! NSData)

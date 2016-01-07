@@ -36,35 +36,41 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         mapView.addGestureRecognizer(longPressRecognizer)
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
         configureAnnotations()
-        
     }
     
-
-    
     /* Work flow for dropping pins, saving and fetching */
-    /* Add or move a single annotation, when beginning, create a pin, when ending, get new photos for the pin */
+    /* Add or move a single annotation, when beginning, create a pin, when ending, get new photos for the pin
+     */
     func addAnnotation(sender: UIGestureRecognizer) {
         
         let point: CGPoint = sender.locationInView(mapView)
         let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
         
         switch sender.state {
-        case .Began :
-            
+        case .Began:
             pinToAdd = Pin(coordinate: coordinate, context: sharedContext)
             mapView.addAnnotation(pinToAdd!)
         case .Changed :
             pinToAdd!.willChangeValueForKey("coordinate")
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
-            pinToAdd?.getNewPhotos()
+            preloadThumbnails(forPin: pinToAdd!)
         case .Ended :
-            pinToAdd?.getNewPhotos()
+            preloadThumbnails(forPin: pinToAdd!)
         default :
             return
         }
         
     }
+    
+    func preloadThumbnails(forPin pin: Pin){
+        pin.getNewPhotos({success, error in
+            if error != nil {
+                print(error)
+            }
+        })
+    }
+    
     
     /* Monitor the fetched results controller for changes */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
@@ -76,7 +82,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             mapView.addAnnotation(anObject as! Pin)
         case .Delete :
             mapView.removeAnnotation(anObject as! Pin)
-            
         default :
             break
         }
@@ -199,7 +204,7 @@ extension PinLocationViewController: MKMapViewDelegate {
         
     }
     
-    /* create a mapView indicator */
+    /* Create a mapView indicator */
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         
         if let annotation = annotation as? Pin {

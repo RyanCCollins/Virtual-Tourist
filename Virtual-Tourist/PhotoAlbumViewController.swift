@@ -85,11 +85,17 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
     }
     
+    
+    
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
-            selectedPin.fetchThumbnails()
+            selectedPin.getNewPhotos({success, error in
+                if error != nil {
+                    self.alertController(withTitles: ["Error"], message: (error?.localizedDescription)!, callbackHandler: [nil])
+                } 
+            })
             
         } else {
             
@@ -189,14 +195,15 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         // Due to bugs with NSInternalInconsistencyException, doing a bit of checking here:
  
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
-        
-        if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
-            if photo.imageThumb != nil {
-                cell.imageView.image = photo.imageThumb
-                cell.imageView.fadeIn()
-                return cell
+        if fetchedResultsController.fetchedObjects != nil {
+            if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
+                if photo.imageThumb != nil {
+                    cell.imageView.image = photo.imageThumb
+                    cell.imageView.fadeIn()
+                    return cell
+                }
+            
             }
-        
         }
         cell.imageView.image = cell.stockPhoto
         return cell
