@@ -56,15 +56,7 @@ class Photo: NSManagedObject {
             FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: filePath!)
         }
     }
-    
-//    var imageThumb: UIImage? {
-//        get {
-//            return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
-//        }
-//        set {
-//            FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
-//        }
-//    }
+
     
     func imageForPhoto(completionHandler: CallbackHandler?) {
         loadingStatus.isLoading = true

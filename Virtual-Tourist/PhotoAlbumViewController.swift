@@ -82,7 +82,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         if selectedPin.loadingError != nil {
             alertController(withTitles: ["Ok", "Retry"], message: (selectedPin.loadingError?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.selectedPin.fetchThumbnails(nil)
+                
                 }])
         }
         
@@ -106,9 +106,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             try fetchedResultsController.performFetch()
 
         } catch let error as NSError {
-            alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-                self.performFetch()
-            }])
+            handleErrors(forPin: selectedPin, error: error)
         }
     }
     
@@ -116,7 +114,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
-            downloadNewPhotos(forPin: selectedPin)
+            self.getImagesForPin()
             
         } else {
             
@@ -135,42 +133,23 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         }
     }
     
-    func downloadNewPhotos(forPin pin: Pin) {
-        
-        /* Loop through and delete photos from shared context */
-        for photo in fetchedResultsController.fetchedObjects as! [Photo] {
-            
-            sharedContext.deleteObject(photo)
-            
-        }
-        
-
-        CoreDataStackManager.sharedInstance().saveContext()
-        
-        
-        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
+    /* Handle logic for getting new photos for a pin and manage errors */
+    func getImagesForPin(){
+        selectedPin.fetchAndStoreImages({success, error in
             
             if error != nil {
-                
-                self.handleErrors(forPin: pin, error: pin.loadingError!)
-                
-            } else {
-                pin.fetchThumbnails({success, error in
-                    if error != nil {
-                        self.handleErrors(forPin: pin, error: pin.loadingError!)
-                    }
-                    
-                })
+                self.handleErrors(forPin: self.selectedPin, error: error!)
             }
             
         })
     }
+
     
     func handleErrors(forPin pin: Pin, error: NSError) {
         activityIndicator.stopAnimating()
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-            self.downloadNewPhotos(forPin: pin)
+            self.getImagesForPin()
         }])
     }
     
@@ -253,17 +232,11 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        if photo.imageFull != nil {
-            print(">>>Photo for cell: \(indexPath.row) is \(photo.imageFull?.description)")
-            cell.imageView.image = photo.imageFull
-            
+        if photo.image != nil {
+            cell.imageView.image = photo.image
         } else if photo.filePath != nil {
- 
-            if let data = NSData(contentsOfFile: photo.filePath!){
-                photo.imageThumb = UIImage(data: data)
-                cell.imageView.image = photo.imageThumb
-                
-            }
+            
+            photo.imageForPhoto(nil)
         } 
         
         cell.activityIndicator.stopAnimating()

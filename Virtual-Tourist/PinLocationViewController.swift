@@ -66,9 +66,17 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             pinToAdd!.willChangeValueForKey("coordinate")
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
-            fetchPhotos(forPin: pinToAdd!)
+            
+//            self.sharedContext.performBlockAndWait({
+//                CoreDataStackManager.sharedInstance().saveContext()
+//            })
+//            pinToAdd!.fetchAndStoreImages(nil)
+            
         case .Ended :
-            fetchPhotos(forPin: pinToAdd!)
+            self.sharedContext.performBlockAndWait({
+                CoreDataStackManager.sharedInstance().saveContext()
+            })
+            pinToAdd!.fetchAndStoreImages(nil)
         default :
             return
         }
@@ -127,33 +135,41 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             })
         }
     }
+
     
-    /* Zooms in when crosshairs tapped */
-    @IBAction func didTapCrosshairUpInside(sender: AnyObject) {
-        let location = mapView.userLocation.coordinate
-        centerMapOnLocation(location)
-    }
-    
-    func fetchPhotos(forPin pin: Pin) {
-        if !pin.needsNewPhotos {
-            return
-        }
-        CoreDataStackManager.sharedInstance().saveContext()
-        print("Fetching Thumbnails Now")
-        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
-            
-            if success {
-                print("Successfully loaded images")
-                for photo in pin.photos! {
-                    photo.imageForPhoto()
-                }
-            } else {
-                
-                pin.loadingError = error
-                
-            }
-            
+    func savePinAndPrefetchImages(pin: Pin) {
+        
+        /* save context for the pin */
+        self.sharedContext.performBlockAndWait({
+            CoreDataStackManager.sharedInstance().saveContext()
         })
+        
+        pin.fetchAndStoreImages(nil)
+//        if !pin.needsNewPhotos {
+//            return
+//        }
+//        
+//        print("Fetching images Now")
+//        
+//        /* Makes the first call to flickr client when we need new photos for a pin */
+//        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
+//            
+//            if success {
+//                print("Successfully loaded images")
+//                for photo in pin.photos! {
+//                    photo.imageForPhoto(nil)
+//                }
+//                self.sharedContext.performBlockAndWait({
+//                    CoreDataStackManager.sharedInstance().saveContext()
+//                })
+//                
+//            } else {
+//                /* defer error to other view by setting an error for the pin here */
+//                pin.loadingError = error
+//                
+//            }
+//            
+//        })
     }
     
     var sharedContext: NSManagedObjectContext {

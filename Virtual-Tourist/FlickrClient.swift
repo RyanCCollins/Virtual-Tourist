@@ -87,7 +87,7 @@ class FlickrClient: NSObject {
                     }
                 }
                 if let imageData = data {
-                    let imageToReturn = UIImage(data: imageData!)
+                    let imageToReturn = UIImage(data: imageData)
 
                     completionHandler(image: imageToReturn, error: nil)
                 } else {

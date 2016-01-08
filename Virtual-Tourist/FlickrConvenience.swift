@@ -42,25 +42,24 @@ extension FlickrClient {
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
                         
-                        print("Created Photo: \(photos)")
-                        //CoreDataStackManager.sharedInstance().saveContext()
                         
-                        var returnError: NSError?
-                        var proceed = true
-                        for photo in pin.photos! {
-                            self.getImageForPhoto(photo, completionHandler: {result, error in
-                                
-                                if error != nil {
-                                    returnError = error
-                                    proceed = false
-                                }
-                                
-                            })
-                        }
-                        self.sharedContext.performBlockAndWait({
-                            CoreDataStackManager.sharedInstance().saveContext()
-                        })
-                        completionHandler(success: proceed, error: returnError)
+                        print("Created Photo: \(photos)")
+//                        CoreDataStackManager.sharedInstance().saveContext()
+                        
+//                        var returnError: NSError?
+//                        var proceed = true
+//                        for photo in pin.photos! {
+//                            self.getImageForPhoto(photo, completionHandler: {result, error in
+//                                
+//                                if error != nil {
+//                                    returnError = error
+//                                    proceed = false
+//                                }
+//                                
+//                            })
+//                        }
+                        
+                        completionHandler(success: true, error: nil)
                         
                     }
                     

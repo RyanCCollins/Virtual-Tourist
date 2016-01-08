@@ -4,7 +4,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
-        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -38,7 +37,7 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="9wz-s6-LVt">
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                             </mapView>
-                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap Pins to Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0VD-KA-2PW" customClass="SpringLabel" customModule="Spring">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap Pins to Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0VD-KA-2PW" customClass="SpringLabel" customModule="Spring">
                                 <rect key="frame" x="0.0" y="579" width="600" height="21"/>
                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -58,18 +57,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="6f1-cQ-1s2">
-                        <rightBarButtonItems>
-                            <barButtonItem title="Edit" id="P5G-5o-b0i">
-                                <connections>
-                                    <action selector="didTapEditingUpInside:" destination="BYZ-38-t0r" id="VSY-Ei-TNv"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem image="crosshairs" id="m2d-u9-I0F">
-                                <connections>
-                                    <action selector="didTapCrosshairUpInside:" destination="BYZ-38-t0r" id="Dpv-MA-HFy"/>
-                                </connections>
-                            </barButtonItem>
-                        </rightBarButtonItems>
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="P5G-5o-b0i">
+                            <connections>
+                                <action selector="didTapEditingUpInside:" destination="BYZ-38-t0r" id="VSY-Ei-TNv"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="editButton" destination="P5G-5o-b0i" id="aHv-CV-KHE"/>
@@ -212,7 +204,4 @@
             <point key="canvasLocation" x="1184" y="527"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="crosshairs" width="27" height="27"/>
-    </resources>
 </document>

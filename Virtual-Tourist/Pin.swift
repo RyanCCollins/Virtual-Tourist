@@ -88,6 +88,18 @@ class Pin: NSManagedObject, MKAnnotation {
     func fetchAndStoreImages(completionHandler: CallbackHandler?) {
         loadingError = nil
         
+        /* If new photos are needed, fetch them first */
+        if needsNewPhotos {
+            FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, error in
+                
+                 if error != nil {
+                    /* defer error to other view by setting an error for the pin here */
+                    self.loadingError = error
+                    
+                }
+                
+            })
+        }
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
         
         if photos != nil {
@@ -99,7 +111,11 @@ class Pin: NSManagedObject, MKAnnotation {
                 })
                 }
             }
-
+        
+        self.sharedContext.performBlockAndWait({
+            CoreDataStackManager.sharedInstance().saveContext()
+        })
+        
         /* Need to handle the loading error if one occurs, otherwise this will post that this execution did finish. */
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.didFinishLoadingThumbails, object: self)
         
@@ -112,6 +128,10 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
+    /* Core data */
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
     /* Helps deal with our NSNumber to Int bridging */
 //    func incrementCurrentPage()-> Void {
 //        if self.currentPage != nil {

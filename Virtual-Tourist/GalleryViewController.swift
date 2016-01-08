@@ -15,9 +15,9 @@ class GalleryViewController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        image = selectedPhoto?.imageFull
+        image = selectedPhoto?.image
         if image == nil {
-            selectedPhoto.
+            selectedPhoto!.image = image
         }
     }
 }
