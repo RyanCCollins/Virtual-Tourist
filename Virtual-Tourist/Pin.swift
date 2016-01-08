@@ -62,16 +62,14 @@ class Pin: NSManagedObject, MKAnnotation {
     }
     
     /* Convenience method for fetching thumbnails from pin's photos, using NSNotifications to avoid messy callbacks */
-    func fetchThumbnail(completionHandler: CallbackHandler?) {
+    func fetchThumbnails(completionHandler: CallbackHandler?) {
         loadingError = nil
         
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
         if photos != nil {
-            for photo in self.photos! {
-                photo.getImage(fromURL: photo.url_t!, callback: {success, error in
-                    if error != nil {
-                        self.loadingError = error
-                    }
+            for photo in photos! {
+                FlickrClient.sharedInstance().taskForGETImageFromURL(photo.url_m!, completionHandler: {success, error in
+                    
                 })
             }
         }

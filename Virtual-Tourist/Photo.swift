@@ -50,21 +50,6 @@ class Photo: NSManagedObject {
         url_m = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as? String
     }
     
-    /* Convenience for getting images for URLs */
-    func getImage(fromURL url: String, callback: (success: Bool, error: NSError?)-> Void) {
-        loadingStatus.isLoading = true
-        
-        FlickrClient.sharedInstance().taskForGETImageFromURL(url, completionHandler: {success, error in
-            self.loadingStatus.isLoading = false
-            if error != nil {
-                callback(success: false, error: error)
-            } else {
-                callback(success: true, error: nil)
-            }
-            
-        })
-    }
-    
     var imageFull: UIImage? {
         get {
             return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath!)
@@ -98,7 +83,7 @@ extension String {
     }
     var thumbnailName: String {
         get {
-            let returnVal = name + "_t" + ns.pathExtension
+            let returnVal = name + "_t." + ns.pathExtension
             return returnVal
         }
     }

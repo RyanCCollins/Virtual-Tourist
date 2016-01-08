@@ -69,9 +69,9 @@ class FlickrClient: NSObject {
         
         request.HTTPMethod = HTTPRequest.GET
         
-        
         /*Create a session and then a task */
         let session = NSURLSession.sharedSession()
+        
         let task = session.dataTaskWithRequest(request) {data, response, error in
             if error != nil {
                 print(error)

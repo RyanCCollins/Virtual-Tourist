@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 import CoreData
+import Spring
 
 /* Protocol for passing pin to delegate */
 protocol PinLocationPickerViewControllerDelegate {
@@ -16,7 +17,7 @@ protocol PinLocationPickerViewControllerDelegate {
 }
 
 class PinLocationViewController: UIViewController, NSFetchedResultsControllerDelegate {
-    @IBOutlet weak var tapPinsToDeleteBanner: UILabel!
+    @IBOutlet weak var tapPinsToDeleteBanner: SpringLabel!
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
     
@@ -89,19 +90,12 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         }
     }
     
-    lazy var scratchContext: NSManagedObjectContext = {
-        var context = NSManagedObjectContext()
-        context.persistentStoreCoordinator = CoreDataStackManager.sharedInstance().persistentStoreCoordinator
-        return context
-    }()
-    
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
         
         fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
         let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
-
         do {
             try fetchResultsController.performFetch()
         } catch let error {
@@ -123,9 +117,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
         if editing {
             editButton.title = "Done"
-            tapPinsToDeleteBanner.fadeOut(0.3, delay: 0.0, endAlpha: 1.0, completion: {Void in
-                self.editButton.enabled = true
-            })
+        
+            tapPinsToDeleteBanner.animate()
         } else {
             editButton.title = "Edit"
             tapPinsToDeleteBanner.fadeOut(0.5, delay: 0.0, endAlpha: 0.0, completion: {Void in
@@ -150,16 +143,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             
             if success {
                 print("Successfully loaded thumbnails")
-                pin.fetchThumbnail( {success, error in
-                    
-                    if error != nil {
-                        pin.loadingError = error
-                        print("Error loading thumbnails: \(error)")
-                    } else {
-                        CoreDataStackManager.sharedInstance().saveContext()
-                    }
-                    
-                })
                 
             } else {
                 

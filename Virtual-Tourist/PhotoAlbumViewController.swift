@@ -82,7 +82,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         if selectedPin.loadingError != nil {
             alertController(withTitles: ["Ok", "Retry"], message: (selectedPin.loadingError?.localizedDescription)!, callbackHandler: [nil, {Void in
-                    self.selectedPin.fetchThumbnail(nil)
+                    self.selectedPin.fetchThumbnails(nil)
                 }])
         }
         
@@ -155,7 +155,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 self.handleErrors(forPin: pin, error: pin.loadingError!)
                 
             } else {
-                pin.fetchThumbnail({success, error in
+                pin.fetchThumbnails({success, error in
                     if error != nil {
                         self.handleErrors(forPin: pin, error: pin.loadingError!)
                     }
@@ -243,7 +243,6 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
-            print(sections)
             return sections.numberOfObjects
         }
         return 1
@@ -259,16 +258,13 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
             cell.imageView.image = photo.imageThumb
             
         } else if photo.filePath != nil {
-            
+            print(photo.filePath)
             if let data = NSData(contentsOfFile: (photo.filePath?.thumbnailName)!) {
                 photo.imageThumb = UIImage(data: data)
                 cell.imageView.image = photo.imageThumb
                 
             }
-        } else {
-            cell.imageView.image = cell.stockPhoto
-            
-        }
+        } 
         
         cell.activityIndicator.stopAnimating()
         cell.activityIndicator.fadeOut()

@@ -38,9 +38,29 @@ extension FlickrClient {
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
                         
-                        photoArray.map(){
+                        let photos = photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
+                        
+                        print("Created Photo: \(photos)")
+                        CoreDataStackManager.sharedInstance().saveContext()
+                        
+                        var returnError: NSError?
+                        var proceed = true
+                        for photo in pin.photos! {
+                            self.getImageForPhoto(photo, completionHandler: {result, error in
+                                
+                                if error != nil {
+                                    returnError = error
+                                    proceed = false
+                                }
+                                
+                            })
+                        }
+                        self.sharedContext.performBlockAndWait({
+                            CoreDataStackManager.sharedInstance().saveContext()
+                        })
+                        completionHandler(success: proceed, error: returnError)
                         
                     }
                     
@@ -50,7 +70,19 @@ extension FlickrClient {
             
         }
     }
-
+    
+    /* Convenience method for getting images for photo */
+    func getImageForPhoto(photo: Photo, completionHandler: CompletionHandler) {
+        
+        FlickrClient.sharedInstance().taskForGETImageFromURL(photo.url_m!, completionHandler: {result, error in
+            if error != nil {
+                completionHandler(result: nil, error: error)
+            } else {
+                completionHandler(result: result, error: nil)
+            }
+        })
+        
+    }
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         

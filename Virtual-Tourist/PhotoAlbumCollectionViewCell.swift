@@ -10,7 +10,7 @@ import UIKit
 
 class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
-    let stockPhoto = UIImage(named: "missing-resource")
+
     let selectedColor = UIColor.grayColor()
     var isUpdating = false
     
@@ -20,14 +20,6 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         
     }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        if imageView.image == nil {
-            self.imageView.image = stockPhoto
-        }
-    }
-    
     
     func isSelected(selected: Bool) {
         if !isUpdating {

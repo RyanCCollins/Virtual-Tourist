@@ -50,6 +50,4 @@ extension UIView {
             self.alpha = alpha
             }, completion: completion)
     }
-    
-    func slideInFromBottom
 }
