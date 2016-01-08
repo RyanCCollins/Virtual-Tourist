@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -37,24 +38,43 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="9wz-s6-LVt">
                                 <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                             </mapView>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap Pins to Delete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0VD-KA-2PW">
+                                <rect key="frame" x="0.0" y="579" width="600" height="21"/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.90823972225189209" green="0.92638683319091797" blue="0.9317171573638916" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="0VD-KA-2PW" secondAttribute="trailing" constant="-20" id="7C4-vv-sTA"/>
                             <constraint firstItem="9wz-s6-LVt" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="9v6-Ua-FtL"/>
+                            <constraint firstItem="0VD-KA-2PW" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="NL0-u9-wjv"/>
                             <constraint firstItem="9wz-s6-LVt" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="bb5-a2-yqP"/>
                             <constraint firstAttribute="trailingMargin" secondItem="9wz-s6-LVt" secondAttribute="trailing" constant="-20" id="c2k-mV-nDR"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="0VD-KA-2PW" secondAttribute="bottom" id="lVS-FK-h43"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="9wz-s6-LVt" secondAttribute="bottom" id="xS7-9m-eVN"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="6f1-cQ-1s2">
-                        <barButtonItem key="rightBarButtonItem" image="crosshairs" id="m2d-u9-I0F">
-                            <connections>
-                                <action selector="didTapCrosshairUpInside:" destination="BYZ-38-t0r" id="Dpv-MA-HFy"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem title="Edit" id="P5G-5o-b0i">
+                                <connections>
+                                    <action selector="didTapEditingUpInside:" destination="BYZ-38-t0r" id="VSY-Ei-TNv"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem image="crosshairs" id="m2d-u9-I0F">
+                                <connections>
+                                    <action selector="didTapCrosshairUpInside:" destination="BYZ-38-t0r" id="Dpv-MA-HFy"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
+                        <outlet property="editButton" destination="P5G-5o-b0i" id="aHv-CV-KHE"/>
                         <outlet property="mapView" destination="9wz-s6-LVt" id="kFK-zp-4Dz"/>
+                        <outlet property="tapPinsToDeleteBanner" destination="0VD-KA-2PW" id="Wlg-9C-KgA"/>
                         <segue destination="gLW-45-VtK" kind="showDetail" identifier="showAlbum" id="VpQ-gh-J7N"/>
                     </connections>
                 </viewController>

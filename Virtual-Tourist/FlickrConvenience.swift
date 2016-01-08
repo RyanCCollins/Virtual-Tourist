@@ -11,6 +11,7 @@ import UIKit
 
 extension FlickrClient {
     
+    /* Fetches all photos for the pin from Flickr, note, does not handle saving to Core Data */
     func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
         
         /* increment the current page in order to get new photos */
@@ -33,7 +34,6 @@ extension FlickrClient {
                 if results != nil {
                     if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages], currentPage = photosDictionary[JSONResponseKeys.Page] {
                         
-                        print(photosDictionary)
                         
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
@@ -41,8 +41,6 @@ extension FlickrClient {
                         photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
-                        
-                        CoreDataStackManager.sharedInstance().saveContext()
                         
                     }
                     

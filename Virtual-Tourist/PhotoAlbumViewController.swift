@@ -26,7 +26,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         
         selectedPin = pin
-        subscribeToImageLoadingNotifications()
     }
     
     var selectedIndexPaths = [NSIndexPath]()
@@ -45,6 +44,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
         
+        subscribeToImageLoadingNotifications()
         performFetch()
         
         let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
@@ -53,9 +53,19 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         collectionView.addGestureRecognizer(gestureRecognizer)
     }
     
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        unsubscribeToImageLoadingNotifications()
+    }
+    
     func subscribeToImageLoadingNotifications() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoadingThumbnails", name: Notifications.didFinishLoadingThumbails, object: selectedPin)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "isLoadingThumbnails", name: Notifications.willFinishLoadingThumbnails, object: selectedPin)
+    }
+    
+    func unsubscribeToImageLoadingNotifications () {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     func isLoadingThumbnails() {
@@ -66,7 +76,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     func didFinishLoadingThumbnails() {
         print("Notification for didFinishLoadingThumbnails Received")
-        collectionView.reloadData()
+        performFetch()
         self.activityIndicator.stopAnimating()
         view.fadeIn(0.3, delay: 0.0, alpha: 1.0, completion: {_ in})
         
@@ -187,8 +197,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        if controller.fetchedObjects?.count > 0 {
+        if controller.fetchedObjects?.count < 0 {
             print("No images fetched")
+            return
         }
         
         collectionView.performBatchUpdates({
@@ -242,8 +253,6 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        
-        //cell.activityIndicator.startAnimating()
         
         if photo.imageThumb != nil {
             print(">>>Photo for cell: \(indexPath.row) is \(photo.imageThumb?.description)")

@@ -16,15 +16,19 @@ protocol PinLocationPickerViewControllerDelegate {
 }
 
 class PinLocationViewController: UIViewController, NSFetchedResultsControllerDelegate {
+    @IBOutlet weak var tapPinsToDeleteBanner: UILabel!
+    @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
+    
     let regionRadius: CLLocationDistance = 1000
     
+    /* Pin to add defined globally, for use when rearranging pins */
     var pinToAdd: Pin? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        /* Map view delegate */
+        /* Map view delegate methods */
         mapView.delegate = self
         mapView.userInteractionEnabled = true
         
@@ -35,8 +39,15 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         longPressRecognizer.minimumPressDuration = 1.5
         mapView.addGestureRecognizer(longPressRecognizer)
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
-        configureAnnotations()
+        configureAllAnnotations()
         
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        editing = false
+        editButton.title = "Edit"
+        tapPinsToDeleteBanner.hidden = true
     }
     
     func addAnnotation(sender: UIGestureRecognizer) {
@@ -100,13 +111,30 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         return fetchResultsController
     }()
     
-    func configureAnnotations() {
+    func configureAllAnnotations() {
         
         mapView.removeAnnotations(mapView.annotations)
         mapView.addAnnotations(fetchedResultsController.fetchedObjects as! [Pin])
         
     }
     
+    @IBAction func didTapEditingUpInside(sender: AnyObject) {
+        editing = !editing
+        
+        if editing {
+            editButton.title = "Done"
+            tapPinsToDeleteBanner.fadeOut(0.3, delay: 0.0, endAlpha: 1.0, completion: {Void in
+                self.editButton.enabled = true
+            })
+        } else {
+            editButton.title = "Edit"
+            tapPinsToDeleteBanner.fadeOut(0.5, delay: 0.0, endAlpha: 0.0, completion: {Void in
+                self.editButton.enabled = false
+            })
+        }
+    }
+    
+    /* Zooms in when crosshairs tapped */
     @IBAction func didTapCrosshairUpInside(sender: AnyObject) {
         let location = mapView.userLocation.coordinate
         centerMapOnLocation(location)
@@ -126,6 +154,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
                     
                     if error != nil {
                         pin.loadingError = error
+                        print("Error loading thumbnails: \(error)")
                     } else {
                         CoreDataStackManager.sharedInstance().saveContext()
                     }
@@ -214,6 +243,8 @@ extension PinLocationViewController: MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
+        if !editing {
+        
         let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
         
         let pin = view.annotation as! Pin
@@ -221,7 +252,12 @@ extension PinLocationViewController: MKMapViewDelegate {
         galleryViewController.pinLocation(self, didPickPin: pin)
         
         navigationController?.pushViewController(galleryViewController, animated: true)
-        
+        } else {
+            /* Delete pins when edit button is toggled */
+            let pin = view.annotation as! Pin
+            mapView.removeAnnotation(pin)
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
     }
     
     /* create a mapView indicator */
