@@ -253,13 +253,13 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
-        if photo.imageThumb != nil {
-            print(">>>Photo for cell: \(indexPath.row) is \(photo.imageThumb?.description)")
-            cell.imageView.image = photo.imageThumb
+        if photo.imageFull != nil {
+            print(">>>Photo for cell: \(indexPath.row) is \(photo.imageFull?.description)")
+            cell.imageView.image = photo.imageFull
             
         } else if photo.filePath != nil {
-            print(photo.filePath)
-            if let data = NSData(contentsOfFile: (photo.filePath?.thumbnailName)!) {
+ 
+            if let data = NSData(contentsOfFile: photo.filePath!){
                 photo.imageThumb = UIImage(data: data)
                 cell.imageView.image = photo.imageThumb
                 
@@ -285,19 +285,21 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     }
     
     func handLongPress(gestureRecognizer: UIGestureRecognizer) {
-//        if gestureRecognizer.state != .Ended {
-//            return
-//        }
-//        
-//        let point = gestureRecognizer.locationInView(collectionView)
-//        
-//        let index = collectionView.indexPathForItemAtPoint(point)
-//        
-//        guard index != nil else {
-//            return
-//        }
-//        
-//        let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
+        if gestureRecognizer.state != .Ended {
+            return
+        }
+        
+        let point = gestureRecognizer.locationInView(collectionView)
+        
+        let index = collectionView.indexPathForItemAtPoint(point)
+        
+        guard index != nil else {
+            return
+        }
+        
+        let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
+        let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("GalleryViewController") as! GalleryViewController
+        
         
         
     }

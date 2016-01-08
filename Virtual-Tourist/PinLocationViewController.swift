@@ -76,6 +76,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     
+    
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert :
@@ -134,16 +135,18 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchPhotos(forPin pin: Pin) {
-        if pin.needsNewPhotos {
-                
+        if !pin.needsNewPhotos {
+            return
         }
         CoreDataStackManager.sharedInstance().saveContext()
         print("Fetching Thumbnails Now")
         FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
             
             if success {
-                print("Successfully loaded thumbnails")
-                
+                print("Successfully loaded images")
+                for photo in pin.photos! {
+                    photo.imageForPhoto()
+                }
             } else {
                 
                 pin.loadingError = error

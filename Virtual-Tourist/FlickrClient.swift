@@ -17,7 +17,6 @@ class FlickrClient: NSObject {
     /* Task returned for GETting data from the server */
     func taskForGETMethod(var urlString: String, parameters: [String : AnyObject]?, completionHandler: CompletionHandler) -> NSURLSessionDataTask {
             
-            
         /* If our request includes parameters, add those parameters to our URL */
         if parameters != nil {
             if let parameters = parameters {
@@ -60,8 +59,8 @@ class FlickrClient: NSObject {
         return task
     }
     
-    
-    func taskForGETImageFromURL(url: String, completionHandler:CompletionHandler) -> NSURLSessionDataTask {
+    /* Abtraction that returns a UIImage from a URL from FLickr */
+    func taskForGETImageFromURL(url: String, completionHandler: (image: UIImage?, error: NSError?)-> Void) -> NSURLSessionDataTask {
         
         let url = NSURL(string: url)!
 
@@ -75,7 +74,7 @@ class FlickrClient: NSObject {
         let task = session.dataTaskWithRequest(request) {data, response, error in
             if error != nil {
                 print(error)
-                completionHandler(result: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Status.Network))
+                completionHandler(image: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Status.Network))
                 
             } else {
                 
@@ -83,13 +82,18 @@ class FlickrClient: NSObject {
                 self.guardForHTTPResponses(response as? NSHTTPURLResponse) {proceed, error in
                     if error != nil {
                         print(response)
-                        completionHandler(result: nil, error: error)
+                        completionHandler(image: nil, error: error!)
                         
                     }
                 }
+                if let imageData = data {
+                    let imageToReturn = UIImage(data: imageData!)
+
+                    completionHandler(image: imageToReturn, error: nil)
+                } else {
+                    completionHandler(image: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: "Unable to get an image from Network.  Please try again."))
+                }
                 
-                /* Parse the results and return in the completion handler with an error if there is one. */
-                completionHandler(result: data, error: nil)
                 
             }
         }

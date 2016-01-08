@@ -15,11 +15,11 @@ extension FlickrClient {
     func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
         
         /* increment the current page in order to get new photos */
-        if pin.currentPage == 0 || pin.currentPage == nil {
-            pin.currentPage = 1
-        } else {
-            pin.incrementCurrentPage()
-        }
+//        if pin.currentPage == 0 || pin.currentPage == nil {
+//            pin.currentPage = 1
+//        } else {
+//            pin.incrementCurrentPage()
+//        }
         
         let parameters = dictionaryForGetImages(forPin: pin)
         
@@ -43,7 +43,7 @@ extension FlickrClient {
                         }
                         
                         print("Created Photo: \(photos)")
-                        CoreDataStackManager.sharedInstance().saveContext()
+                        //CoreDataStackManager.sharedInstance().saveContext()
                         
                         var returnError: NSError?
                         var proceed = true
@@ -85,10 +85,6 @@ extension FlickrClient {
     }
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
-        
-        /* Get next page of photos */
-        pin.incrementCurrentPage()
-
         
         let parameters: [String : AnyObject ] = [
             Constants.Keys.Method : Constants.Values.Methods.SEARCH,

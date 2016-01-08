@@ -27,8 +27,8 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
-    var needsNewPhotos: Bool = true
     var loadingError: NSError?
+    var coordinateDelta: Double?
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -56,23 +56,50 @@ class Pin: NSManagedObject, MKAnnotation {
             return CLLocationCoordinate2DMake(Double(latitude), Double(longitude))
         }
         set {
+            let oldLocation = CLLocation(latitude: Double(latitude), longitude: Double(longitude))
+            let newLocation = CLLocation(latitude: newValue.latitude, longitude: newValue.longitude)
+            
+            /* Gives the delta from the last coordinate In Kilometers when a new location is set */
+            coordinateDelta = newLocation.distanceFromLocation(oldLocation) / 1000
             self.latitude = newValue.latitude
             self.longitude = newValue.longitude
         }
     }
     
-    /* Convenience method for fetching thumbnails from pin's photos, using NSNotifications to avoid messy callbacks */
-    func fetchThumbnails(completionHandler: CallbackHandler?) {
+    /* Returns false only when the delta between coordinate changes is less than or equal to 2 KM */
+    var needsNewPhotos: Bool {
+        get {
+            if let delta = coordinateDelta {
+            if delta <= 2 {
+                print("Coordinate Delta is: \(delta) returning false")
+                return false
+            }
+            }
+            return true
+        }
+        set {
+            /* Reset the coordinate delta */
+            coordinateDelta = 0
+            return
+        }
+    }
+    
+    /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
+    func fetchAndStoreImages(completionHandler: CallbackHandler?) {
         loadingError = nil
         
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
+        
         if photos != nil {
             for photo in photos! {
-                FlickrClient.sharedInstance().taskForGETImageFromURL(photo.url_m!, completionHandler: {success, error in
-                    
+                photo.imageForPhoto({success, error in
+                    if error != nil {
+                        self.loadingError = error
+                    }
                 })
+                }
             }
-        }
+
         /* Need to handle the loading error if one occurs, otherwise this will post that this execution did finish. */
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.didFinishLoadingThumbails, object: self)
         
@@ -86,18 +113,18 @@ class Pin: NSManagedObject, MKAnnotation {
     }
     
     /* Helps deal with our NSNumber to Int bridging */
-    func incrementCurrentPage()-> Void {
-        if self.currentPage != nil {
-            var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
-            if currentPage < count {
-                currentPage++
-                self.currentPage = currentPage
-                needsNewPhotos = false
-                return
-            }
-        }
-        self.currentPage = 1
-        needsNewPhotos = true
-    }
+//    func incrementCurrentPage()-> Void {
+//        if self.currentPage != nil {
+//            var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
+//            if currentPage < count {
+//                currentPage++
+//                self.currentPage = currentPage
+//                needsNewPhotos = false
+//                return
+//            }
+//        }
+//        self.currentPage = 1
+//        needsNewPhotos = true
+//    }
     
 }

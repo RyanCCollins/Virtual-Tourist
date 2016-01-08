@@ -10,6 +10,14 @@ import UIKit
 import CoreData
 
 class GalleryViewController: UIViewController {
+    var selectedPhoto: Photo?
+    var image: UIImage?
     
-
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        image = selectedPhoto?.imageFull
+        if image == nil {
+            selectedPhoto.
+        }
+    }
 }

@@ -12,7 +12,6 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
 
     let selectedColor = UIColor.grayColor()
-    var isUpdating = false
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -22,13 +21,11 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     }
     
     func isSelected(selected: Bool) {
-        if !isUpdating {
             if selected {
                 self.fadeOut()
             } else {
                 self.fadeIn()
             }
-        }
     }
     
 

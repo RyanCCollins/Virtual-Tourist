@@ -19,7 +19,6 @@ class Photo: NSManagedObject {
     @NSManaged var titleString: String
     @NSManaged var pin : Pin
     @NSManaged var filePath : String?
-    @NSManaged var url_t : String?
     @NSManaged var url_m: String?
     
     struct Status {
@@ -45,12 +44,11 @@ class Photo: NSManagedObject {
         /* Assign our properties */
         self.pin = pin
         filePath = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL]?.lastPathComponent
-        url_t = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.ThumbnailURL] as? String
         titleString = dictionary[FlickrClient.JSONResponseKeys.Title] as! String
         url_m = dictionary[FlickrClient.JSONResponseKeys.ImageSizes.MediumURL] as? String
     }
     
-    var imageFull: UIImage? {
+    var image: UIImage? {
         get {
             return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath!)
         }
@@ -59,14 +57,31 @@ class Photo: NSManagedObject {
         }
     }
     
-    var imageThumb: UIImage? {
-        get {
-            return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
-        }
-        set {
-            FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
-        }
+//    var imageThumb: UIImage? {
+//        get {
+//            return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
+//        }
+//        set {
+//            FlickrClient.Caches.imageCache.imageWithIdentifier(filePath?.thumbnailName)
+//        }
+//    }
+    
+    func imageForPhoto(completionHandler: CallbackHandler?) {
+        loadingStatus.isLoading = true
+        FlickrClient.sharedInstance().taskForGETImageFromURL(self.url_m!, completionHandler: {image, error in
+            if image == nil || error != nil {
+                if let callback = completionHandler {
+                    callback(success: false, error: error)
+                }
+            } else {
+                self.image = image
+                if let callback = completionHandler {
+                    callback(success: true, error: nil)
+                }
+            }
+        })
     }
+    
 }
 
 /* Helps to bridge string & NSString functions for getting filepath & filename for different files: */
