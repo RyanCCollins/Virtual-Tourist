@@ -21,6 +21,10 @@ class Pin: NSManagedObject, MKAnnotation {
         static let Photos = "photos"
     }
     
+    struct Status {
+        var isLoading: Bool = false
+    }
+    
     /* Create our managed variables */
     @NSManaged var latitude: NSNumber
     @NSManaged var longitude: NSNumber
@@ -29,6 +33,7 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var currentPage: NSNumber?
     var loadingError: NSError?
     var coordinateDelta: Double?
+    var status: Status? = nil
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -86,9 +91,13 @@ class Pin: NSManagedObject, MKAnnotation {
     
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
     func fetchAndStoreImages(completionHandler: CallbackHandler?) {
+        status?.isLoading = true
+        
         loadingError = nil
         
         /* If new photos are needed, fetch them first */
+        NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
+        
         if needsNewPhotos {
             FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, error in
                 
@@ -100,7 +109,6 @@ class Pin: NSManagedObject, MKAnnotation {
                 
             })
         }
-        NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
         
         if photos != nil {
             for photo in photos! {
@@ -111,13 +119,10 @@ class Pin: NSManagedObject, MKAnnotation {
                 })
                 }
             }
-        
-        self.sharedContext.performBlockAndWait({
-            CoreDataStackManager.sharedInstance().saveContext()
-        })
-        
+
         /* Need to handle the loading error if one occurs, otherwise this will post that this execution did finish. */
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.didFinishLoadingThumbails, object: self)
+        status?.isLoading = false
         
         if let completionHandler = completionHandler {
         if loadingError != nil {

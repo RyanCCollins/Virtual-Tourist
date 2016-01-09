@@ -38,26 +38,10 @@ extension FlickrClient {
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
                         
+                        /* Map the photo dictionary to Photo objects */
                         let photos = photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
-                        
-                        
-                        print("Created Photo: \(photos)")
-//                        CoreDataStackManager.sharedInstance().saveContext()
-                        
-//                        var returnError: NSError?
-//                        var proceed = true
-//                        for photo in pin.photos! {
-//                            self.getImageForPhoto(photo, completionHandler: {result, error in
-//                                
-//                                if error != nil {
-//                                    returnError = error
-//                                    proceed = false
-//                                }
-//                                
-//                            })
-//                        }
                         
                         completionHandler(success: true, error: nil)
                         

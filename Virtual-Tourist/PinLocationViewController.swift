@@ -21,6 +21,10 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var mapView: MKMapView!
     
+    /* Creating my own editing var because included is being changed randomly */
+    var _editing: Bool = false
+    
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     let regionRadius: CLLocationDistance = 1000
     
     /* Pin to add defined globally, for use when rearranging pins */
@@ -46,7 +50,9 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        editing = false
+        
+        /* Handle editing button here */
+        _editing = false
         editButton.title = "Edit"
         tapPinsToDeleteBanner.hidden = true
     }
@@ -67,12 +73,14 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
             
-//            self.sharedContext.performBlockAndWait({
-//                CoreDataStackManager.sharedInstance().saveContext()
-//            })
-//            pinToAdd!.fetchAndStoreImages(nil)
-            
+            self.sharedContext.performBlockAndWait({
+                CoreDataStackManager.sharedInstance().saveContext()
+            })
+            pinToAdd!.fetchAndStoreImages(nil)
         case .Ended :
+            print("Ended pin drop")
+            
+            /* Wait until coredata saves before fetching photos for the pin */
             self.sharedContext.performBlockAndWait({
                 CoreDataStackManager.sharedInstance().saveContext()
             })
@@ -84,7 +92,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     
-    
+    /* When the fetched results controller changes pins, handle the mapview insertion and deletion */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert :
@@ -99,6 +107,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         }
     }
     
+    /* Fetched Results controller for Pin entities */
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
         
@@ -114,6 +123,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         return fetchResultsController
     }()
     
+    /* Convenience for remove and adding all mapview annotations */
     func configureAllAnnotations() {
         
         mapView.removeAnnotations(mapView.annotations)
@@ -122,16 +132,17 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     @IBAction func didTapEditingUpInside(sender: AnyObject) {
-        editing = !editing
+        /* Switch editing state */
+        _editing = !_editing
         
-        if editing {
+        if _editing {
             editButton.title = "Done"
-        
+            tapPinsToDeleteBanner.hidden = false
             tapPinsToDeleteBanner.animate()
         } else {
             editButton.title = "Edit"
             tapPinsToDeleteBanner.fadeOut(0.5, delay: 0.0, endAlpha: 0.0, completion: {Void in
-                self.editButton.enabled = false
+                self.tapPinsToDeleteBanner.hidden = true
             })
         }
     }
@@ -144,52 +155,12 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             CoreDataStackManager.sharedInstance().saveContext()
         })
         
+        /* Defer errors to next view to avoid cluttering up this one */
         pin.fetchAndStoreImages(nil)
-//        if !pin.needsNewPhotos {
-//            return
-//        }
-//        
-//        print("Fetching images Now")
-//        
-//        /* Makes the first call to flickr client when we need new photos for a pin */
-//        FlickrClient.sharedInstance().taskForFetchPhotos(forPin: pin, completionHandler: {success, error in
-//            
-//            if success {
-//                print("Successfully loaded images")
-//                for photo in pin.photos! {
-//                    photo.imageForPhoto(nil)
-//                }
-//                self.sharedContext.performBlockAndWait({
-//                    CoreDataStackManager.sharedInstance().saveContext()
-//                })
-//                
-//            } else {
-//                /* defer error to other view by setting an error for the pin here */
-//                pin.loadingError = error
-//                
-//            }
-//            
-//        })
     }
     
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext
-    }
-    
-    /* Center on current location */
-    func centerMapOnLocation(location: CLLocationCoordinate2D) {
-        
-        let coordinateRegion = MKCoordinateRegionMakeWithDistance(location, regionRadius * 4.0, regionRadius * 4.0)
-        mapView.setRegion(coordinateRegion, animated: true)
-        
-    }
-    
-    
-    /* Find current location and zoom in */
-    func mapView(mapView: MKMapView, didUpdateUserLocation userLocation: MKUserLocation) {
-        let center = CLLocationCoordinate2D(latitude: (userLocation.location?.coordinate.latitude)!, longitude: (userLocation.location?.coordinate.longitude)!)
-        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpanMake(0.01, 0.01))
-        mapView.setRegion(region, animated: true)
     }
     
     /* The following three functions save and restore the map stay, helping to persist map annotations between sessions */
@@ -214,6 +185,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
     }
     
+    /* Core data stuff for saving map state */
     var filePath : String {
         let manager = NSFileManager.defaultManager()
         let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first! as NSURL
@@ -232,7 +204,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
         
     }
-    
+
     
 }
 
@@ -274,15 +246,23 @@ extension PinLocationViewController: MKMapViewDelegate {
             /* If we are reusing the annotation view, set a new annotation */
             if let pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pinId) as? MKPinAnnotationView {
                 
-                pinAnnotationView.annotation = annotation
-                annotationViewToReturn = pinAnnotationView
                 
+                pinAnnotationView.annotation = annotation
+                
+                annotationViewToReturn = pinAnnotationView
             } else {
                 /* If new annotation view, configure and return */
                 annotationViewToReturn = MKPinAnnotationView(annotation: annotation, reuseIdentifier: pinId)
                 annotationViewToReturn.animatesDrop = true
                 annotationViewToReturn.draggable = true
                 annotationViewToReturn.canShowCallout = false
+            }
+            
+            /* If fun mode, then use the Udacity logo */
+            if appDelegate.globalSettings?.funMode == true {
+                annotationViewToReturn.image = UIImage(named: "udacity-pin-logo")
+            } else {
+                annotationViewToReturn.image = nil
             }
             return annotationViewToReturn
         }

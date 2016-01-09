@@ -8,19 +8,21 @@
 
 import UIKit
 import MapKit
+import Spring
 import CoreData
 
 class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate, UIGestureRecognizerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     
+    @IBOutlet weak  var loadingView: SpringImageView!
     @IBOutlet weak var noPhotosLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     let regionRadius: CLLocationDistance = 1000
     var selectedPin: Pin!
+    var settingsDict: [String : AnyObject?]? = nil
     
     /* Pin picker delegate method, loads photos and centers map on pin */
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
@@ -47,10 +49,18 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         subscribeToImageLoadingNotifications()
         performFetch()
         
-        let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
+        let gestureRecognizer = UIGestureRecognizer(target: collectionView, action: "handleLongPress:")
         gestureRecognizer.delegate = self
         
         collectionView.addGestureRecognizer(gestureRecognizer)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        if selectedPin.status?.isLoading == true {
+            loadingView.hidden = false
+            loadingView.animate()
+        }
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -71,21 +81,21 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func isLoadingThumbnails() {
         print("Notification for isLoadingThumbnails Received")
         view.alpha = 0.6
-        activityIndicator.startAnimating()
+        loadingView.animate()
+        loadingView.showLoading()
     }
     
     func didFinishLoadingThumbnails() {
+        
         print("Notification for didFinishLoadingThumbnails Received")
         performFetch()
-        self.activityIndicator.stopAnimating()
         view.fadeIn(0.3, delay: 0.0, alpha: 1.0, completion: {_ in})
         
         if selectedPin.loadingError != nil {
-            alertController(withTitles: ["Ok", "Retry"], message: (selectedPin.loadingError?.localizedDescription)!, callbackHandler: [nil, {Void in
-                
-                }])
+            self.handleErrors(forPin: selectedPin, error: selectedPin.loadingError!)
         }
-        
+        loadingView.hideLoading()
+        collectionView.reloadData()
     }
     
     /* Setup flowlayout upon layout of subviews */
@@ -146,7 +156,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 
     
     func handleErrors(forPin pin: Pin, error: NSError) {
-        activityIndicator.stopAnimating()
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
             self.getImagesForPin()
@@ -180,7 +189,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             print("No images fetched")
             return
         }
-        
+       
         collectionView.performBatchUpdates({
             
             self.collectionView.insertItemsAtIndexPaths(self.instertedIndexPaths)
@@ -232,6 +241,8 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
         
+        cell.setUpdatingState(true)
+        
         if photo.image != nil {
             cell.imageView.image = photo.image
         } else if photo.filePath != nil {
@@ -239,9 +250,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
             photo.imageForPhoto(nil)
         } 
         
-        cell.activityIndicator.stopAnimating()
-        cell.activityIndicator.fadeOut()
-        cell.imageView.fadeIn()
+        cell.setUpdatingState(false)
         
         return cell
     }
@@ -257,7 +266,8 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         return true
     }
     
-    func handLongPress(gestureRecognizer: UIGestureRecognizer) {
+    func handleLongPress(gestureRecognizer: UIGestureRecognizer) {
+        print("long press")
         if gestureRecognizer.state != .Ended {
             return
         }
@@ -273,21 +283,16 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
         let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("GalleryViewController") as! GalleryViewController
         
+        galleryViewController.image = cell.imageView.image
+        
+        performSegueWithIdentifier("showGallery", sender: self)
         
         
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
-//        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-//        
-//        if photo.filePath == nil || photo.filePath == "" {
-//            
-//            /* Try refetching here */
-//            performFetch(nil)
-//            return
-//        }
-//        
+        
         if selectedIndexPaths.contains(indexPath) {
             cell.isSelected(false)
         } else {

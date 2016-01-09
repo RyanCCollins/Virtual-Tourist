@@ -29,6 +29,8 @@
 		1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C971C024FEB0043CE15 /* ImageCache.swift */; };
 		1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C991C02516E0043CE15 /* Config.swift */; };
 		1FAB2C9C1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */; };
+		1FC3CF3A1C405D8B005882A6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3CF391C405D8B005882A6 /* SettingsViewController.swift */; };
+		1FC3CF3C1C405E79005882A6 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3CF3B1C405E79005882A6 /* Settings.swift */; };
 		4F9DA03D7A42B738D35B1159 /* Pods_Virtual_Tourist.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4689E8ABF2DF661D12D048E3 /* Pods_Virtual_Tourist.framework */; };
 /* End PBXBuildFile section */
 
@@ -82,6 +84,8 @@
 		1FAB2C971C024FEB0043CE15 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		1FAB2C991C02516E0043CE15 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumCollectionViewCell.swift; sourceTree = "<group>"; };
+		1FC3CF391C405D8B005882A6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		1FC3CF3B1C405E79005882A6 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		4689E8ABF2DF661D12D048E3 /* Pods_Virtual_Tourist.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Virtual_Tourist.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3CF914082CF6784A641FA4B /* Pods-Virtual-Tourist.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual-Tourist.release.xcconfig"; path = "Pods/Target Support Files/Pods-Virtual-Tourist/Pods-Virtual-Tourist.release.xcconfig"; sourceTree = "<group>"; };
 		BACA7EC1F0183EB802DB6A2D /* Pods-Virtual-Tourist.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual-Tourist.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Virtual-Tourist/Pods-Virtual-Tourist.debug.xcconfig"; sourceTree = "<group>"; };
@@ -178,6 +182,7 @@
 				1F27F8321BFFFE5700839C10 /* Virtual_Tourist.xcdatamodeld */,
 				1F27FBB61C00CFF400839C10 /* FlickrClient */,
 				1F27F8601C0001A400839C10 /* CoreDataStackManager.swift */,
+				1FC3CF3B1C405E79005882A6 /* Settings.swift */,
 				1F27FBA31C00023B00839C10 /* Pin.swift */,
 				1F27FBA51C00024A00839C10 /* Photo.swift */,
 				1FAB2C971C024FEB0043CE15 /* ImageCache.swift */,
@@ -189,6 +194,7 @@
 		1F27F8631C0001B600839C10 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				1FC3CF391C405D8B005882A6 /* SettingsViewController.swift */,
 				1F27F82D1BFFFE5600839C10 /* PinLocationViewController.swift */,
 				1F27FBA71C00027200839C10 /* PhotoAlbumViewController.swift */,
 				1F27FBA91C0009A100839C10 /* GalleryViewController.swift */,
@@ -437,12 +443,14 @@
 				1FAB2C9C1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift in Sources */,
 				1F27FBA81C00027200839C10 /* PhotoAlbumViewController.swift in Sources */,
 				1F27FBA41C00023B00839C10 /* Pin.swift in Sources */,
+				1FC3CF3C1C405E79005882A6 /* Settings.swift in Sources */,
 				1F27FBB51C00CCC600839C10 /* FlickrConstants.swift in Sources */,
 				1F27F82E1BFFFE5600839C10 /* PinLocationViewController.swift in Sources */,
 				1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */,
 				1F27F8611C0001A400839C10 /* CoreDataStackManager.swift in Sources */,
 				1F27FBAA1C0009A100839C10 /* GalleryViewController.swift in Sources */,
 				1F27F8341BFFFE5700839C10 /* Virtual_Tourist.xcdatamodeld in Sources */,
+				1FC3CF3A1C405D8B005882A6 /* SettingsViewController.swift in Sources */,
 				1F27F82C1BFFFE5600839C10 /* AppDelegate.swift in Sources */,
 				1F27FBB31C00CCBC00839C10 /* FlickrConvenience.swift in Sources */,
 				1F27FBB81C00D35D00839C10 /* GlobalConstants.swift in Sources */,
