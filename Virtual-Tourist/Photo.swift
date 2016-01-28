@@ -20,12 +20,15 @@ class Photo: NSManagedObject {
     @NSManaged var pin : Pin
     @NSManaged var filePath : String?
     @NSManaged var url_m: String?
+    @NSManaged var fullImageURL : String?
+    @NSManaged var thumbnailURL : String?
+    var loadingStatus = Status()
     
     struct Status {
-        var isLoading = false
+        var isLoading: Bool = false
+        var loaded: Bool = false
+        var error: NSError?
     }
-    
-    var loadingStatus = Status()
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {

@@ -12,14 +12,7 @@ import UIKit
 extension FlickrClient {
     
     /* Fetches all photos for the pin from Flickr, note, does not handle saving to Core Data */
-    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
-        
-        /* increment the current page in order to get new photos */
-//        if pin.currentPage == 0 || pin.currentPage == nil {
-//            pin.currentPage = 1
-//        } else {
-//            pin.incrementCurrentPage()
-//        }
+    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, photos: [Photo]?, error: NSError?)-> Void) {
         
         let parameters = dictionaryForGetImages(forPin: pin)
         
@@ -27,7 +20,7 @@ extension FlickrClient {
             
             if error != nil {
                 
-                completionHandler(success: false, error: error)
+                completionHandler(success: false, photos: nil, error: error)
                 
             } else {
                 
@@ -43,7 +36,7 @@ extension FlickrClient {
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
                         
-                        completionHandler(success: true, error: nil)
+                        completionHandler(success: true, photos: photos, error: nil)
                         
                     }
                     
@@ -54,18 +47,6 @@ extension FlickrClient {
         }
     }
     
-    /* Convenience method for getting images for photo */
-    func getImageForPhoto(photo: Photo, completionHandler: CompletionHandler) {
-        
-        FlickrClient.sharedInstance().taskForGETImageFromURL(photo.url_m!, completionHandler: {result, error in
-            if error != nil {
-                completionHandler(result: nil, error: error)
-            } else {
-                completionHandler(result: result, error: nil)
-            }
-        })
-        
-    }
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         

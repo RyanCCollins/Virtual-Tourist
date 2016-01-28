@@ -110,21 +110,24 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     func performFetch() {
-        
-        do {
-            
-            try fetchedResultsController.performFetch()
-
-        } catch let error as NSError {
-            handleErrors(forPin: selectedPin, error: error)
-        }
+        sharedContext.performBlock({
+            do {
+                
+                try self.fetchedResultsController.performFetch()
+                
+            } catch let error as NSError {
+                self.alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
+                    self.performFetch()
+                    }])
+            }
+        })
     }
     
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
-            self.getImagesForPin()
+            getImagesForPin()
             
         } else {
             
@@ -153,14 +156,15 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             
         })
     }
-
+    
     
     func handleErrors(forPin pin: Pin, error: NSError) {
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
             self.getImagesForPin()
-        }])
+            }])
     }
+    
     
     /* Core data */
     var sharedContext: NSManagedObjectContext {
@@ -230,27 +234,32 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
-            return sections.numberOfObjects
+        
+        if fetchedResultsController.sections != nil {
+            
+            if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
+            
+                return sections.numberOfObjects
+            }
+        } else {
+            
+            return 24
+
         }
-        return 1
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
-        
-        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-        
-        cell.setUpdatingState(true)
-        
-        if photo.image != nil {
-            cell.imageView.image = photo.image
-        } else if photo.filePath != nil {
-            
-            photo.imageForPhoto(nil)
-        } 
-        
-        cell.setUpdatingState(false)
+        if fetchedResultsController.fetchedObjects != nil {
+            if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
+                if photo.image != nil {
+                    cell.imageView.image = photo.image
+                    cell.imageView.fadeIn()
+                    return cell
+                }
+                
+            }
+        }
         
         return cell
     }

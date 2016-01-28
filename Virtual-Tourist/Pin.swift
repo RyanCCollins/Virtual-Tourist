@@ -34,6 +34,8 @@ class Pin: NSManagedObject, MKAnnotation {
     var loadingError: NSError?
     var coordinateDelta: Double?
     var status: Status? = nil
+    var needsNewPhotosFromFlickr: Bool = true
+    typealias CompletionHandler = (success: Bool, error: NSError?) -> Void
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -71,6 +73,36 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
+    func paginate() {
+        var total = countOfPhotoPages as! Int, current = currentPage as! Int
+        if current < total {
+            let nextPage = current++
+            currentPage = nextPage as NSNumber
+            needsNewPhotosFromFlickr = false
+        } else {
+            
+            needsNewPhotosFromFlickr = true
+            
+        }
+    }
+    
+    
+    /* Deletes all associated photos */
+    func deleteAllAssociatedPhotos(completionHandler: () -> Void) {
+        if photos != nil {
+            for photo in photos! {
+                sharedContext.performBlockAndWait({
+                    self.sharedContext.deleteObject(photo)
+                })
+            }
+        }
+    }
+    
+    /* Core data */
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
+    
     /* Returns false only when the delta between coordinate changes is less than or equal to 2 KM */
     var needsNewPhotos: Bool {
         get {
@@ -99,7 +131,7 @@ class Pin: NSManagedObject, MKAnnotation {
         NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
         
         if needsNewPhotos {
-            FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, error in
+            FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
                  if error != nil {
                     /* defer error to other view by setting an error for the pin here */
@@ -132,24 +164,5 @@ class Pin: NSManagedObject, MKAnnotation {
         }
         }
     }
-    
-    /* Core data */
-    var sharedContext: NSManagedObjectContext {
-        return CoreDataStackManager.sharedInstance().managedObjectContext
-    }
-    /* Helps deal with our NSNumber to Int bridging */
-//    func incrementCurrentPage()-> Void {
-//        if self.currentPage != nil {
-//            var currentPage = self.currentPage as! Int, count = self.countOfPhotoPages as! Int
-//            if currentPage < count {
-//                currentPage++
-//                self.currentPage = currentPage
-//                needsNewPhotos = false
-//                return
-//            }
-//        }
-//        self.currentPage = 1
-//        needsNewPhotos = true
-//    }
     
 }
