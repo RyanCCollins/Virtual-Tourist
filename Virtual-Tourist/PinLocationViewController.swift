@@ -217,15 +217,15 @@ extension PinLocationViewController: MKMapViewDelegate {
     }
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        if !editing {
+        if !_editing {
         
-        let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
-        
-        let pin = view.annotation as! Pin
-        
-        galleryViewController.pinLocation(self, didPickPin: pin)
-        
-        navigationController?.pushViewController(galleryViewController, animated: true)
+            let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
+            
+            let pin = view.annotation as! Pin
+            
+            galleryViewController.pinLocation(self, didPickPin: pin)
+            
+            navigationController?.pushViewController(galleryViewController, animated: true)
         } else {
             /* Delete pins when edit button is toggled */
             let pin = view.annotation as! Pin
@@ -261,6 +261,7 @@ extension PinLocationViewController: MKMapViewDelegate {
             /* If fun mode, then use the Udacity logo */
             if appDelegate.globalSettings?.funMode == true {
                 annotationViewToReturn.image = UIImage(named: "udacity-pin-logo")
+                
             } else {
                 annotationViewToReturn.image = nil
             }
