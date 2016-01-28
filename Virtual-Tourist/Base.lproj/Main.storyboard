@@ -191,6 +191,7 @@
                         <outlet property="collectionButton" destination="mCN-iR-A90" id="MPu-Ui-khl"/>
                         <outlet property="collectionView" destination="7Tk-rh-XTF" id="4Ws-Nx-Oip"/>
                         <outlet property="flowLayout" destination="0Qj-AP-YgY" id="Qbg-3K-Ren"/>
+                        <outlet property="loadingView" destination="Orj-kT-tNx" id="08p-a2-VAZ"/>
                         <outlet property="mapView" destination="5n3-ie-TXe" id="IBF-Fs-w5c"/>
                         <outlet property="noPhotosLabel" destination="u8z-nt-Zd4" id="5Zg-LA-uQz"/>
                         <segue destination="avs-Bz-MbW" kind="presentation" identifier="showGallery" modalPresentationStyle="currentContext" modalTransitionStyle="crossDissolve" id="WgQ-Fi-bEh"/>
@@ -268,73 +269,49 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Settings" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dIm-QI-rj4">
                                         <rect key="frame" x="114" y="30" width="74" height="28"/>
                                         <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="20"/>
-                                        <color key="textColor" red="0.58641076089999999" green="0.61882251499999996" blue="0.69047850369999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="textColor" red="0.90823972225189209" green="0.92638683319091797" blue="0.9317171573638916" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Fun Mode" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dMn-cU-uWm">
                                         <rect key="frame" x="8" y="84" width="124" height="28"/>
                                         <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="20"/>
-                                        <color key="textColor" red="0.58641076089999999" green="0.61882251499999996" blue="0.69047850369999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="textColor" red="0.90823972225189209" green="0.92638683319091797" blue="0.9317171573638916" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pOu-jm-faM">
                                         <rect key="frame" x="-290" y="0.0" width="300" height="600"/>
-                                        <color key="backgroundColor" red="0.23921568630000001" green="0.25882352939999997" blue="0.30588235289999999" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="backgroundColor" red="0.38526773452758789" green="0.13679999113082886" blue="0.1175478994846344" alpha="1" colorSpace="calibratedRGB"/>
                                     </view>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Save Albums" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PLJ-XU-DK1">
-                                        <rect key="frame" x="8" y="123" width="124" height="28"/>
-                                        <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="20"/>
-                                        <color key="textColor" red="0.58641076089999999" green="0.61882251499999996" blue="0.69047850369999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Photos per" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3rf-Ow-xa8">
-                                        <rect key="frame" x="8" y="159" width="124" height="28"/>
-                                        <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="20"/>
-                                        <color key="textColor" red="0.58641076089999999" green="0.61882251499999996" blue="0.69047850369999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BQ1-iG-pEm">
-                                        <rect key="frame" x="140" y="120" width="51" height="31"/>
-                                    </switch>
-                                    <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="24" minimumValue="1" maximumValue="48" translatesAutoresizingMaskIntoConstraints="NO" id="3hp-wn-I5o">
-                                        <rect key="frame" x="198" y="158" width="94" height="29"/>
-                                        <connections>
-                                            <action selector="didTapIncrementUpInside:" destination="Vzs-yO-JhJ" eventType="valueChanged" id="09d-bW-JhL"/>
-                                        </connections>
-                                    </stepper>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fph-H0-lHP">
                                         <rect key="frame" x="140" y="82" width="51" height="31"/>
                                     </switch>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="24" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FIJ-cM-ZNh">
-                                        <rect key="frame" x="140" y="159" width="50" height="28"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Saved Photos" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3rf-Ow-xa8">
+                                        <rect key="frame" x="8" y="121" width="124" height="28"/>
                                         <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="20"/>
-                                        <color key="textColor" red="0.58641076089999999" green="0.61882251499999996" blue="0.69047850369999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="textColor" red="0.90823972225189209" green="0.92638683319091797" blue="0.9317171573638916" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FIJ-cM-ZNh">
+                                        <rect key="frame" x="140" y="121" width="50" height="28"/>
+                                        <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="20"/>
+                                        <color key="textColor" red="0.90823972225189209" green="0.92638683319091797" blue="0.9317171573638916" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" red="0.23921568630000001" green="0.25882352939999997" blue="0.30588235289999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.38526773452758789" green="0.13679999113082886" blue="0.1175478994846344" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstItem="BQ1-iG-pEm" firstAttribute="leading" secondItem="PLJ-XU-DK1" secondAttribute="trailing" constant="8" id="25e-ZR-TLJ"/>
+                                    <constraint firstItem="FIJ-cM-ZNh" firstAttribute="top" secondItem="fph-H0-lHP" secondAttribute="bottom" constant="8" id="1oY-Wk-QAo"/>
                                     <constraint firstAttribute="bottom" secondItem="pOu-jm-faM" secondAttribute="bottom" id="2ue-sU-I4L"/>
-                                    <constraint firstItem="PLJ-XU-DK1" firstAttribute="width" secondItem="dMn-cU-uWm" secondAttribute="width" id="3eq-Ne-Pnn"/>
                                     <constraint firstItem="pOu-jm-faM" firstAttribute="leading" secondItem="07t-q5-QtB" secondAttribute="leading" constant="-290" id="4CW-WR-fBg"/>
-                                    <constraint firstItem="BQ1-iG-pEm" firstAttribute="top" secondItem="fph-H0-lHP" secondAttribute="bottom" constant="7" id="4RQ-UL-7YE"/>
-                                    <constraint firstItem="3hp-wn-I5o" firstAttribute="top" secondItem="BQ1-iG-pEm" secondAttribute="bottom" constant="7" id="6NQ-ZN-U5M"/>
                                     <constraint firstItem="3rf-Ow-xa8" firstAttribute="leading" secondItem="07t-q5-QtB" secondAttribute="leading" constant="8" id="9J6-db-h7B"/>
-                                    <constraint firstItem="3rf-Ow-xa8" firstAttribute="top" secondItem="PLJ-XU-DK1" secondAttribute="bottom" constant="8" id="DAg-Rn-TLw"/>
                                     <constraint firstItem="fph-H0-lHP" firstAttribute="top" secondItem="dIm-QI-rj4" secondAttribute="bottom" constant="24" id="E09-IR-838"/>
-                                    <constraint firstItem="PLJ-XU-DK1" firstAttribute="leading" secondItem="07t-q5-QtB" secondAttribute="leading" constant="8" id="HgA-tt-ndK"/>
-                                    <constraint firstAttribute="trailing" secondItem="3hp-wn-I5o" secondAttribute="trailing" constant="8" id="I0S-2C-vV5"/>
-                                    <constraint firstItem="3rf-Ow-xa8" firstAttribute="width" secondItem="PLJ-XU-DK1" secondAttribute="width" id="SQF-QA-6QK"/>
                                     <constraint firstItem="FIJ-cM-ZNh" firstAttribute="leading" secondItem="3rf-Ow-xa8" secondAttribute="trailing" constant="8" id="UrP-Rh-CW5"/>
                                     <constraint firstAttribute="width" constant="300" id="WfT-0T-IKT"/>
-                                    <constraint firstItem="3hp-wn-I5o" firstAttribute="leading" secondItem="FIJ-cM-ZNh" secondAttribute="trailing" constant="8" id="bGI-Kd-j2i"/>
+                                    <constraint firstItem="3rf-Ow-xa8" firstAttribute="top" secondItem="dMn-cU-uWm" secondAttribute="bottom" constant="9" id="Yn0-l9-fr7"/>
                                     <constraint firstItem="dIm-QI-rj4" firstAttribute="top" secondItem="07t-q5-QtB" secondAttribute="top" constant="30" id="c6r-uv-cK2"/>
                                     <constraint firstItem="pOu-jm-faM" firstAttribute="top" secondItem="07t-q5-QtB" secondAttribute="top" id="eLK-cf-AlZ"/>
                                     <constraint firstAttribute="centerX" secondItem="dIm-QI-rj4" secondAttribute="centerX" id="g3m-us-qaM"/>
                                     <constraint firstItem="fph-H0-lHP" firstAttribute="leading" secondItem="dMn-cU-uWm" secondAttribute="trailing" constant="8" id="mIN-Lt-KNo"/>
-                                    <constraint firstItem="FIJ-cM-ZNh" firstAttribute="top" secondItem="BQ1-iG-pEm" secondAttribute="bottom" constant="8" id="mYa-Th-CLa"/>
-                                    <constraint firstItem="PLJ-XU-DK1" firstAttribute="top" secondItem="dMn-cU-uWm" secondAttribute="bottom" constant="10" id="wsZ-ZP-yCJ"/>
                                     <constraint firstItem="dMn-cU-uWm" firstAttribute="leading" secondItem="07t-q5-QtB" secondAttribute="leading" constant="8" id="zKF-X2-dOO"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
@@ -357,8 +334,6 @@
                     <connections>
                         <outlet property="funModeToggle" destination="fph-H0-lHP" id="dII-zE-Wz5"/>
                         <outlet property="modalView" destination="07t-q5-QtB" id="I3v-Bi-Rgz"/>
-                        <outlet property="saveAlbums" destination="BQ1-iG-pEm" id="ZIV-HF-Xpw"/>
-                        <outlet property="stepper" destination="3hp-wn-I5o" id="G7r-Bf-ryo"/>
                         <outlet property="stepperLabel" destination="FIJ-cM-ZNh" id="SDQ-5p-ujg"/>
                     </connections>
                 </viewController>

@@ -14,21 +14,20 @@ class SettingsViewController: UIViewController {
     
     @IBOutlet weak var modalView: SpringView!
     @IBOutlet weak var funModeToggle: UISwitch!
-    @IBOutlet weak var saveAlbums: UISwitch!
-    @IBOutlet weak var stepper: UIStepper!
-    @IBOutlet weak var stepperLabel: UILabel!
+    @IBOutlet weak var savedPhotosLabel: UILabel!
+
     
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
     /* Access to view for transformation */
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         modalView.transform = CGAffineTransformMakeTranslation(-300, 0)
         restoreSettingsState()
         funModeToggle.enabled = true
-        saveAlbums.enabled = true
+        
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -60,13 +59,6 @@ class SettingsViewController: UIViewController {
         return url.URLByAppendingPathComponent("settings").path!
     }
     
-    @IBAction func didTapIncrementUpInside(sender: UIStepper) {
-        
-        let newValue = sender.value
-        stepperLabel.text = String(Int(newValue))
-        saveSettingsState()
-        
-    }
     func restoreSettingsState() {
         
         if let settingsDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {
@@ -76,8 +68,7 @@ class SettingsViewController: UIViewController {
             let numPhotos = settingsDictionary["numberOfPhotos"] as! Int
             
             funModeToggle.on = funModeSetting
-            saveAlbums.on = saveAlbumsSetting
-            stepperLabel.text = String(numPhotos)
+            savedPhotosLabel.text = String(numPhotos)
         }
         
         
@@ -87,12 +78,9 @@ class SettingsViewController: UIViewController {
     func saveSettingsState() {
         
         let dictionary = [
-            "funMode" : funModeToggle.on,
-            "saveAlbums" : saveAlbums.on,
-            "numberOfPhotos" : stepper.value
+            "funMode" : funModeToggle.on
         ]
         
         NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
-        appDelegate.updateGlobalSettings()
     }
 }

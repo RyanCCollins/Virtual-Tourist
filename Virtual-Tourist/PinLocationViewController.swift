@@ -185,6 +185,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
     }
     
+    
+    
     /* Core data stuff for saving map state */
     var filePath : String {
         let manager = NSFileManager.defaultManager()
@@ -258,8 +260,10 @@ extension PinLocationViewController: MKMapViewDelegate {
                 annotationViewToReturn.canShowCallout = false
             }
             
+            let funMode = true
+            
             /* If fun mode, then use the Udacity logo */
-            if appDelegate.globalSettings?.funMode == true {
+            if funMode == true {
                 annotationViewToReturn.image = UIImage(named: "udacity-pin-logo")
                 
             } else {

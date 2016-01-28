@@ -22,7 +22,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     let regionRadius: CLLocationDistance = 1000
     var selectedPin: Pin!
-    var settingsDict: [String : AnyObject?]? = nil
     
     /* Pin picker delegate method, loads photos and centers map on pin */
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
@@ -172,6 +171,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
+        let settings = NSFetchRequest(entityName: "Settings")
+        
         let fetchRequest = NSFetchRequest(entityName: "Photo")
         fetchRequest.sortDescriptors = []
         fetchRequest.predicate = NSPredicate(format: "pin == %@", self.selectedPin)
@@ -182,6 +183,19 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         return fetchedResultsController
     }()
+    
+    
+    /* Convenience for fetching the settings.  Realistically, I would use NSUser Defaults */
+    func fetchSettings() {
+        
+            let settingsRequest = NSFetchRequest(entityName: "Settings")
+        do {
+            try CoreDataStackManager.sharedInstance().persistentStoreCoordinator?.executeRequest(settingsRequest, withContext: self.sharedContext)
+        } catch let error as NSError? {
+            print("Error deleting coredata objects")
+        }
+    
+    }
 
     
 }
