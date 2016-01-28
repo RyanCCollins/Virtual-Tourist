@@ -13,9 +13,12 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     var isUpdating = false
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     let stockPhoto = UIImage(named: "image-missing")
 >>>>>>> newFeat
+=======
+>>>>>>> codeStash
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -39,7 +42,7 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     func setUpdatingState(updatingState: Bool){
         if updatingState == true {
             isUpdating = true
-            imageView.image = stockPhoto
+
             imageView.fadeOut(0.2, delay: 0.0, endAlpha: 0.5, completion: nil)
         } else {
             isUpdating = false

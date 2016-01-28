@@ -134,6 +134,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     }])
             }
         })
+<<<<<<< HEAD
         
 <<<<<<< HEAD
 =======
@@ -145,6 +146,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             handleErrors(forPin: selectedPin, error: error)
         }
 >>>>>>> newFeat
+=======
+>>>>>>> codeStash
     }
     
     
@@ -154,6 +157,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         if selectedIndexPaths.count == 0 {
             
 <<<<<<< HEAD
+<<<<<<< HEAD
             selectedPin.getNewPhotos({success, error in
                 if error != nil {
                     self.alertController(withTitles: ["Error"], message: (error?.localizedDescription)!, callbackHandler: [nil])
@@ -162,6 +166,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 =======
             self.getImagesForPin()
 >>>>>>> newFeat
+=======
+            getImagesForPin()
+>>>>>>> codeStash
             
         } else {
             
@@ -192,16 +199,20 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             
         })
     }
-
+    
     
     func handleErrors(forPin pin: Pin, error: NSError) {
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
             self.getImagesForPin()
-        }])
+            }])
     }
     
+<<<<<<< HEAD
 >>>>>>> newFeat
+=======
+    
+>>>>>>> codeStash
     /* Core data */
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext
@@ -271,6 +282,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 <<<<<<< HEAD
+<<<<<<< HEAD
         if fetchedResultsController.sections != nil {
             if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
                 return sections.numberOfObjects
@@ -281,10 +293,24 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
             return sections.numberOfObjects
 >>>>>>> newFeat
+=======
+        
+        if fetchedResultsController.sections != nil {
+            
+            if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
+            
+                return sections.numberOfObjects
+            }
+        } else {
+            
+            return 24
+
+>>>>>>> codeStash
         }
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+<<<<<<< HEAD
         
 <<<<<<< HEAD
         // Due to bugs with NSInternalInconsistencyException, doing a bit of checking here:
@@ -312,6 +338,19 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         } 
         
         cell.setUpdatingState(false)
+=======
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
+        if fetchedResultsController.fetchedObjects != nil {
+            if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
+                if photo.image != nil {
+                    cell.imageView.image = photo.image
+                    cell.imageView.fadeIn()
+                    return cell
+                }
+                
+            }
+        }
+>>>>>>> codeStash
         
 >>>>>>> newFeat
         return cell

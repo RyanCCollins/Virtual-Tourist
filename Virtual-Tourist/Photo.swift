@@ -32,14 +32,22 @@ class Photo: NSManagedObject {
 =======
     @NSManaged var filePath : String?
     @NSManaged var url_m: String?
+    @NSManaged var fullImageURL : String?
+    @NSManaged var thumbnailURL : String?
+    var loadingStatus = Status()
     
     struct Status {
-        var isLoading = false
+        var isLoading: Bool = false
+        var loaded: Bool = false
+        var error: NSError?
     }
     
+<<<<<<< HEAD
     var loadingStatus = Status()
 >>>>>>> newFeat
     
+=======
+>>>>>>> codeStash
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)

@@ -16,6 +16,7 @@ extension FlickrClient {
     
 =======
     /* Fetches all photos for the pin from Flickr, note, does not handle saving to Core Data */
+<<<<<<< HEAD
     func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
         
         /* increment the current page in order to get new photos */
@@ -25,6 +26,9 @@ extension FlickrClient {
 //            pin.incrementCurrentPage()
 //        }
 >>>>>>> newFeat
+=======
+    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, photos: [Photo]?, error: NSError?)-> Void) {
+>>>>>>> codeStash
         
         let parameters = dictionaryForGetImages(forPin: pin)
         
@@ -52,11 +56,15 @@ extension FlickrClient {
                         }
                         
 <<<<<<< HEAD
+<<<<<<< HEAD
                         
                         completionHandler(success: true, photos: photos, error: nil)
 =======
                         completionHandler(success: true, error: nil)
 >>>>>>> newFeat
+=======
+                        completionHandler(success: true, photos: photos, error: nil)
+>>>>>>> codeStash
                         
                     }
                     
@@ -70,6 +78,7 @@ extension FlickrClient {
 
 =======
     
+<<<<<<< HEAD
     /* Convenience method for getting images for photo */
     func getImageForPhoto(photo: Photo, completionHandler: CompletionHandler) {
         
@@ -83,6 +92,8 @@ extension FlickrClient {
         
     }
 >>>>>>> newFeat
+=======
+>>>>>>> codeStash
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         
