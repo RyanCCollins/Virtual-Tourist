@@ -11,8 +11,20 @@ import UIKit
 
 extension FlickrClient {
     
+<<<<<<< HEAD
     func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, photos: [Photo]?, error: NSError?)-> Void) {
     
+=======
+    /* Fetches all photos for the pin from Flickr, note, does not handle saving to Core Data */
+    func taskForFetchPhotos(forPin pin: Pin, completionHandler: (success: Bool, error: NSError?)-> Void) {
+        
+        /* increment the current page in order to get new photos */
+//        if pin.currentPage == 0 || pin.currentPage == nil {
+//            pin.currentPage = 1
+//        } else {
+//            pin.incrementCurrentPage()
+//        }
+>>>>>>> newFeat
         
         let parameters = dictionaryForGetImages(forPin: pin)
         
@@ -31,12 +43,20 @@ extension FlickrClient {
                         pin.countOfPhotoPages = (pages as? NSNumber)!
                         pin.currentPage = currentPage as? NSNumber
                         
+<<<<<<< HEAD
+=======
+                        /* Map the photo dictionary to Photo objects */
+>>>>>>> newFeat
                         let photos = photoArray.map(){
                             Photo(dictionary: $0, pin: pin, context: self.sharedContext)
                         }
                         
+<<<<<<< HEAD
                         
                         completionHandler(success: true, photos: photos, error: nil)
+=======
+                        completionHandler(success: true, error: nil)
+>>>>>>> newFeat
                         
                     }
                     
@@ -46,7 +66,23 @@ extension FlickrClient {
             
         }
     }
+<<<<<<< HEAD
 
+=======
+    
+    /* Convenience method for getting images for photo */
+    func getImageForPhoto(photo: Photo, completionHandler: CompletionHandler) {
+        
+        FlickrClient.sharedInstance().taskForGETImageFromURL(photo.url_m!, completionHandler: {result, error in
+            if error != nil {
+                completionHandler(result: nil, error: error)
+            } else {
+                completionHandler(result: result, error: nil)
+            }
+        })
+        
+    }
+>>>>>>> newFeat
     
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         

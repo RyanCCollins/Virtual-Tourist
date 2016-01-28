@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15B42" minimumToolsVersion="Automatic">
     <entity name="Photo" representedClassName="Photo" syncable="YES">
+<<<<<<< HEAD
         <attribute name="fullImageURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="thumbnailURL" optional="YES" attributeType="String" syncable="YES"/>
+=======
+        <attribute name="filePath" optional="YES" attributeType="String" syncable="YES"/>
+>>>>>>> newFeat
         <attribute name="titleString" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="url_m" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="pin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Pin" inverseName="photos" inverseEntity="Pin" syncable="YES"/>
     </entity>
     <entity name="Pin" representedClassName="Pin" syncable="YES">
@@ -14,8 +19,18 @@
         <attribute name="needsNewPhotos" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
         <relationship name="photos" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Photo" inverseName="pin" inverseEntity="Photo" syncable="YES"/>
     </entity>
+    <entity name="Settings" syncable="YES">
+        <attribute name="funMode" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="numPhotos" optional="YES" attributeType="Integer 16" minValueString="1" maxValueString="48" defaultValueString="24" syncable="YES"/>
+        <attribute name="saveAlbums" optional="YES" attributeType="Boolean" defaultValueString="YES" syncable="YES"/>
+    </entity>
     <elements>
         <element name="Photo" positionX="-9" positionY="36" width="128" height="105"/>
+<<<<<<< HEAD
         <element name="Pin" positionX="-9" positionY="36" width="128" height="135"/>
+=======
+        <element name="Pin" positionX="-9" positionY="36" width="128" height="120"/>
+        <element name="Settings" positionX="0" positionY="81" width="128" height="90"/>
+>>>>>>> newFeat
     </elements>
 </model>

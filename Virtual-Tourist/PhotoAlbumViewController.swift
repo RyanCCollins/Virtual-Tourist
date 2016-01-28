@@ -8,12 +8,14 @@
 
 import UIKit
 import MapKit
+import Spring
 import CoreData
 
 class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate, UIGestureRecognizerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    @IBOutlet weak  var loadingView: SpringImageView!
     @IBOutlet weak var noPhotosLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionButton: UIButton!
@@ -21,6 +23,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     let regionRadius: CLLocationDistance = 1000
     var selectedPin: Pin!
+    var settingsDict: [String : AnyObject?]? = nil
     
     /* Pin picker delegate method, loads photos and centers map on pin */
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
@@ -46,11 +49,60 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
         
+<<<<<<< HEAD
         let gestureRecognizer = UIGestureRecognizer(target: view, action: "handleLongPress:")
+=======
+        subscribeToImageLoadingNotifications()
+        performFetch()
+        
+        let gestureRecognizer = UIGestureRecognizer(target: collectionView, action: "handleLongPress:")
+>>>>>>> newFeat
         gestureRecognizer.delegate = self
         
         collectionView.addGestureRecognizer(gestureRecognizer)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        if selectedPin.status?.isLoading == true {
+            loadingView.hidden = false
+            loadingView.animate()
+        }
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
         
+        unsubscribeToImageLoadingNotifications()
+    }
+    
+    func subscribeToImageLoadingNotifications() {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoadingThumbnails", name: Notifications.didFinishLoadingThumbails, object: selectedPin)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "isLoadingThumbnails", name: Notifications.willFinishLoadingThumbnails, object: selectedPin)
+    }
+    
+    func unsubscribeToImageLoadingNotifications () {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func isLoadingThumbnails() {
+        print("Notification for isLoadingThumbnails Received")
+        view.alpha = 0.6
+        loadingView.animate()
+        loadingView.showLoading()
+    }
+    
+    func didFinishLoadingThumbnails() {
+        
+        print("Notification for didFinishLoadingThumbnails Received")
+        performFetch()
+        view.fadeIn(0.3, delay: 0.0, alpha: 1.0, completion: {_ in})
+        
+        if selectedPin.loadingError != nil {
+            self.handleErrors(forPin: selectedPin, error: selectedPin.loadingError!)
+        }
+        loadingView.hideLoading()
+        collectionView.reloadData()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -83,6 +135,16 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             }
         })
         
+<<<<<<< HEAD
+=======
+        do {
+            
+            try fetchedResultsController.performFetch()
+
+        } catch let error as NSError {
+            handleErrors(forPin: selectedPin, error: error)
+        }
+>>>>>>> newFeat
     }
     
     
@@ -91,11 +153,15 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
+<<<<<<< HEAD
             selectedPin.getNewPhotos({success, error in
                 if error != nil {
                     self.alertController(withTitles: ["Error"], message: (error?.localizedDescription)!, callbackHandler: [nil])
                 } 
             })
+=======
+            self.getImagesForPin()
+>>>>>>> newFeat
             
         } else {
             
@@ -114,6 +180,28 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         }
     }
     
+<<<<<<< HEAD
+=======
+    /* Handle logic for getting new photos for a pin and manage errors */
+    func getImagesForPin(){
+        selectedPin.fetchAndStoreImages({success, error in
+            
+            if error != nil {
+                self.handleErrors(forPin: self.selectedPin, error: error!)
+            }
+            
+        })
+    }
+
+    
+    func handleErrors(forPin pin: Pin, error: NSError) {
+        view.fadeIn()
+        alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
+            self.getImagesForPin()
+        }])
+    }
+    
+>>>>>>> newFeat
     /* Core data */
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext
@@ -137,10 +225,11 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        if controller.fetchedObjects?.count > 0 {
+        if controller.fetchedObjects?.count < 0 {
             print("No images fetched")
+            return
         }
-        
+       
         collectionView.performBatchUpdates({
             
             self.collectionView.insertItemsAtIndexPaths(self.instertedIndexPaths)
@@ -181,17 +270,23 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
 
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+<<<<<<< HEAD
         if fetchedResultsController.sections != nil {
             if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
                 return sections.numberOfObjects
             }
         } else {
             return 24
+=======
+        if let sections = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo? {
+            return sections.numberOfObjects
+>>>>>>> newFeat
         }
     }
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
+<<<<<<< HEAD
         // Due to bugs with NSInternalInconsistencyException, doing a bit of checking here:
  
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
@@ -206,6 +301,19 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
             }
         }
         cell.imageView.image = cell.stockPhoto
+=======
+        cell.setUpdatingState(true)
+        
+        if photo.image != nil {
+            cell.imageView.image = photo.image
+        } else if photo.filePath != nil {
+            
+            photo.imageForPhoto(nil)
+        } 
+        
+        cell.setUpdatingState(false)
+        
+>>>>>>> newFeat
         return cell
     }
 
@@ -219,7 +327,12 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         return true
     }
     
+<<<<<<< HEAD
     func handLongPress(gestureRecognizer: UIGestureRecognizer) {
+=======
+    func handleLongPress(gestureRecognizer: UIGestureRecognizer) {
+        print("long press")
+>>>>>>> newFeat
         if gestureRecognizer.state != .Ended {
             return
         }
@@ -233,21 +346,21 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         }
         
         let cell = UICollectionViewCell() as! PhotoAlbumCollectionViewCell
+<<<<<<< HEAD
+=======
+        let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("GalleryViewController") as! GalleryViewController
+        
+        galleryViewController.image = cell.imageView.image
+        
+        performSegueWithIdentifier("showGallery", sender: self)
+>>>>>>> newFeat
         
         
     }
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
-//        let photo = fetchedResultsController.objectAtIndexPath(indexPath) as! Photo
-//        
-//        if photo.filePath == nil || photo.filePath == "" {
-//            
-//            /* Try refetching here */
-//            performFetch(nil)
-//            return
-//        }
-//        
+        
         if selectedIndexPaths.contains(indexPath) {
             cell.isSelected(false)
         } else {
@@ -261,6 +374,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
 
 }
 
+/* Handles showing the map view for pins selected */
 extension PhotoAlbumViewController: MKMapViewDelegate {
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         if let annotation = annotation as? Pin {

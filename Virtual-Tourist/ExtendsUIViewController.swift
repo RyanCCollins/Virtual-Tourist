@@ -6,6 +6,7 @@
 //  Copyright © 2015 Tech Rapport. All rights reserved.
 //
 import UIKit
+import Spring
 
 extension UIViewController {
 
@@ -50,5 +51,18 @@ extension UIView {
             self.alpha = alpha
             }, completion: completion)
     }
-
+    
+    func transformIn(sender: AnyObject, transformationScale scale: (CGFloat, CGFloat) = (0.935, 0.935)) {
+        SpringAnimation.spring(0.7, animations: {
+            self.transform = CGAffineTransformMakeScale(1, 1)
+        })
+        UIApplication.sharedApplication().setStatusBarStyle(.Default, animated: true)
+    }
+    
+    func transformOut(sender: AnyObject, transformationScale scale: (CGFloat, CGFloat) = (0.935, 0.935)) {
+        SpringAnimation.spring(0.7, animations: {
+            self.transform = CGAffineTransformMakeScale(scale)
+        })
+        UIApplication.sharedApplication().setStatusBarStyle(.LightContent, animated: true)
+    }
 }

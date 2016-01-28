@@ -6,6 +6,7 @@
 //  Copyright © 2015 Tech Rapport. All rights reserved.
 //
 
+<<<<<<< HEAD
 //import UIKit
 //import CoreData
 //
@@ -29,3 +30,24 @@
 //    
 //
 //}
+=======
+import UIKit
+import CoreData
+
+class GalleryViewController: UIViewController {
+    var selectedPhoto: Photo?
+    var image: UIImage?
+    
+    @IBOutlet weak var imageLabel: UILabel!
+    @IBOutlet weak var imageView: UIImageView!
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        image = selectedPhoto?.image
+        if image != nil {
+            selectedPhoto!.image = image
+        } else {
+            
+        }
+    }
+}
+>>>>>>> newFeat

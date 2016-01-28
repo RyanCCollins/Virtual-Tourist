@@ -86,8 +86,10 @@ strip_invalid_archs() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-Virtual-Tourist/PhotoSlider.framework"
   install_framework "Pods-Virtual-Tourist/SDWebImage.framework"
+  install_framework "Pods-Virtual-Tourist/Spring.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-Virtual-Tourist/PhotoSlider.framework"
   install_framework "Pods-Virtual-Tourist/SDWebImage.framework"
+  install_framework "Pods-Virtual-Tourist/Spring.framework"
 fi

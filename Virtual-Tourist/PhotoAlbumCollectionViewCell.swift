@@ -7,35 +7,44 @@
 //
 
 import UIKit
+import Spring
 
 class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
-    let stockPhoto = UIImage(named: "missing-resource")
-    let selectedColor = UIColor.grayColor()
     var isUpdating = false
+<<<<<<< HEAD
+=======
+    let stockPhoto = UIImage(named: "image-missing")
+>>>>>>> newFeat
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        if imageView.image == nil {
-            self.imageView.image = stockPhoto
-        }
-    }
-    
-    
+    /* If updating, don't allow selection */
     func isSelected(selected: Bool) {
-        if !isUpdating {
-            if selected {
-                self.fadeOut()
-            } else {
-                self.fadeIn()
-            }
+        if isUpdating {
+            return
+        }
+        
+        /* If selected, fade out */
+        if selected {
+            self.fadeOut()
+        } else {
+            self.fadeIn()
         }
     }
     
-
+    /* Handle the cell's updating state here */
+    func setUpdatingState(updatingState: Bool){
+        if updatingState == true {
+            isUpdating = true
+            imageView.image = stockPhoto
+            imageView.fadeOut(0.2, delay: 0.0, endAlpha: 0.5, completion: nil)
+        } else {
+            isUpdating = false
+            imageView.fadeIn(0.2, delay: 0.0, alpha: 1.0, completion: nil)
+        }
+    }
+    
 }

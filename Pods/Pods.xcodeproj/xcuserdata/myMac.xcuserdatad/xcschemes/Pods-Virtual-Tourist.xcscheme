@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '2076139DA9E633AF78574A2F'
+               BlueprintIdentifier = '67F5903ACFA0463825372B3E'
                BlueprintName = 'Pods-Virtual-Tourist'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'Pods_Virtual_Tourist.framework'>
