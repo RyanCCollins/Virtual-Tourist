@@ -230,11 +230,5 @@ class FlickrClient: NSObject {
         return CoreDataStackManager.sharedInstance().managedObjectContext
     }
     
-    /* Update configuration when new images should be fetched */
-    func updateConfig(completionHandler: (success: Bool, error: NSError?)-> Void) {
-//        let parameters: [String : AnyObject]()
-//        
-//        taskForFetchPhotos(forPin: <#T##Pin#>, completionHandler: <#T##(success: Bool, results: [Photo]?, error: NSError?) -> Void#>)
-    }
 }
 

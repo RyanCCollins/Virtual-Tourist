@@ -152,7 +152,7 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loading" translatesAutoresizingMaskIntoConstraints="NO" id="Orj-kT-tNx" customClass="SpringImageView" customModule="Spring">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loading" translatesAutoresizingMaskIntoConstraints="NO" id="Orj-kT-tNx" customClass="SpringImageView" customModule="Spring">
                                 <rect key="frame" x="282" y="281" width="37" height="37"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="37" id="34J-OJ-4FA"/>
@@ -191,7 +191,7 @@
                         <outlet property="collectionButton" destination="mCN-iR-A90" id="MPu-Ui-khl"/>
                         <outlet property="collectionView" destination="7Tk-rh-XTF" id="4Ws-Nx-Oip"/>
                         <outlet property="flowLayout" destination="0Qj-AP-YgY" id="Qbg-3K-Ren"/>
-                        <outlet property="loadingView" destination="Orj-kT-tNx" id="08p-a2-VAZ"/>
+                        <outlet property="loadingView" destination="Orj-kT-tNx" id="DHf-w5-vW3"/>
                         <outlet property="mapView" destination="5n3-ie-TXe" id="IBF-Fs-w5c"/>
                         <outlet property="noPhotosLabel" destination="u8z-nt-Zd4" id="5Zg-LA-uQz"/>
                         <segue destination="avs-Bz-MbW" kind="presentation" identifier="showGallery" modalPresentationStyle="currentContext" modalTransitionStyle="crossDissolve" id="WgQ-Fi-bEh"/>
@@ -334,7 +334,7 @@
                     <connections>
                         <outlet property="funModeToggle" destination="fph-H0-lHP" id="dII-zE-Wz5"/>
                         <outlet property="modalView" destination="07t-q5-QtB" id="I3v-Bi-Rgz"/>
-                        <outlet property="stepperLabel" destination="FIJ-cM-ZNh" id="SDQ-5p-ujg"/>
+                        <outlet property="savedPhotosLabel" destination="FIJ-cM-ZNh" id="K43-2Q-2NM"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="w4h-Gw-xI2" userLabel="First Responder" sceneMemberID="firstResponder"/>

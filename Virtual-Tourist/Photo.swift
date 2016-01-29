@@ -78,27 +78,3 @@ class Photo: NSManagedObject {
     }
     
 }
-
-/* Helps to bridge string & NSString functions for getting filepath & filename for different files: */
-extension String {
-    var path: String {
-        get {
-            return ns.lastPathComponent
-        }
-    }
-    var name: String {
-        get {
-            return ns.stringByDeletingPathExtension
-        }
-    }
-    var thumbnailName: String {
-        get {
-            let returnVal = name + "_t." + ns.pathExtension
-            return returnVal
-        }
-    }
-    var ns: NSString {
-        return self as NSString
-    }
-    
-}

@@ -10,14 +10,13 @@ import UIKit
 import CoreData
 import Spring
 
+
+
 class SettingsViewController: UIViewController {
     
     @IBOutlet weak var modalView: SpringView!
     @IBOutlet weak var funModeToggle: UISwitch!
     @IBOutlet weak var savedPhotosLabel: UILabel!
-
-    
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
     /* Access to view for transformation */
 

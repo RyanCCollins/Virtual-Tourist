@@ -19,7 +19,6 @@
 		1F27FBA41C00023B00839C10 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBA31C00023B00839C10 /* Pin.swift */; };
 		1F27FBA61C00024A00839C10 /* Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBA51C00024A00839C10 /* Photo.swift */; };
 		1F27FBA81C00027200839C10 /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBA71C00027200839C10 /* PhotoAlbumViewController.swift */; };
-		1F27FBAA1C0009A100839C10 /* GalleryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBA91C0009A100839C10 /* GalleryViewController.swift */; };
 		1F27FBB11C00CB7400839C10 /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBB01C00CB7400839C10 /* FlickrClient.swift */; };
 		1F27FBB31C00CCBC00839C10 /* FlickrConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBB21C00CCBC00839C10 /* FlickrConvenience.swift */; };
 		1F27FBB51C00CCC600839C10 /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBB41C00CCC600839C10 /* FlickrConstants.swift */; };
@@ -70,7 +69,6 @@
 		1F27FBA31C00023B00839C10 /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pin.swift; sourceTree = "<group>"; };
 		1F27FBA51C00024A00839C10 /* Photo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Photo.swift; sourceTree = "<group>"; };
 		1F27FBA71C00027200839C10 /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
-		1F27FBA91C0009A100839C10 /* GalleryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryViewController.swift; sourceTree = "<group>"; };
 		1F27FBAB1C0009C700839C10 /* Modeka.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Modeka.otf; sourceTree = "<group>"; };
 		1F27FBAC1C0009C700839C10 /* BIG JOHN.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "BIG JOHN.otf"; sourceTree = "<group>"; };
 		1F27FBAD1C0009C700839C10 /* Prime Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Prime Light.otf"; sourceTree = "<group>"; };
@@ -197,7 +195,6 @@
 				1FC3CF391C405D8B005882A6 /* SettingsViewController.swift */,
 				1F27F82D1BFFFE5600839C10 /* PinLocationViewController.swift */,
 				1F27FBA71C00027200839C10 /* PhotoAlbumViewController.swift */,
-				1F27FBA91C0009A100839C10 /* GalleryViewController.swift */,
 				1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */,
 			);
 			name = Controller;
@@ -448,7 +445,6 @@
 				1F27F82E1BFFFE5600839C10 /* PinLocationViewController.swift in Sources */,
 				1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */,
 				1F27F8611C0001A400839C10 /* CoreDataStackManager.swift in Sources */,
-				1F27FBAA1C0009A100839C10 /* GalleryViewController.swift in Sources */,
 				1F27F8341BFFFE5700839C10 /* Virtual_Tourist.xcdatamodeld in Sources */,
 				1FC3CF3A1C405D8B005882A6 /* SettingsViewController.swift in Sources */,
 				1F27F82C1BFFFE5600839C10 /* AppDelegate.swift in Sources */,

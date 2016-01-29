@@ -76,22 +76,33 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             self.sharedContext.performBlockAndWait({
                 CoreDataStackManager.sharedInstance().saveContext()
             })
-            pinToAdd!.fetchAndStoreImages(nil)
+            fetchNewPhotos()
         case .Ended :
             print("Ended pin drop")
             
             /* Wait until coredata saves before fetching photos for the pin */
-            self.sharedContext.performBlockAndWait({
-                CoreDataStackManager.sharedInstance().saveContext()
-            })
-            pinToAdd!.fetchAndStoreImages(nil)
+            CoreDataStackManager.sharedInstance().saveContext()
+            fetchNewPhotos()
         default :
             return
         }
         
     }
     
+    func fetchNewPhotos() {
+        pinToAdd!.fetchAndStoreImages({success, error in
+            
+            if error != nil {
+                print(error)
+            } else {
+                CoreDataStackManager.sharedInstance().saveContext()
+            }
+            
+        })
+
+    }
     
+
     /* When the fetched results controller changes pins, handle the mapview insertion and deletion */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
@@ -148,17 +159,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
 
     
-    func savePinAndPrefetchImages(pin: Pin) {
-        
-        /* save context for the pin */
-        self.sharedContext.performBlockAndWait({
-            CoreDataStackManager.sharedInstance().saveContext()
-        })
-        
-        /* Defer errors to next view to avoid cluttering up this one */
-        pin.fetchAndStoreImages(nil)
-    }
-    
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext
     }
@@ -181,7 +181,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             
             mapView.setRegion(savedRegion, animated: animated)
         }
-        
         
     }
     
@@ -228,6 +227,7 @@ extension PinLocationViewController: MKMapViewDelegate {
             galleryViewController.pinLocation(self, didPickPin: pin)
             
             navigationController?.pushViewController(galleryViewController, animated: true)
+            
         } else {
             /* Delete pins when edit button is toggled */
             let pin = view.annotation as! Pin
@@ -247,7 +247,6 @@ extension PinLocationViewController: MKMapViewDelegate {
             
             /* If we are reusing the annotation view, set a new annotation */
             if let pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pinId) as? MKPinAnnotationView {
-                
                 
                 pinAnnotationView.annotation = annotation
                 
