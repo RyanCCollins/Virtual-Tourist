@@ -12,9 +12,7 @@ import Spring
 
 /* Settings delegate for changing settings externally and applying coredata changes appwide */
 protocol SettingsPickerDelegate {
-    func didChangeSettings(settings: Settings)
-    func shouldDeleteAllSavedData()
-    func shouldUpdateSettings(settings: Settings)
+    func didChangeSettings(funMode: Bool, deleteAll: Bool)
 }
 
 class SettingsViewController: UIViewController {
@@ -22,7 +20,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var modalView: SpringView!
     @IBOutlet weak var funModeToggle: UISwitch!
     @IBOutlet weak var savedPhotosLabel: UILabel!
-    
+    var settingsChanged = false
     
     var delegate: SettingsPickerDelegate?
 
@@ -33,7 +31,7 @@ class SettingsViewController: UIViewController {
         super.viewDidLoad()
         
         modalView.transform = CGAffineTransformMakeTranslation(-300, 0)
-        restoreSettingsState()
+        
         funModeToggle.enabled = true
         
     }
@@ -50,14 +48,20 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func didTapClearUpInside(sender: AnyObject) {
-        var settings = [
-            "fun"
-        ]
+        Settings.SharedInstance.sharedSettings.deleteAll = true
 
     }
     
-    func changeSettings(settings: Settings) {
-        delegate?.didChangeSettings(settings)
+    func updateSettingsView(){
+        funModeToggle.on = Settings.SharedInstance.sharedSettings.funMode
+        savedPhotosLabel.text = String(Settings.SharedInstance.sharedSettings.numPhotos)
+    }
+    
+    func shouldChangeSetings() {
+        if Settings.SharedInstance.sharedSettings.needsUpdate {
+            delegate?.didChangeSettings(Settings.SharedInstance.sharedSettings.funMode, deleteAll: Settings.SharedInstance.sharedSettings.deleteAll)
+        }
+        
     }
     
     @IBAction func didTapViewToClose(sender: AnyObject) {
@@ -79,34 +83,15 @@ class SettingsViewController: UIViewController {
         return url.URLByAppendingPathComponent("settings").path!
     }
     
-    func restoreSettingsState() {
-        
-        if let settingsDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {
-            
-            let funModeSetting = settingsDictionary["funMode"] as! Bool
-            let numPhotos = settingsDictionary["numberOfPhotos"] as! Int
-            
-            funModeToggle.on = funModeSetting
-            savedPhotosLabel.text = String(numPhotos)
-            
-            // Save the number of photos to the appDelegate automatically, so that we can access them app wide.
-            Settings.SharedInstance.sharedSettings.numPhotos = numPhotos
-            appDelegate.numPhotosLoaded = numPhotos
-        }
-        
-        
-    }
+
     
     /* Save the number of photos and funmode toggle settings */
     func saveSettingsState() {
-        var numPhotos = 0
-        if let num = appDelegate.numPhotosLoaded {
-            numPhotos = num
-        }
+
         
         let dictionary = [
             "funMode": funModeToggle.on,
-            "numPhotos": numPhotos
+            "deleteAll": Settings.SharedInstance.sharedSettings.deleteAll
         ]
         
         

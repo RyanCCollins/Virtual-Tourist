@@ -176,7 +176,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     lazy var fetchedResultsController: NSFetchedResultsController = {
-        let settings = NSFetchRequest(entityName: "Settings")
         
         let fetchRequest = NSFetchRequest(entityName: "Photo")
         fetchRequest.sortDescriptors = []
@@ -188,20 +187,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         return fetchedResultsController
     }()
-    
-    
-    /* Convenience for fetching the settings.  Realistically, I would use NSUser Defaults */
-    func fetchSettings() {
-        
-            let settingsRequest = NSFetchRequest(entityName: "Settings")
-        do {
-            try CoreDataStackManager.sharedInstance().persistentStoreCoordinator?.executeRequest(settingsRequest, withContext: self.sharedContext)
-        } catch let error as NSError? {
-            print("Error deleting coredata objects")
-        }
-    
-    }
-
     
 }
 

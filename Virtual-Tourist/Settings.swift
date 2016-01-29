@@ -10,8 +10,9 @@ import CoreData
 
 class Settings: NSManagedObject {
     @NSManaged var funMode: Bool
-    @NSManaged var saveAlbums: Bool
+    @NSManaged var deleteAll: Bool
     @NSManaged var numPhotos: NSNumber?
+    var needsUpdate: Bool = false
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -19,7 +20,7 @@ class Settings: NSManagedObject {
     
     struct Keys {
         static let funMode = "funMode"
-        static let saveAlbums = "saveAlbums"
+        static let deleteAll = "deleteAll"
         static let numPhotos = "numberOfPhotos"
     }
     
@@ -34,17 +35,18 @@ class Settings: NSManagedObject {
         
         /* Assign our properties */
         funMode = dictionary[Keys.funMode] as! Bool
-        saveAlbums = dictionary[Keys.saveAlbums] as! Bool
+        deleteAll = dictionary[Keys.deleteAll] as! Bool
         
         if let numberPhotos = dictionary[Keys.numPhotos] as? NSNumber {
             numPhotos = numberPhotos
         } else {
-            numPhotos = 24
+            numPhotos = 0
+            deleteAll = true
         }
 
     }
     
-    /* Our ImageCache singleton struct */
+    /* Our Settings singleton struct */
     struct SharedInstance {
         static let sharedSettings = Settings()
     }

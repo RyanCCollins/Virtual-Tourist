@@ -105,18 +105,21 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
 
     /* When the fetched results controller changes pins, handle the mapview insertion and deletion */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        let pin = anObject as! Pin
         switch type {
         case .Insert :
-            mapView.addAnnotation(anObject as! Pin)
+            mapView.addAnnotation(pin)
         case .Update :
-            mapView.removeAnnotation(anObject as! Pin)
+            mapView.removeAnnotation(pin)
+            mapView.addAnnotation(pin)
         case .Delete :
-            mapView.removeAnnotation(anObject as! Pin)
-            mapView.addAnnotation(anObject as! Pin)
+            mapView.removeAnnotation(pin)
+            
         default :
             break
         }
     }
+    
     
     /* Fetched Results controller for Pin entities */
     lazy var fetchedResultsController: NSFetchedResultsController = {
@@ -229,9 +232,15 @@ extension PinLocationViewController: MKMapViewDelegate {
             navigationController?.pushViewController(galleryViewController, animated: true)
             
         } else {
+            
             /* Delete pins when edit button is toggled */
             let pin = view.annotation as! Pin
             mapView.removeAnnotation(pin)
+            
+            pin.deleteAllAssociatedPhotos({
+                
+            })
+            
             CoreDataStackManager.sharedInstance().saveContext()
         }
     }
@@ -259,12 +268,11 @@ extension PinLocationViewController: MKMapViewDelegate {
                 annotationViewToReturn.canShowCallout = false
             }
             
-            let funMode = true
             
             /* If fun mode, then use the Udacity logo */
-            if funMode == true {
+            if Settings.SharedInstance.sharedSettings.funMode == true {
                 annotationViewToReturn.image = UIImage(named: "udacity-pin-logo")
-                
+                print("Adding the udacity pin")
             } else {
                 annotationViewToReturn.image = nil
             }
@@ -275,10 +283,20 @@ extension PinLocationViewController: MKMapViewDelegate {
     
 }
 
-extension PinLocationViewController: SettingsDelegate {
-    func didChangeSettings(settings: Settings) {
-        <#code#>
+extension PinLocationViewController: SettingsPickerDelegate {
+    func didChangeSettings(funMode: Bool, deleteAll: Bool) {
+        if funMode == true {
+            let pins = mapView.annotations as! [Pin]
+            mapView.removeAnnotations(pins)
+            
+            mapView.addAnnotations(pins)
+        }
+        
+        if deleteAll == true {
+            for pin in fetchedResultsController.fetchedObjects as! [Pin] {
+                sharedContext.deleteObject(pin)
+            }
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
     }
-    
-    func shouldDelete
 }
