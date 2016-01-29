@@ -46,6 +46,10 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
         
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "reloadData", name: NSManagedObjectContextObjectsDidChangeNotification, object: self)
+        showLoading()
+
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -55,19 +59,28 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        if appDelegate.isLoading {
-            loadingView.showLoading()
-            loadingView.hidden = false
-        } else {
-            loadingView.hideLoading()
-            loadingView.hidden = true
-        }
+
     }
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
         
+    }
+    
+    func showLoading() {
+        if selectedPin.status.isLoading {
+            loadingView.showLoading()
+            loadingView.animate()
+        }
+        performFetch({success, error in
+            if error != nil {
+                self.handleErrors(forPin: self.selectedPin, error: error!)
+            } else {
+                self.loadingView.hideLoading()
+                self.collectionView.reloadData()
+            }
+        })
     }
     
     /* Setup flowlayout upon layout of subviews */
@@ -82,7 +95,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     func performFetch(completionHandler: CallbackHandler?) {
-        sharedContext.performBlock({
+
             do {
                 
                 try self.fetchedResultsController.performFetch()
@@ -93,7 +106,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     }])
             }
             
-        })
+
         if let completionHandler = completionHandler {
             completionHandler(success: true, error: nil)
         }
@@ -104,7 +117,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
-            getImagesForPin()
+            getImagesForPin(true)
             
         } else {
             
@@ -118,15 +131,23 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             configureCollectionButton()
             
             CoreDataStackManager.sharedInstance().saveContext()
-            //Get new photos?
-            performFetch(nil)
+
         }
     }
     
 
     
     /* Handle logic for getting new photos for a pin and manage errors */
-    func getImagesForPin(){
+    func getImagesForPin(replaceOld: Bool){
+        
+        if replaceOld == true {
+            for photo in fetchedResultsController.fetchedObjects as! [Photo] {
+                sharedContext.deleteObject(photo)
+            }
+            CoreDataStackManager.sharedInstance().saveContext()
+        }
+        
+        
         selectedPin.fetchAndStoreImages({success, error in
             
             if error != nil {
@@ -144,7 +165,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func handleErrors(forPin pin: Pin, error: NSError) {
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-            self.getImagesForPin()
+            self.getImagesForPin(true)
             }])
     }
     

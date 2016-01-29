@@ -14,7 +14,9 @@ import CoreData
  * AppDelegate in Lesson 3. Apple puts the code in the AppDelegate in many of their
  * Xcode templates. But they put it in a convenience class like this in sample code
  * like the "Earthquakes" project.
- *
+ * 
+ * NOTE: this was originally created by Jason Schatz and the iOS team at Udacity
+ *  I am reusing their code and modifying it to fit the needs of my project.
  */
 
 private let SQLITE_FILE_NAME = "Virtual-Tourist.sqlite"

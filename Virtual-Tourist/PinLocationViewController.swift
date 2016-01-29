@@ -274,3 +274,11 @@ extension PinLocationViewController: MKMapViewDelegate {
     }
     
 }
+
+extension PinLocationViewController: SettingsDelegate {
+    func didChangeSettings(settings: Settings) {
+        <#code#>
+    }
+    
+    func shouldDelete
+}

@@ -19,8 +19,11 @@ class FlickrClient: NSObject {
             
         /* If our request includes parameters, add those parameters to our URL */
         if parameters != nil {
+            
             if let parameters = parameters {
+                
                 urlString += FlickrClient.stringByEscapingParameters(parameters)
+   
                 print(urlString)
             }
         }
@@ -28,14 +31,15 @@ class FlickrClient: NSObject {
         let url = NSURL(string: urlString)!
 
         let request = NSMutableURLRequest(URL: url)
-
+        
         request.HTTPMethod = HTTPRequest.GET
-
 
         /*Create a session and then a task */
         let session = NSURLSession.sharedSession()
         let task = session.dataTaskWithRequest(request) { data, response, error in
+       
             if error != nil {
+            
                 print(error)
                 completionHandler(result: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Status.Network))
                 
@@ -43,6 +47,7 @@ class FlickrClient: NSObject {
                 
                 /* GUARD: Did we get a successful response code of 2XX? */
                 self.guardForHTTPResponses(response as? NSHTTPURLResponse) {proceed, error in
+            
                     if error != nil {
                         print(response)
                         completionHandler(result: nil, error: error)
@@ -59,7 +64,8 @@ class FlickrClient: NSObject {
         return task
     }
     
-    /* Abtraction that returns a UIImage from a URL from FLickr */
+    /* Abtraction that returns a UIImage from a URL from FLickr
+        Making our life a bit easier for photo processing */
     func taskForGETImageFromURL(url: String, completionHandler: (image: UIImage?, error: NSError?)-> Void) -> NSURLSessionDataTask {
         
         let url = NSURL(string: url)!
@@ -78,28 +84,32 @@ class FlickrClient: NSObject {
                 
             } else {
                 
-                /* GUARD: Did we get a successful response code of 2XX? */
+                /* GUARD: Did we get a successful response code of 2XX? and return error if not found */
                 self.guardForHTTPResponses(response as? NSHTTPURLResponse) {proceed, error in
                     if error != nil {
-                        print(response)
+                        
                         completionHandler(image: nil, error: error!)
                         
                     }
                 }
+                
                 if let imageData = data {
+                    
                     let imageToReturn = UIImage(data: imageData)
-
                     completionHandler(image: imageToReturn, error: nil)
+                    
                 } else {
+                    
                     completionHandler(image: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: "Unable to get an image from Network.  Please try again."))
+                
                 }
-                
-                
             }
         }
+        
         task.resume()
         return task
     }
+    
         /* Helper Function: Convert JSON to a Foundation object */
         class func parseJSONDataWithCompletionHandler(data: NSData, completionHandler: (result: AnyObject!, error: NSError?) -> Void) {
             
@@ -177,7 +187,7 @@ class FlickrClient: NSObject {
             return escapedString!
         }
     
-        /* Singleton shared instance of ParseClient */
+        /* Singleton shared instance of FlickrClient */
         class func sharedInstance() -> FlickrClient {
             struct Singleton {
                 static var sharedInstance = FlickrClient()
@@ -205,22 +215,8 @@ class FlickrClient: NSObject {
             }
             completionHandler(proceed: true, error: nil)
         }
-        
-        /* Shared date formatter for Parse Client dates returned */
-        class var sharedDateFormatter: NSDateFormatter {
-            struct Singleton {
-                static let dateFormatter = Singleton.generateDateFormatter()
-                
-                static func generateDateFormatter() -> NSDateFormatter {
-                    let formatter = NSDateFormatter()
-                    formatter.dateFormat = "yyyy-mm-dd"
-                    
-                    return formatter
-                }
-            }
-            return Singleton.dateFormatter
-        }
     
+    /* Our ImageCache singleton struct */
     struct Caches {
         static let imageCache = ImageCache()
     }

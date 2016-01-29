@@ -33,7 +33,7 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var currentPage: NSNumber?
     var loadingError: NSError?
     var coordinateDelta: Double?
-    var status: Status? = nil
+    var status = Status()
     var needsNewPhotosFromFlickr: Bool = true
     typealias CompletionHandler = (success: Bool, error: NSError?) -> Void
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -74,12 +74,17 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
+    /* Page through the returned values, setting a new one each time we loop through */
     func paginate() {
+        
         var total = countOfPhotoPages as! Int, current = currentPage as! Int
+        
         if current < total {
+        
             let nextPage = current++
             currentPage = nextPage as NSNumber
             needsNewPhotosFromFlickr = false
+        
         } else {
             
             needsNewPhotosFromFlickr = true
@@ -99,12 +104,12 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
-    /* Core data */
+    /* Core data NSManagedObjectContext */
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext
     }
     
-    /* Returns false only when the delta between coordinate changes is less than or equal to 2 KM */
+    /* Returns false only when the delta between coordinate changes is less than or equal to 2 KM so that we don't get more photos if we don't have to */
     var needsNewPhotos: Bool {
         get {
             if let delta = coordinateDelta {
@@ -124,13 +129,11 @@ class Pin: NSManagedObject, MKAnnotation {
     
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
     func fetchAndStoreImages(completionHandler: CallbackHandler?) {
-        status?.isLoading = true
+        status.isLoading = true
         
         loadingError = nil
-        
-        /* If new photos are needed, fetch them first */
-        NSNotificationCenter.defaultCenter().postNotificationName(Notifications.willFinishLoadingThumbnails, object: self)
 
+        /* If new photos are needed, go and get them from flicker with the tastForFetchPhotos */
         if needsNewPhotos {
             FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
@@ -152,15 +155,12 @@ class Pin: NSManagedObject, MKAnnotation {
                         }
                     }
                 }
-                
             })
-        }
+        } 
 
-
-        /* Need to handle the loading error if one occurs, otherwise this will post that this execution did finish. */
-        NSNotificationCenter.defaultCenter().postNotificationName(Notifications.didFinishLoadingThumbails, object: self)
-        status?.isLoading = false
+        status.isLoading = false
         
+        /* If we've passed in a completionhandler, call it and return results*/
         if let completionHandler = completionHandler {
         if loadingError != nil {
             

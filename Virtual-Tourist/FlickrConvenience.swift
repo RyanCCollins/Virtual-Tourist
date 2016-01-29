@@ -74,11 +74,4 @@ extension FlickrClient {
         
         return "\(bottom_left_longitude),\(bottom_left_latitude),\(top_right_longitude),\(top_right_latitude)"
     }
-    
-    private func randomPageFromResults() -> Int {
-        return 1
-    }
-    
-
-
 }

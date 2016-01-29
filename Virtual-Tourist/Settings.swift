@@ -43,4 +43,10 @@ class Settings: NSManagedObject {
         }
 
     }
+    
+    /* Our ImageCache singleton struct */
+    struct SharedInstance {
+        static let sharedSettings = Settings()
+    }
+
 }

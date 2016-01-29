@@ -60,13 +60,6 @@ struct ErrorMessages {
     
 }
 
-/* Definies globally the notification messages that are passed through the app */
-struct Notifications {
-    static let didFinishLoadingThumbails = "PinDidFinishLoadingThumbnails"
-    static let didFinishLoadingThumbnailsWithEror = "PinDidFinishLoadingThumbnailsWithError"
-    static let willFinishLoadingThumbnails = "PinWillFinishLoadingThumbnails"
-}
-
 /* Helper function to construct errors project wide */
 public struct Errors : ErrorType {
     public var userMessage : String
@@ -82,11 +75,4 @@ public struct Errors : ErrorType {
         return NSError(domain: domain, code: errorCode!, userInfo: [NSLocalizedDescriptionKey : userMessage])
     }
     
-}
-
-/* Defines FB Read Permissions */
-struct FBReadPermissions {
-    static let PublicProfile = "public_profile"
-    static let Email = "email"
-    static let UserFriends = "user_friends"
 }
