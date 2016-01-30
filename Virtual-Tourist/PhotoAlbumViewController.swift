@@ -14,7 +14,7 @@ import CoreData
 class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     
-    @IBOutlet weak  var loadingView: SpringImageView!
+    @IBOutlet weak  var loadingView: UIActivityIndicatorView!
     @IBOutlet weak var noPhotosLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var collectionButton: UIButton!
@@ -26,7 +26,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     /* Pin picker delegate method, loads photos and centers map on pin */
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
-        
         selectedPin = pin
     }
     
@@ -45,11 +44,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* Add annotations to map for selected pin and center */
         mapView.addAnnotation(selectedPin)
         centerMapOnLocation(forPin: selectedPin)
-        
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "reloadData", name: NSManagedObjectContextObjectsDidChangeNotification, object: self)
-        showLoading()
-
+        self.noPhotosLabel.hidden = true
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -59,28 +54,33 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-
+        showLoading()
     }
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
-        
-        
     }
     
+    /* Show loading indicator while performing fetch */
     func showLoading() {
-        if selectedPin.status.isLoading {
-            loadingView.showLoading()
-            loadingView.animate()
-        }
-        performFetch({success, error in
+        dispatch_async(GlobalMainQueue, {
+            self.loadingView.showLoading()
+        })
+        
+        self.performFetch({success, error in
             if error != nil {
                 self.handleErrors(forPin: self.selectedPin, error: error!)
-            } else {
-                self.loadingView.hideLoading()
-                self.collectionView.reloadData()
+            }
+        dispatch_async(GlobalMainQueue, {
+            self.loadingView.hideLoading()
+            self.collectionView.reloadData()
+            if self.selectedPin.photos?.count == 0 || collectionView. {
+                self.noPhotosLabel.hidden = false
             }
         })
+    })
+
+
     }
     
     /* Setup flowlayout upon layout of subviews */
@@ -117,10 +117,19 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* If there are no selected index paths, download new photos for the selected pin */
         if selectedIndexPaths.count == 0 {
             
-            getImagesForPin(true)
+            getImagesForPin({success, error in
+                if error != nil {
+                    self.handleErrors(forPin: self.selectedPin, error: error!)
+                } else {
+                    dispatch_async(GlobalMainQueue, {
+                        CoreDataStackManager.sharedInstance().saveContext()
+                        self.collectionView.reloadData()
+                    })
+                }
+            })
             
         } else {
-            
+            /* Delete the selected photos and save the context */
             for index in selectedIndexPaths {
                 
                 let photoToDelete = fetchedResultsController.objectAtIndexPath(index) as! NSManagedObject
@@ -138,35 +147,38 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 
     
     /* Handle logic for getting new photos for a pin and manage errors */
-    func getImagesForPin(replaceOld: Bool){
-        
-        if replaceOld == true {
-            for photo in fetchedResultsController.fetchedObjects as! [Photo] {
-                sharedContext.deleteObject(photo)
+    func getImagesForPin(completionHandler: CallbackHandler?){
+        loadingView.hidden = false
+
+        dispatch_async(GlobalMainQueue, {
+            for photo in self.fetchedResultsController.fetchedObjects as! [Photo] {
+                self.sharedContext.deleteObject(photo)
             }
-            CoreDataStackManager.sharedInstance().saveContext()
-        }
-        
-        
+        })
+        CoreDataStackManager.sharedInstance().saveContext()
+
         selectedPin.fetchAndStoreImages({success, error in
-            
-            if error != nil {
-                self.handleErrors(forPin: self.selectedPin, error: error!)
-            } else {
-                dispatch_async(GlobalMainQueue, {
-                    self.collectionView.reloadData()
-                })
+            if let callback = completionHandler {
+                if error != nil {
+                    
+                    callback(success: false, error: error)
+                    
+                } else {
+                    
+                    callback(success: true, error: nil)
+                
+                }
             }
             
         })
     }
     
-    
+    /* Handle any errors in an easy succint way */
     func handleErrors(forPin pin: Pin, error: NSError) {
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-            self.getImagesForPin(true)
-            }])
+            self.getImagesForPin(nil)
+        }])
     }
     
     
@@ -290,12 +302,15 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         if selectedIndexPaths.contains(indexPath) {
             cell.isSelected(false)
+            
+            let index = selectedIndexPaths.indexOf(indexPath)
+            selectedIndexPaths.removeFirst(index!)
         } else {
+            selectedIndexPaths.append(indexPath)
             cell.isSelected(true)
         }
         
-        /* COnfigure cell and update UI */
-        
+        /* Configure cell and update UI */
         configureCollectionButton()
     }
 
@@ -328,8 +343,8 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
         return nil
     }
     
+    /* Center on map for selected pin */
     func centerMapOnLocation(forPin pin: Pin) {
-        
         let coordinateRegion = MKCoordinateRegionMakeWithDistance(pin.coordinate, regionRadius * 20.0, regionRadius * 20.0)
         mapView.setRegion(coordinateRegion, animated: false)
         

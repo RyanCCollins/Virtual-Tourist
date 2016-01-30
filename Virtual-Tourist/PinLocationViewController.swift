@@ -60,7 +60,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     func addAnnotation(sender: UIGestureRecognizer) {
 
         let point: CGPoint = sender.locationInView(mapView)
-
         let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
 
         switch sender.state {
@@ -90,16 +89,18 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchNewPhotos() {
-        pinToAdd!.fetchAndStoreImages({success, error in
-            
-            if error != nil {
-                print(error)
-            } else {
-                CoreDataStackManager.sharedInstance().saveContext()
-            }
-            
+        
+        dispatch_async(GlobalMainQueue, {
+            self.pinToAdd!.fetchAndStoreImages({success, error in
+                
+                if error != nil {
+                    print(error)
+                } else {
+                    CoreDataStackManager.sharedInstance().saveContext()
+                }
+            })
         })
-
+        
     }
     
 
@@ -270,7 +271,7 @@ extension PinLocationViewController: MKMapViewDelegate {
             
             
             /* If fun mode, then use the Udacity logo */
-            if Settings.SharedInstance.sharedSettings.funMode == true {
+            if appDelegate.appSettings.funMode == true {
                 annotationViewToReturn.image = UIImage(named: "udacity-pin-logo")
                 print("Adding the udacity pin")
             } else {
@@ -298,5 +299,7 @@ extension PinLocationViewController: SettingsPickerDelegate {
             }
             CoreDataStackManager.sharedInstance().saveContext()
         }
+        appDelegate.appSettings.deleteAll = false
+        
     }
 }

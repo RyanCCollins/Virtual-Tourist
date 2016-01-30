@@ -23,17 +23,20 @@ class SettingsViewController: UIViewController {
     var settingsChanged = false
     
     var delegate: SettingsPickerDelegate?
+    var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
 
     
     /* Access to view for transformation */
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
         modalView.transform = CGAffineTransformMakeTranslation(-300, 0)
-        
-        funModeToggle.enabled = true
-        
+        updateSettingsView()
+    }
+
+    @IBAction func didTapFunModeToggleUpInside(sender: AnyObject) {
+        appDelegate.appSettings.funMode = true
+        appDelegate.saveSettingsState()
     }
     
     /* A little transition to make it look nice */
@@ -43,23 +46,20 @@ class SettingsViewController: UIViewController {
         self.presentingViewController!.view.transformOut(self)
     }
     
-    override func viewWillDisappear(animated: Bool) {
-        saveSettingsState()
-    }
-    
-    @IBAction func didTapClearUpInside(sender: AnyObject) {
-        Settings.SharedInstance.sharedSettings.deleteAll = true
 
+    @IBAction func didTapClearUpInside(sender: AnyObject) {
+        appDelegate.saveSettingsState()
+        appDelegate.appSettings.needsUpdate = true
     }
     
     func updateSettingsView(){
-        funModeToggle.on = Settings.SharedInstance.sharedSettings.funMode
-        savedPhotosLabel.text = String(Settings.SharedInstance.sharedSettings.numPhotos)
+        funModeToggle.on = appDelegate.appSettings.funMode
+        savedPhotosLabel.text = String(appDelegate.appSettings.numPhotos)
     }
     
     func shouldChangeSetings() {
-        if Settings.SharedInstance.sharedSettings.needsUpdate {
-            delegate?.didChangeSettings(Settings.SharedInstance.sharedSettings.funMode, deleteAll: Settings.SharedInstance.sharedSettings.deleteAll)
+        if appDelegate.appSettings.needsUpdate {
+            delegate?.didChangeSettings(appDelegate.appSettings.funMode, deleteAll: appDelegate.appSettings.deleteAll)
         }
         
     }
@@ -72,29 +72,5 @@ class SettingsViewController: UIViewController {
             self.dismissViewControllerAnimated(false, completion: nil)
         })
     }
-
-    var sharedContext: NSManagedObjectContext {
-        return CoreDataStackManager.sharedInstance().managedObjectContext
-    }
     
-    var filePath : String {
-        let manager = NSFileManager.defaultManager()
-        let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first! as NSURL
-        return url.URLByAppendingPathComponent("settings").path!
-    }
-    
-
-    
-    /* Save the number of photos and funmode toggle settings */
-    func saveSettingsState() {
-
-        
-        let dictionary = [
-            "funMode": funModeToggle.on,
-            "deleteAll": Settings.SharedInstance.sharedSettings.deleteAll
-        ]
-        
-        
-        NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
-    }
 }

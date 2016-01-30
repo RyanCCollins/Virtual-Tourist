@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -152,47 +151,33 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="loading" translatesAutoresizingMaskIntoConstraints="NO" id="Orj-kT-tNx" customClass="SpringImageView" customModule="Spring">
-                                <rect key="frame" x="282" y="281" width="37" height="37"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="37" id="34J-OJ-4FA"/>
-                                    <constraint firstAttribute="width" secondItem="Orj-kT-tNx" secondAttribute="height" multiplier="1:1" id="5tO-HY-wFe"/>
-                                </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="autostart" value="YES"/>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="rotate">
-                                        <real key="value" value="360"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="scaleX">
-                                        <real key="value" value="1.2"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="autohide" value="YES"/>
-                                </userDefinedRuntimeAttributes>
-                            </imageView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Vdq-pe-ZOL">
+                                <rect key="frame" x="290" y="290" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="5n3-ie-TXe" secondAttribute="trailing" id="8BQ-CT-3Lf"/>
+                            <constraint firstItem="Vdq-pe-ZOL" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="BWV-1R-scL"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="top" secondItem="7Tk-rh-XTF" secondAttribute="bottom" constant="-2" id="BfL-BP-tao"/>
                             <constraint firstAttribute="trailing" secondItem="mCN-iR-A90" secondAttribute="trailing" id="HTE-qd-dWO"/>
                             <constraint firstItem="n6N-vt-vvR" firstAttribute="top" secondItem="mCN-iR-A90" secondAttribute="bottom" id="NPe-QD-thm"/>
                             <constraint firstItem="5n3-ie-TXe" firstAttribute="top" secondItem="9wF-2m-NNZ" secondAttribute="bottom" id="PCp-S6-4hm"/>
+                            <constraint firstItem="Vdq-pe-ZOL" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="Upi-8i-hdB"/>
                             <constraint firstItem="u8z-nt-Zd4" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="ZHH-bw-Mf2"/>
                             <constraint firstItem="7Tk-rh-XTF" firstAttribute="top" secondItem="5n3-ie-TXe" secondAttribute="bottom" id="d0u-bg-voK"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="fKV-nj-UCK"/>
-                            <constraint firstItem="Orj-kT-tNx" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="gJE-Rd-SCg"/>
                             <constraint firstItem="u8z-nt-Zd4" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="hcp-dG-buj"/>
                             <constraint firstItem="5n3-ie-TXe" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="qG7-kj-7AM"/>
                             <constraint firstItem="7Tk-rh-XTF" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="w3C-ME-PZ1"/>
                             <constraint firstAttribute="trailing" secondItem="7Tk-rh-XTF" secondAttribute="trailing" id="w9L-nm-cV9"/>
-                            <constraint firstItem="Orj-kT-tNx" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="xWs-un-X4B"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionButton" destination="mCN-iR-A90" id="MPu-Ui-khl"/>
                         <outlet property="collectionView" destination="7Tk-rh-XTF" id="4Ws-Nx-Oip"/>
                         <outlet property="flowLayout" destination="0Qj-AP-YgY" id="Qbg-3K-Ren"/>
-                        <outlet property="loadingView" destination="Orj-kT-tNx" id="DHf-w5-vW3"/>
+                        <outlet property="loadingView" destination="Vdq-pe-ZOL" id="7b3-QH-dsC"/>
                         <outlet property="mapView" destination="5n3-ie-TXe" id="IBF-Fs-w5c"/>
                         <outlet property="noPhotosLabel" destination="u8z-nt-Zd4" id="5Zg-LA-uQz"/>
                         <segue destination="avs-Bz-MbW" kind="presentation" identifier="showGallery" modalPresentationStyle="currentContext" modalTransitionStyle="crossDissolve" id="WgQ-Fi-bEh"/>
@@ -291,6 +276,9 @@
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fph-H0-lHP">
                                         <rect key="frame" x="140" y="82" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="didTapFunModeToggleUpInside:" destination="Vzs-yO-JhJ" eventType="valueChanged" id="SpM-yK-K0O"/>
+                                        </connections>
                                     </switch>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FIJ-cM-ZNh">
                                         <rect key="frame" x="140" y="121" width="50" height="28"/>
@@ -372,6 +360,5 @@
     </scenes>
     <resources>
         <image name="gear39" width="27" height="27"/>
-        <image name="loading" width="40" height="40"/>
     </resources>
 </document>

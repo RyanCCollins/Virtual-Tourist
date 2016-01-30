@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var isLoading: Bool = false
 
     var numPhotosLoaded: Int?
+    var appSettings: Settings!
     
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -24,7 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         restoreSettingsState()
         
         return true
-        
     }
     
     func handleLoadingNotifications(){
@@ -34,18 +34,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func restoreSettingsState() {
         
         if let settingsDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {
-            Settings.SharedInstance.sharedSettings.funMode = settingsDictionary["funMode"] as! Bool
-            Settings.SharedInstance.sharedSettings.numPhotos  = settingsDictionary["numberOfPhotos"] as! Int
-            Settings.SharedInstance.sharedSettings.deleteAll = settingsDictionary["deletAll"] as! Bool
             
+            appSettings = Settings(dictionary: settingsDictionary, context: sharedContext)
             
         } else {
-            Settings.SharedInstance.sharedSettings.funMode = false
-            Settings.SharedInstance.sharedSettings.numPhotos = 0
-            Settings.SharedInstance.sharedSettings.deleteAll = true
+            
+            /* Initialize the defaults if settings don't exist */
+            let dictionary: [String: AnyObject] = ["funMode" : false, "deleteAll": false, "numPhotos": 0]
+            sharedContext.performBlockAndWait({
+                self.appSettings = Settings(dictionary: dictionary, context: self.sharedContext)
+                CoreDataStackManager.sharedInstance().saveContext()
+            })
+            
         }
         
+    }
+    
+    /* Save the number of photos and funmode toggle settings */
+    func saveSettingsState() {
+    
+        let dictionary: [String:AnyObject] = [
+            "funMode": appSettings.funMode,
+            "deleteAll": appSettings.deleteAll,
+            "numPhotos": appSettings.numPhotos!
+        ]
         
+        NSKeyedArchiver.archiveRootObject(dictionary, toFile: filePath)
     }
     
     var sharedContext: NSManagedObjectContext {

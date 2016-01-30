@@ -12,7 +12,9 @@ class Settings: NSManagedObject {
     @NSManaged var funMode: Bool
     @NSManaged var deleteAll: Bool
     @NSManaged var numPhotos: NSNumber?
-    var needsUpdate: Bool = false
+    @NSManaged var numPins: NSNumber?
+    
+    dynamic var needsUpdate: Bool = false
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -36,19 +38,8 @@ class Settings: NSManagedObject {
         /* Assign our properties */
         funMode = dictionary[Keys.funMode] as! Bool
         deleteAll = dictionary[Keys.deleteAll] as! Bool
-        
-        if let numberPhotos = dictionary[Keys.numPhotos] as? NSNumber {
-            numPhotos = numberPhotos
-        } else {
-            numPhotos = 0
-            deleteAll = true
-        }
+        numPhotos = dictionary[Keys.numPhotos] as? NSNumber
 
-    }
-    
-    /* Our Settings singleton struct */
-    struct SharedInstance {
-        static let sharedSettings = Settings()
     }
 
 }

@@ -46,7 +46,7 @@ struct GlobalErrors : ErrorType {
     
 }
 
-/* Define errors within domain of Parse Client */
+/* Define errors within domain of the Client */
 struct ErrorMessages {
     
     static let JSONSerialization =  "An error occured when sending data to the network.  Could not properly parse the data."

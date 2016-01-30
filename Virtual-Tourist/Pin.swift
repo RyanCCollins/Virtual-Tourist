@@ -112,6 +112,11 @@ class Pin: NSManagedObject, MKAnnotation {
     /* Returns false only when the delta between coordinate changes is less than or equal to 2 KM so that we don't get more photos if we don't have to */
     var needsNewPhotos: Bool {
         get {
+            /* Break if photos is nil or count is greater */
+            guard photos != nil && photos?.count > 0 else {
+                return true
+            }
+            
             if let delta = coordinateDelta {
             if delta <= 2 {
                 print("Coordinate Delta is: \(delta) returning false")
@@ -129,7 +134,6 @@ class Pin: NSManagedObject, MKAnnotation {
     
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
     func fetchAndStoreImages(completionHandler: CallbackHandler?) {
-        status.isLoading = true
         
         loadingError = nil
 
@@ -156,9 +160,7 @@ class Pin: NSManagedObject, MKAnnotation {
                     }
                 }
             })
-        } 
-
-        status.isLoading = false
+        }
         
         /* If we've passed in a completionhandler, call it and return results*/
         if let completionHandler = completionHandler {
