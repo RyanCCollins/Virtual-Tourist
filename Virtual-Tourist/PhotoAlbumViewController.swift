@@ -65,22 +65,19 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func performInitialFetch() {
         dispatch_async(GlobalMainQueue, {
             self.loadingView.hidden = false
-        })
-        
-        self.performFetch({success, error in
-            if error != nil {
-                self.handleErrors(forPin: self.selectedPin, error: error!)
-            }
-        dispatch_async(GlobalMainQueue, {
-            self.loadingView.hidden = true
-            self.collectionView.reloadData()
-            if self.selectedPin.photos?.count == 0 || self.collectionView.numberOfItemsInSection(0) == 0 {
-                self.noPhotosLabel.hidden = false
-            }
-        })
-    })
+            self.performFetch({success, error in
+                if error != nil {
+                    self.handleErrors(forPin: self.selectedPin, error: error!)
+                } else {
+                    self.loadingView.hidden = true
+                    self.collectionView.reloadData()
+                    if self.selectedPin.photos?.count == 0 || self.collectionView.numberOfItemsInSection(0) == 0 {
+                        self.noPhotosLabel.hidden = false
+                    }
+                }
+            })
 
-
+        })
     }
     
     /* Setup flowlayout upon layout of subviews */

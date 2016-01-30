@@ -60,6 +60,10 @@ struct ErrorMessages {
     
 }
 
+struct Notifications {
+    static let PinDidFinishLoading = "PinDidFinishLoading"
+}
+
 /* Helper function to construct errors project wide */
 public struct Errors : ErrorType {
     public var userMessage : String

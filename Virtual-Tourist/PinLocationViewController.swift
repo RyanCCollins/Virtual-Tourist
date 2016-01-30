@@ -48,7 +48,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
         configureAllAnnotations()
 
-        
     }
 
     
@@ -102,11 +101,15 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchNewPhotos() {
-        
+        appDelegate.subscribeToLoadingNotification(forPin: pinToAdd!)
         dispatch_async(GlobalMainQueue, {
             self.pinToAdd!.fetchAndStoreImages({success, error in
-
-                CoreDataStackManager.sharedInstance().saveContext()
+                if error != nil {
+                    print(error)
+                } else {
+                    self.appDelegate.didFinishLoading()
+                    CoreDataStackManager.sharedInstance().saveContext()
+                }
             })
         })
         

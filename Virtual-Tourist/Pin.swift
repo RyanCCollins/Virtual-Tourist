@@ -21,18 +21,22 @@ class Pin: NSManagedObject, MKAnnotation {
         static let Photos = "photos"
     }
     
+    struct Status {
+        var isLoading: Bool = false
+    }
+    
     /* Create our managed variables */
     @NSManaged var latitude: NSNumber
     @NSManaged var longitude: NSNumber
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
+
     
     var loadingError: NSError?
     var coordinateDelta: Double?
     
     typealias CompletionHandler = (success: Bool, error: NSError?) -> Void
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -128,7 +132,9 @@ class Pin: NSManagedObject, MKAnnotation {
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
     func fetchAndStoreImages(completionHandler: CallbackHandler?) {
         
+        
         loadingError = nil
+        
 
         /* If new photos are needed, go and get them from flicker with the taskForFetchPhotos */
         if needsNewPhotos {
@@ -142,33 +148,36 @@ class Pin: NSManagedObject, MKAnnotation {
                     print(error)
                     
                  } else {
+                    
                     if photos != nil {
                         for photo in photos! {
                             photo.imageForPhoto({success, error in
+
                                 if error != nil {
+
                                     self.loadingError = error
-                                } else {
-                                    print("Success loading photos")
                                 }
+                                
                             })
                         }
+                        /* If we've passed in a completionhandler, call it and return results*/
+                        if let completionHandler = completionHandler {
+                            if self.loadingError != nil {
+                                
+                                completionHandler(success: false, error: self.loadingError)
+                                
+                            } else {
+                                
+                                completionHandler(success: true, error: nil)
+                                
+                            }
+                        }
+      
                     }
                 }
             })
         }
         
-        /* If we've passed in a completionhandler, call it and return results*/
-        if let completionHandler = completionHandler {
-        if loadingError != nil {
-            
-            completionHandler(success: false, error: loadingError)
-        
-        } else {
-        
-            completionHandler(success: true, error: nil)
-        
-            }
-        }
     }
     
 }

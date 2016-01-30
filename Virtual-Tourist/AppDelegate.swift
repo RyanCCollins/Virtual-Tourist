@@ -14,7 +14,7 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    
+    var photosLoading = false
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
@@ -23,6 +23,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
-
+    
+    func subscribeToLoadingNotification(forPin pin: Pin){
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoading", name: Notifications.PinDidFinishLoading, object: pin)
+    }
+    func unsubscribeToLoadingNotifications(forPin pin: Pin) {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func didFinishLoading() {
+        print("Did Finish Loading")
+    }
 }
 

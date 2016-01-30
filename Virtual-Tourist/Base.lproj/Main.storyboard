@@ -232,7 +232,7 @@
         <!--Settings View Controller-->
         <scene sceneID="0cK-2H-qnY">
             <objects>
-                <viewController storyboardIdentifier="SettingsViewController" id="Vzs-yO-JhJ" customClass="SettingsViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SettingsViewController" modalPresentationStyle="overCurrentContext" id="Vzs-yO-JhJ" customClass="SettingsViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="HVq-5p-uCM"/>
                         <viewControllerLayoutGuide type="bottom" id="MWU-To-RsJ"/>

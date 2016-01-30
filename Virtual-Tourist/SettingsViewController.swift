@@ -44,6 +44,16 @@ class SettingsViewController: UIViewController {
         AppSettings.GlobalConfig.Settings.numberOfPins = 0
         AppSettings.GlobalConfig.Settings.saveSettings()
         delegate?.didDeleteAll()
+        closeSettingsView()
+    }
+    
+    func closeSettingsView() {
+        self.presentingViewController!.view.transformIn(self)
+        modalView.animation = "slideRight"
+        modalView.animateFrom = false
+        modalView.animateToNext({
+            self.dismissViewControllerAnimated(false, completion: nil)
+        })
     }
     
     func updateSettingsView(){
@@ -53,12 +63,7 @@ class SettingsViewController: UIViewController {
     
     
     @IBAction func didTapViewToClose(sender: AnyObject) {
-        self.presentingViewController!.view.transformIn(self)
-        modalView.animation = "slideRight"
-        modalView.animateFrom = false
-        modalView.animateToNext({
-            self.dismissViewControllerAnimated(false, completion: nil)
-        })
+        closeSettingsView()
     }
     
 }
