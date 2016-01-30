@@ -29,6 +29,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     
     /* Pin to add defined globally, for use when rearranging pins */
     var pinToAdd: Pin? = nil
+    var settings: Settings? = nil
+    var shouldDelete = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,8 +47,10 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         mapView.addGestureRecognizer(longPressRecognizer)
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
         configureAllAnnotations()
+
         
     }
+
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
@@ -55,6 +59,13 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         _editing = false
         editButton.title = "Edit"
         tapPinsToDeleteBanner.hidden = true
+    }
+    
+    @IBAction func didTapSettingsUpInside(sender: AnyObject) {
+        let controller = storyboard?.instantiateViewControllerWithIdentifier("SettingsViewController") as! SettingsViewController
+        
+        controller.delegate = self
+        self.presentViewController(controller, animated: true, completion: nil)
     }
     
     func addAnnotation(sender: UIGestureRecognizer) {
@@ -123,6 +134,22 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     /* Fetched Results controller for Pin entities */
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
+        
+        fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
+        let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
+        
+        do {
+            try fetchResultsController.performFetch()
+        } catch let error {
+            print(error)
+        }
+        
+        return fetchResultsController
+    }()
+    
+    
+    lazy var settingsFetchController: NSFetchedResultsController = {
+        let fetch = NSFetchRequest(entityName: "Settings")
         
         fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
         let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -252,6 +279,9 @@ extension PinLocationViewController: MKMapViewDelegate {
             var annotationViewToReturn: MKPinAnnotationView
             
             /* If we are reusing the annotation view, set a new annotation */
+            
+            
+            
             if let pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pinId) as? MKPinAnnotationView {
                 
                 pinAnnotationView.annotation = annotation
@@ -264,15 +294,6 @@ extension PinLocationViewController: MKMapViewDelegate {
                 annotationViewToReturn.draggable = true
                 annotationViewToReturn.canShowCallout = false
             }
-            
-            
-            /* If fun mode, then use the Udacity logo */
-            if appDelegate.appSettings.funMode == true {
-                annotationViewToReturn.image = UIImage(named: "udacity-pin-logo")
-                print("Adding the udacity pin")
-            } else {
-                annotationViewToReturn.image = nil
-            }
             return annotationViewToReturn
         }
         return nil
@@ -281,21 +302,16 @@ extension PinLocationViewController: MKMapViewDelegate {
 }
 
 extension PinLocationViewController: SettingsPickerDelegate {
-    func didChangeSettings(funMode: Bool, deleteAll: Bool) {
-        if funMode == true {
-            let pins = mapView.annotations as! [Pin]
-            mapView.removeAnnotations(pins)
+    
+    func didDeleteAll() {
+        for pin in fetchedResultsController.fetchedObjects as! [Pin] {
+            pin.deleteAllAssociatedPhotos()
             
-            mapView.addAnnotations(pins)
-        }
-        
-        if deleteAll == true {
-            for pin in fetchedResultsController.fetchedObjects as! [Pin] {
-                sharedContext.deleteObject(pin)
-            }
+            sharedContext.deleteObject(pin)
+            mapView.removeAnnotation(pin)
+            
             CoreDataStackManager.sharedInstance().saveContext()
+            print("Deleting all pins")
         }
-        appDelegate.appSettings.deleteAll = false
-        
     }
 }

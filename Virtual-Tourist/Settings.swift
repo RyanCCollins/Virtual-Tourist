@@ -9,21 +9,16 @@
 import CoreData
 
 class Settings: NSManagedObject {
-    @NSManaged var funMode: Bool
-    @NSManaged var deleteAll: Bool
-    @NSManaged var numPhotos: NSNumber?
-    @NSManaged var numPins: NSNumber?
-    
-    dynamic var needsUpdate: Bool = false
+    @NSManaged var numberOfPhotos: NSNumber
+    @NSManaged var numberOfPins: NSNumber
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
     struct Keys {
-        static let funMode = "funMode"
-        static let deleteAll = "deleteAll"
-        static let numPhotos = "numberOfPhotos"
+        static let numberOfPhotos = "numberOfPhotos"
+        static let numberOfPins = "numberOfPins"
     }
     
     /* Custom init */
@@ -36,10 +31,10 @@ class Settings: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        funMode = dictionary[Keys.funMode] as! Bool
-        deleteAll = dictionary[Keys.deleteAll] as! Bool
-        numPhotos = dictionary[Keys.numPhotos] as? NSNumber
+        numberOfPhotos = dictionary[Keys.numberOfPhotos] as! NSNumber
+        numberOfPins = dictionary[Keys.numberOfPins] as! NSNumber
 
     }
-
 }
+
+

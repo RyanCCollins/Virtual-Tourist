@@ -158,7 +158,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
 
         self.selectedPin.fetchAndStoreImages({success, error in
-            
             self.loadingView.hidden = true
             
             if let callback = completionHandler {

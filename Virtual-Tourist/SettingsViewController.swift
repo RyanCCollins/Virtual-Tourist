@@ -12,19 +12,16 @@ import Spring
 
 /* Settings delegate for changing settings externally and applying coredata changes appwide */
 protocol SettingsPickerDelegate {
-    func didChangeSettings(funMode: Bool, deleteAll: Bool)
+    func didDeleteAll()
 }
 
 class SettingsViewController: UIViewController {
     
     @IBOutlet weak var modalView: SpringView!
-    @IBOutlet weak var funModeToggle: UISwitch!
     @IBOutlet weak var savedPhotosLabel: UILabel!
-    var tempSettings: Settings!
+    @IBOutlet weak var savedPinsLabel: UILabel!
     
     var delegate: SettingsPickerDelegate?
-    var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-
     
     /* Access to view for transformation */
     override func viewDidLoad() {
@@ -32,11 +29,6 @@ class SettingsViewController: UIViewController {
         
         modalView.transform = CGAffineTransformMakeTranslation(-300, 0)
         updateSettingsView()
-    }
-
-    @IBAction func didTapFunModeToggleUpInside(sender: AnyObject) {
-        appDelegate.appSettings.funMode = true
-        appDelegate.saveSettingsState()
     }
     
     /* A little transition to make it look nice */
@@ -48,21 +40,17 @@ class SettingsViewController: UIViewController {
     
     /* When you tap the clear button, we need to tell the global seetins that we need to clear the data */
     @IBAction func didTapClearUpInside(sender: AnyObject) {
-        appDelegate.saveSettingsState()
-        appDelegate.appSettings.needsUpdate = true
+        AppSettings.GlobalConfig.Settings.numberOfPhotos = 0
+        AppSettings.GlobalConfig.Settings.numberOfPins = 0
+        AppSettings.GlobalConfig.Settings.saveSettings()
+        delegate?.didDeleteAll()
     }
     
     func updateSettingsView(){
-        funModeToggle.on = appDelegate.appSettings.funMode
-        savedPhotosLabel.text = String(appDelegate.appSettings.numPhotos)
+        savedPhotosLabel.text = String(AppSettings.GlobalConfig.Settings.numberOfPhotos)
+        savedPinsLabel.text = String(AppSettings.GlobalConfig.Settings.numberOfPins)
     }
     
-    func shouldChangeSetings() {
-        if appDelegate.appSettings.needsUpdate {
-            delegate?.didChangeSettings(appDelegate.appSettings.funMode, deleteAll: appDelegate.appSettings.deleteAll)
-        }
-        
-    }
     
     @IBAction func didTapViewToClose(sender: AnyObject) {
         self.presentingViewController!.view.transformIn(self)

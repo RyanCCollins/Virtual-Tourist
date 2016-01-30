@@ -21,20 +21,16 @@ class Pin: NSManagedObject, MKAnnotation {
         static let Photos = "photos"
     }
     
-    struct Status {
-        var isLoading: Bool = false
-    }
-    
     /* Create our managed variables */
     @NSManaged var latitude: NSNumber
     @NSManaged var longitude: NSNumber
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
+    
     var loadingError: NSError?
     var coordinateDelta: Double?
-    var status = Status()
-    var needsNewPhotosFromFlickr: Bool = true
+    
     typealias CompletionHandler = (success: Bool, error: NSError?) -> Void
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     
@@ -74,7 +70,7 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
-    /* Page through the returned values, setting a new one each time we loop through */
+    /* Page through the returned values, setting a new value in order to get the next page of photos if possible */
     func paginate() {
         
         var total = countOfPhotoPages as! Int, current = currentPage as! Int
@@ -83,11 +79,6 @@ class Pin: NSManagedObject, MKAnnotation {
         
             let nextPage = current++
             currentPage = nextPage as NSNumber
-            needsNewPhotosFromFlickr = false
-        
-        } else {
-            
-            needsNewPhotosFromFlickr = true
             
         }
     }
@@ -142,7 +133,7 @@ class Pin: NSManagedObject, MKAnnotation {
         /* If new photos are needed, go and get them from flicker with the taskForFetchPhotos */
         if needsNewPhotos {
             deleteAllAssociatedPhotos()
-            
+            paginate()
             FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
                  if error != nil {
