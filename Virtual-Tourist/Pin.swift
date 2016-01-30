@@ -94,13 +94,15 @@ class Pin: NSManagedObject, MKAnnotation {
     
     
     /* Deletes all associated photos */
-    func deleteAllAssociatedPhotos(completionHandler: () -> Void) {
+    func deleteAllAssociatedPhotos() {
         if photos != nil {
             for photo in photos! {
                 sharedContext.performBlockAndWait({
                     self.sharedContext.deleteObject(photo)
                 })
             }
+            
+            CoreDataStackManager.sharedInstance().saveContext()
         }
     }
     
@@ -137,8 +139,10 @@ class Pin: NSManagedObject, MKAnnotation {
         
         loadingError = nil
 
-        /* If new photos are needed, go and get them from flicker with the tastForFetchPhotos */
+        /* If new photos are needed, go and get them from flicker with the taskForFetchPhotos */
         if needsNewPhotos {
+            deleteAllAssociatedPhotos()
+            
             FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
                  if error != nil {

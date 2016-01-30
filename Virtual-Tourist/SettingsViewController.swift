@@ -20,7 +20,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var modalView: SpringView!
     @IBOutlet weak var funModeToggle: UISwitch!
     @IBOutlet weak var savedPhotosLabel: UILabel!
-    var settingsChanged = false
+    var tempSettings: Settings!
     
     var delegate: SettingsPickerDelegate?
     var appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -46,7 +46,7 @@ class SettingsViewController: UIViewController {
         self.presentingViewController!.view.transformOut(self)
     }
     
-
+    /* When you tap the clear button, we need to tell the global seetins that we need to clear the data */
     @IBAction func didTapClearUpInside(sender: AnyObject) {
         appDelegate.saveSettingsState()
         appDelegate.appSettings.needsUpdate = true

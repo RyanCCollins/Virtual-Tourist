@@ -73,9 +73,11 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             pinToAdd!.didChangeValueForKey("coordinate")
             
             self.sharedContext.performBlockAndWait({
+                
                 CoreDataStackManager.sharedInstance().saveContext()
             })
             fetchNewPhotos()
+            
         case .Ended :
             print("Ended pin drop")
             
@@ -92,12 +94,8 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
         dispatch_async(GlobalMainQueue, {
             self.pinToAdd!.fetchAndStoreImages({success, error in
-                
-                if error != nil {
-                    print(error)
-                } else {
-                    CoreDataStackManager.sharedInstance().saveContext()
-                }
+
+                CoreDataStackManager.sharedInstance().saveContext()
             })
         })
         
@@ -238,9 +236,7 @@ extension PinLocationViewController: MKMapViewDelegate {
             let pin = view.annotation as! Pin
             mapView.removeAnnotation(pin)
             
-            pin.deleteAllAssociatedPhotos({
-                
-            })
+            pin.deleteAllAssociatedPhotos()
             
             CoreDataStackManager.sharedInstance().saveContext()
         }

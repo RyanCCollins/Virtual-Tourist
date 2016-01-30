@@ -26,11 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
-    
-    func handleLoadingNotifications(){
-        
-    }
-    
+
     func restoreSettingsState() {
         
         if let settingsDictionary = NSKeyedUnarchiver.unarchiveObjectWithFile(filePath) as? [String : AnyObject] {

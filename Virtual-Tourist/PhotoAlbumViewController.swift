@@ -54,7 +54,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        showLoading()
+        performInitialFetch()
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -62,9 +62,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     /* Show loading indicator while performing fetch */
-    func showLoading() {
+    func performInitialFetch() {
         dispatch_async(GlobalMainQueue, {
-            self.loadingView.showLoading()
+            self.loadingView.hidden = false
         })
         
         self.performFetch({success, error in
@@ -72,9 +72,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 self.handleErrors(forPin: self.selectedPin, error: error!)
             }
         dispatch_async(GlobalMainQueue, {
-            self.loadingView.hideLoading()
+            self.loadingView.hidden = true
             self.collectionView.reloadData()
-            if self.selectedPin.photos?.count == 0 || collectionView. {
+            if self.selectedPin.photos?.count == 0 || self.collectionView.numberOfItemsInSection(0) == 0 {
                 self.noPhotosLabel.hidden = false
             }
         })
@@ -155,9 +155,12 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 self.sharedContext.deleteObject(photo)
             }
         })
-        CoreDataStackManager.sharedInstance().saveContext()
+        
 
-        selectedPin.fetchAndStoreImages({success, error in
+        self.selectedPin.fetchAndStoreImages({success, error in
+            
+            self.loadingView.hidden = true
+            
             if let callback = completionHandler {
                 if error != nil {
                     
@@ -166,11 +169,14 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 } else {
                     
                     callback(success: true, error: nil)
-                
+                    
                 }
             }
             
         })
+        loadingView.hidden = true
+        CoreDataStackManager.sharedInstance().saveContext()
+
     }
     
     /* Handle any errors in an easy succint way */

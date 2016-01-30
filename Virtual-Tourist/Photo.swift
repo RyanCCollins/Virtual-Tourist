@@ -53,6 +53,10 @@ class Photo: NSManagedObject {
     
     var image: UIImage? {
         get {
+            guard filePath != nil else {
+                return nil
+            }
+            
             return FlickrClient.Caches.imageCache.imageWithIdentifier(filePath!)
         }
         set {
