@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func subscribeToLoadingNotification(forPin pin: Pin){
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "willFinishLoading", name: Notifications.PinWillFinishLoading, object: pin)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoading", name: Notifications.PinDidFinishLoading, object: pin)
     }
     func unsubscribeToLoadingNotifications(forPin pin: Pin) {
@@ -32,7 +33,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func didFinishLoading() {
-        print("Did Finish Loading")
+        photosLoading = true
+    }
+    
+    func willFinishLoading() {
+        photosLoading = false
     }
 }
 

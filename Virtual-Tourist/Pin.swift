@@ -130,12 +130,10 @@ class Pin: NSManagedObject, MKAnnotation {
     }
     
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
-    func fetchAndStoreImages(completionHandler: CallbackHandler?) {
-        
-        
-        loadingError = nil
-        
+    func fetchAndStoreImages(callback: CallbackHandler) {
 
+        var counter = 0
+        
         /* If new photos are needed, go and get them from flicker with the taskForFetchPhotos */
         if needsNewPhotos {
             deleteAllAssociatedPhotos()
@@ -143,41 +141,42 @@ class Pin: NSManagedObject, MKAnnotation {
             FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
                  if error != nil {
-                    /* defer error to other view by setting an error for the pin here */
-                    self.loadingError = error
-                    print(error)
-                    
+                    /* Call our callback with success false */
+                    callback(success: false, error: error)
+   
                  } else {
                     
                     if photos != nil {
+                        
                         for photo in photos! {
                             photo.imageForPhoto({success, error in
+                                
+                                if success == true {
+        
+                                    counter++
+                                } else {
 
-                                if error != nil {
+                                    callback(success: false, error: error)
 
-                                    self.loadingError = error
+                                }
+                                /* Call success only when our loop finishes */
+                                if counter == photos?.count {
+                                    print("Callback called")
+                                    callback(success: true, error: nil)
                                 }
                                 
                             })
                         }
-                        /* If we've passed in a completionhandler, call it and return results*/
-                        if let completionHandler = completionHandler {
-                            if self.loadingError != nil {
-                                
-                                completionHandler(success: false, error: self.loadingError)
-                                
-                            } else {
-                                
-                                completionHandler(success: true, error: nil)
-                                
-                            }
-                        }
-      
+    
+                        
                     }
+
                 }
+            
             })
+            
         }
-        
+  
     }
     
 }

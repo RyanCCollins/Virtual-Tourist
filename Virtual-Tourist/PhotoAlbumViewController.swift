@@ -27,10 +27,12 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     /* Pin picker delegate method, loads photos and centers map on pin */
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         selectedPin = pin
+        subscribeToImageLoadingNotifications()
     }
     
+    
     var selectedIndexPaths = [NSIndexPath]()
-    var instertedIndexPaths = [NSIndexPath]()
+    var insertedIndexPaths = [NSIndexPath]()
     var deletedIndexPaths = [NSIndexPath]()
     var updatedIndexPaths = [NSIndexPath]()
     
@@ -59,25 +61,43 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
+        unsubscribeToImageLoadingNotifications()
     }
     
     /* Show loading indicator while performing fetch */
     func performInitialFetch() {
         dispatch_async(GlobalMainQueue, {
-            self.loadingView.hidden = false
+            
+            
             self.performFetch({success, error in
                 if error != nil {
                     self.handleErrors(forPin: self.selectedPin, error: error!)
                 } else {
-                    self.loadingView.hidden = true
                     self.collectionView.reloadData()
-                    if self.selectedPin.photos?.count == 0 || self.collectionView.numberOfItemsInSection(0) == 0 {
-                        self.noPhotosLabel.hidden = false
-                    }
                 }
             })
 
         })
+    }
+    
+    func subscribeToImageLoadingNotifications() {
+        print("Subscribed to image loading notifications")
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoading", name: Notifications.PinDidFinishLoading, object: selectedPin)
+    }
+    
+    func unsubscribeToImageLoadingNotifications() {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func didFinishLoading() {
+        print("called did finish loading in photo album view")
+        
+        if self.selectedPin.photos?.count == 0 || self.collectionView.numberOfSections() < 1 {
+            self.noPhotosLabel.hidden = false
+        }
+        
+        loadingView.hidden = true
+        collectionView.reloadData()
     }
     
     /* Setup flowlayout upon layout of subviews */
@@ -214,24 +234,29 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
        
         collectionView.performBatchUpdates({
             
-            self.collectionView.insertItemsAtIndexPaths(self.instertedIndexPaths)
+            self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
             
             self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
             
             self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
             
-            }, completion: {Void in
-                self.instertedIndexPaths.removeAll()
-                self.deletedIndexPaths.removeAll()
-                self.updatedIndexPaths.removeAll()
-                self.collectionView.reloadData()
-        })
+            }, completion: nil)
+    }
+    
+    /* Refresh our indices when controller changes content */
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+
+        insertedIndexPaths = [NSIndexPath]()
+        deletedIndexPaths = [NSIndexPath]()
+        updatedIndexPaths = [NSIndexPath]()
+        
+        print("in controllerWillChangeContent")
     }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
-            instertedIndexPaths.append(newIndexPath!)
+            insertedIndexPaths.append(newIndexPath!)
         case .Delete:
             deletedIndexPaths.append(indexPath!)
         case .Update :

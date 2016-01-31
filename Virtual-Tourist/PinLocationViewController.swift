@@ -29,8 +29,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     
     /* Pin to add defined globally, for use when rearranging pins */
     var pinToAdd: Pin? = nil
-    var settings: Settings? = nil
-    var shouldDelete = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,7 +48,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
 
     }
 
-    
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -82,37 +79,36 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             pinToAdd!.coordinate = coordinate
             pinToAdd!.didChangeValueForKey("coordinate")
             
-            self.sharedContext.performBlockAndWait({
-                
-                CoreDataStackManager.sharedInstance().saveContext()
-            })
-            fetchNewPhotos()
+            fetchNewPhotos(forPin: pinToAdd!)
             
         case .Ended :
             print("Ended pin drop")
-            
-            /* Wait until coredata saves before fetching photos for the pin */
-            CoreDataStackManager.sharedInstance().saveContext()
-            fetchNewPhotos()
+            fetchNewPhotos(forPin: pinToAdd!)
+
         default :
             return
         }
         
     }
     
-    func fetchNewPhotos() {
-        appDelegate.subscribeToLoadingNotification(forPin: pinToAdd!)
-        dispatch_async(GlobalMainQueue, {
-            self.pinToAdd!.fetchAndStoreImages({success, error in
-                if error != nil {
-                    print(error)
-                } else {
-                    self.appDelegate.didFinishLoading()
-                    CoreDataStackManager.sharedInstance().saveContext()
-                }
-            })
-        })
+    func fetchNewPhotos(forPin pin: Pin) {
+    
+        appDelegate.photosLoading = true
         
+        
+            self.pinToAdd!.fetchAndStoreImages({success, error in
+                if success == true {
+                    dispatch_async(GlobalMainQueue, {
+                        let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
+                        
+                        print("Calling the success completion block")
+                        
+                        NSNotificationCenter.defaultCenter().postNotification(DidFinishLoadingNotification)
+                    })
+
+                }
+            CoreDataStackManager.sharedInstance().saveContext()
+        })
     }
     
 
@@ -255,8 +251,9 @@ extension PinLocationViewController: MKMapViewDelegate {
             let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
             
             let pin = view.annotation as! Pin
-            
+
             galleryViewController.pinLocation(self, didPickPin: pin)
+
             
             navigationController?.pushViewController(galleryViewController, animated: true)
             
@@ -282,9 +279,6 @@ extension PinLocationViewController: MKMapViewDelegate {
             var annotationViewToReturn: MKPinAnnotationView
             
             /* If we are reusing the annotation view, set a new annotation */
-            
-            
-            
             if let pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pinId) as? MKPinAnnotationView {
                 
                 pinAnnotationView.annotation = annotation

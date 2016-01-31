@@ -62,6 +62,7 @@ struct ErrorMessages {
 
 struct Notifications {
     static let PinDidFinishLoading = "PinDidFinishLoading"
+    static let PinWillFinishLoading = "PinWillFinishLoading"
 }
 
 /* Helper function to construct errors project wide */
