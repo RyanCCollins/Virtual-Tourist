@@ -73,8 +73,9 @@ class AppSettings: NSObject {
 
         
         let settingsDict = dictionaryForSettings()
-        
-        let settings = Settings(dictionary: settingsDict, context: sharedContext)
+        sharedContext.performBlockAndWait({
+            let settings = Settings(dictionary: settingsDict, context: self.sharedContext)
+        })
         
         CoreDataStackManager.sharedInstance().saveContext()
         
