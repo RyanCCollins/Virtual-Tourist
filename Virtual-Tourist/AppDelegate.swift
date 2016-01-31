@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         /* Fetch our application settings */
         
-        
+        AppSettings.GlobalConfig.Settings.fetchAppSettings()
         return true
     }
 

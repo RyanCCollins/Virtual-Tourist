@@ -83,6 +83,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         })
     }
     
+    /* Handles all of the display logic for various life cycle methods */
     func configureDisplay(){
         dispatch_async(GlobalMainQueue, {
             
@@ -95,6 +96,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             } else {
                 self.noPhotosLabel.hidden = true
                 self.loadingView.hidden = true
+                print("Got some photos")
             }
             
         })
@@ -204,6 +206,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         guard selectedPin.hasPhotosLeft() else {
             noPhotosLabel.text = "No photos left"
             noPhotosLabel.hidden = false
+            print("No photos left")
             return
         }
         
@@ -224,7 +227,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             }
             
         })
-        loadingView.hidden = true
+    
         CoreDataStackManager.sharedInstance().saveContext()
 
     }
@@ -266,16 +269,17 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             noPhotosLabel.hidden = false
             return
         }
-       
-        collectionView.performBatchUpdates({
-            
-            self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
-            
-            self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
-            
-            self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
-            
-            }, completion: nil)
+
+            self.collectionView.performBatchUpdates({
+                
+                self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
+                
+                self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
+                
+                self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
+                
+                }, completion: nil)
+
     }
     
     /* Refresh our indices when controller changes content */
@@ -285,7 +289,6 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         deletedIndexPaths = [NSIndexPath]()
         updatedIndexPaths = [NSIndexPath]()
         
-        print("in controllerWillChangeContent")
     }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
@@ -340,7 +343,12 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
                 cell.imageView.image = photo.image
                 cell.imageView.fadeIn()
             } else {
-                cell.imageView.image = UIImage(named: "missing-resource")
+                if AppSettings.GlobalConfig.Settings.funMode == true {
+                    cell.imageView.image = UIImage(named: "fun-mode")
+                } else {
+                    cell.imageView.image = UIImage(named: "missing-resource")
+                }
+                
             }
             
         }

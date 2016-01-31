@@ -10,8 +10,8 @@ import CoreData
 
 class Settings: NSManagedObject {
 
-    @NSManaged var funMode: Bool
-    @NSManaged var loadingIndicator: Bool
+    @NSManaged var funMode: NSNumber
+    @NSManaged var loadingIndicator: NSNumber
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -32,8 +32,8 @@ class Settings: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        funMode = dictionary[Keys.funMode] as! Bool
-        loadingIndicator = dictionary[Keys.loadingIndicator] as! Bool
+        funMode = dictionary[Keys.funMode] as! NSNumber
+        loadingIndicator = dictionary[Keys.loadingIndicator] as! NSNumber
     }
 }
 

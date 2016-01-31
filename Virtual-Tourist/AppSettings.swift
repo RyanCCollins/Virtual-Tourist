@@ -23,8 +23,12 @@ class AppSettings: NSObject {
     
     func dictionaryForSettings() -> [String: AnyObject] {
         let settingsDict: [String : AnyObject] = [
-            "funMode": AppSettings.GlobalConfig.Settings.funMode,
-            "loadingIndicator": AppSettings.GlobalConfig.Settings.loadingIndicator
+            
+            /* Need to do a bit of core data sorcery here in order to avoid bad access issue:
+            * See here:http://stackoverflow.com/questions/24333507/swift-coredata-can-not-set-a-bool-on-nsmanagedobject-subclass-bug?lq=1
+            */
+            "funMode": NSNumber(bool: AppSettings.GlobalConfig.Settings.funMode),
+            "loadingIndicator": NSNumber(bool: AppSettings.GlobalConfig.Settings.loadingIndicator)
         ]
         return settingsDict
     }
@@ -39,13 +43,15 @@ class AppSettings: NSObject {
             if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
                 settings = fetchedResults[0]
                 AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
-                AppSettings.GlobalConfig.Settings.loadingIndicator = settings.loadingIndicator
+
+                AppSettings.GlobalConfig.Settings.loadingIndicator = Bool(settings.loadingIndicator)
             }
         } catch let error {
             print(error)
         }
         
     }
+    
 
     func saveSettings (){
         

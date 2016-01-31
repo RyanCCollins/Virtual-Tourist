@@ -49,6 +49,8 @@ class SettingsViewController: UIViewController {
         } else {
             AppSettings.GlobalConfig.Settings.funMode = false
         }
+        
+        AppSettings.GlobalConfig.Settings.saveSettings()
     }
     
     @IBAction func didToggleLoadingIndicator(sender: UISwitch) {
