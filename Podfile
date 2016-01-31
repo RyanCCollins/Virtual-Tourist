@@ -6,6 +6,8 @@
 target 'Virtual-Tourist' do
 pod "PhotoSlider"
 pod 'Spring', :git => 'https://github.com/MengTo/Spring.git', :branch => 'swift2'
+pod 'Fabric'
+pod 'Crashlytics'
 end
 
 target 'Virtual-TouristTests' do

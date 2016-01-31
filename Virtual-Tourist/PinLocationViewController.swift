@@ -45,7 +45,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         mapView.addGestureRecognizer(longPressRecognizer)
         longPressRecognizer.addTarget(self, action: "addAnnotation:")
         configureAllAnnotations()
-
+        
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -73,13 +73,19 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         case .Began :
 
             pinToAdd = Pin(coordinate: coordinate, context: sharedContext)
-            mapView.addAnnotation(pinToAdd!)
-        case .Changed :
-            pinToAdd!.willChangeValueForKey("coordinate")
-            pinToAdd!.coordinate = coordinate
-            pinToAdd!.didChangeValueForKey("coordinate")
             
-            fetchNewPhotos(forPin: pinToAdd!)
+            dispatch_async(GlobalMainQueue, {
+                self.mapView.addAnnotation(self.pinToAdd!)
+            })
+            
+        case .Changed :
+            
+            dispatch_async(GlobalMainQueue, {
+                self.pinToAdd!.willChangeValueForKey("coordinate")
+                self.pinToAdd!.coordinate = coordinate
+                self.pinToAdd!.didChangeValueForKey("coordinate")
+            })
+            print("> Changing the pin location coordinate")
             
         case .Ended :
             print("Ended pin drop")
@@ -92,13 +98,12 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchNewPhotos(forPin pin: Pin) {
-    
-        appDelegate.photosLoading = true
-        
         
             self.pinToAdd!.fetchAndStoreImages({success, error in
                 if success == true {
                     dispatch_async(GlobalMainQueue, {
+                        
+                        /* Create a notification for updating the UI once photos have finished loading */
                         let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
                         
                         print("Calling the success completion block")
@@ -254,18 +259,17 @@ extension PinLocationViewController: MKMapViewDelegate {
 
             galleryViewController.pinLocation(self, didPickPin: pin)
 
-            
             navigationController?.pushViewController(galleryViewController, animated: true)
             
         } else {
             
             /* Delete pins when edit button is toggled */
             let pin = view.annotation as! Pin
-            mapView.removeAnnotation(pin)
             
             pin.deleteAllAssociatedPhotos()
             
             CoreDataStackManager.sharedInstance().saveContext()
+            
         }
     }
     
@@ -304,11 +308,10 @@ extension PinLocationViewController: SettingsPickerDelegate {
         for pin in fetchedResultsController.fetchedObjects as! [Pin] {
             pin.deleteAllAssociatedPhotos()
             
-            sharedContext.deleteObject(pin)
-            mapView.removeAnnotation(pin)
-            
-            CoreDataStackManager.sharedInstance().saveContext()
-            print("Deleting all pins")
+            self.sharedContext.deleteObject(pin)
+            self.mapView.removeAnnotation(pin)
+        
         }
+        CoreDataStackManager.sharedInstance().saveContext()
     }
 }

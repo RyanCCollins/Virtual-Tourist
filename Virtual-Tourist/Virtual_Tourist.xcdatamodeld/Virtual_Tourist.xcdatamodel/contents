@@ -14,8 +14,8 @@
         <relationship name="photos" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="Photo" inverseName="pin" inverseEntity="Photo" syncable="YES"/>
     </entity>
     <entity name="Settings" syncable="YES">
-        <attribute name="numberOfPhotos" optional="YES" attributeType="Integer 16" minValueString="0" syncable="YES"/>
-        <attribute name="numberOfPins" optional="YES" attributeType="Integer 16" minValueString="0" defaultValueString="0" syncable="YES"/>
+        <attribute name="funMode" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="loadingIndicator" optional="YES" attributeType="Boolean" syncable="YES"/>
     </entity>
     <elements>
         <element name="Photo" positionX="-9" positionY="36" width="128" height="105"/>

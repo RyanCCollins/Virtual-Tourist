@@ -23,6 +23,7 @@ class Pin: NSManagedObject, MKAnnotation {
     
     struct Status {
         var isLoading: Bool = false
+        var noPhotosFound: Bool = false
     }
     
     /* Create our managed variables */
@@ -35,6 +36,7 @@ class Pin: NSManagedObject, MKAnnotation {
     
     var loadingError: NSError?
     var coordinateDelta: Double?
+    var loadingStatus = Status()
     
     typealias CompletionHandler = (success: Bool, error: NSError?) -> Void
     
@@ -75,26 +77,37 @@ class Pin: NSManagedObject, MKAnnotation {
     }
     
     /* Page through the returned values, setting a new value in order to get the next page of photos if possible */
-    func paginate() {
-        
-        var total = countOfPhotoPages as! Int, current = currentPage as! Int
-        
-        if current < total {
-        
-            let nextPage = current++
+    func paginate() -> Bool {
+        let current = currentPage as! Int
+
+        if hasPhotosLeft() == true {
+            let nextPage = current + 1
             currentPage = nextPage as NSNumber
-            
+            print(currentPage)
+            return true
+        } else {
+            return false
         }
     }
     
+    /* Figure out whether or not there are photos left to get from Flickr in order to paginate. */
+    func hasPhotosLeft() -> Bool {
+        let total = countOfPhotoPages as! Int, current = currentPage as! Int
+        
+        if current < total {
+            print("Current page is: \(current)")
+            print("Total pages is: \(total)")
+            return true
+        } else {
+            return false
+        }
+    }
     
     /* Deletes all associated photos */
     func deleteAllAssociatedPhotos() {
         if photos != nil {
             for photo in photos! {
-                sharedContext.performBlockAndWait({
-                    self.sharedContext.deleteObject(photo)
-                })
+                sharedContext.deleteObject(photo)
             }
             
             CoreDataStackManager.sharedInstance().saveContext()
@@ -106,76 +119,62 @@ class Pin: NSManagedObject, MKAnnotation {
         return CoreDataStackManager.sharedInstance().managedObjectContext
     }
     
-    /* Returns false only when the delta between coordinate changes is less than or equal to 2 KM so that we don't get more photos if we don't have to */
-    var needsNewPhotos: Bool {
-        get {
-            /* Break if photos is nil or count is greater */
-            guard photos != nil && photos?.count > 0 else {
-                return true
-            }
-            
-            if let delta = coordinateDelta {
-            if delta <= 2 {
-                print("Coordinate Delta is: \(delta) returning false")
-                return false
-            }
-            }
-            return true
-        }
-        set {
-            /* Reset the coordinate delta */
-            coordinateDelta = 0
-            return
+    func loadedPhotoCount() -> Int {
+        if photos != nil {
+            return photos!.count
+        } else {
+            return 0
         }
     }
     
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
     func fetchAndStoreImages(callback: CallbackHandler) {
-
+        loadingStatus.isLoading = true
+        
         var counter = 0
         
-        /* If new photos are needed, go and get them from flicker with the taskForFetchPhotos */
-        if needsNewPhotos {
-            deleteAllAssociatedPhotos()
-            paginate()
             FlickrClient.sharedInstance().taskForFetchPhotos(forPin: self, completionHandler: {success, photos, error in
                 
-                 if error != nil {
-                    /* Call our callback with success false */
-                    callback(success: false, error: error)
-   
-                 } else {
+             if error != nil {
+                /* Call our callback with success false */
+                callback(success: false, error: error)
+
+             } else {
+                
+                if photos == nil || photos!.count == 0 {
+                    print("Callback called")
+                    self.loadingStatus.isLoading = false
+                    self.loadingStatus.noPhotosFound = true
+                    callback(success: true, error: nil)
+                } else {
                     
-                    if photos != nil {
-                        
-                        for photo in photos! {
-                            photo.imageForPhoto({success, error in
+                    for photo in photos! {
+                        photo.imageForPhoto({success, error in
+                            
+                            if success == true {
                                 
-                                if success == true {
-        
-                                    counter++
-                                } else {
-
-                                    callback(success: false, error: error)
-
-                                }
-                                /* Call success only when our loop finishes */
-                                if counter == photos?.count {
-                                    print("Callback called")
-                                    callback(success: true, error: nil)
-                                }
+                                counter++
+                            } else {
+                                self.loadingStatus.isLoading = false
+                                callback(success: false, error: error)
                                 
-                            })
-                        }
-    
-                        
+                            }
+                            /* Call success only when our loop finishes */
+                            if counter == photos?.count {
+                                self.loadingStatus.noPhotosFound = false
+                                
+                                self.loadingStatus.isLoading = false
+                                callback(success: true, error: nil)
+                            }
+                            
+                        })
                     }
-
+                    
                 }
-            
-            })
-            
-        }
+
+            }
+        
+        })
   
     }
     

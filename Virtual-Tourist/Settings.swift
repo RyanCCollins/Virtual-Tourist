@@ -9,16 +9,17 @@
 import CoreData
 
 class Settings: NSManagedObject {
-    @NSManaged var numberOfPhotos: NSNumber
-    @NSManaged var numberOfPins: NSNumber
+
+    @NSManaged var funMode: Bool
+    @NSManaged var loadingIndicator: Bool
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
     struct Keys {
-        static let numberOfPhotos = "numberOfPhotos"
-        static let numberOfPins = "numberOfPins"
+        static let funMode = "funMode"
+        static let loadingIndicator = "loadingIndicator"
     }
     
     /* Custom init */
@@ -31,9 +32,8 @@ class Settings: NSManagedObject {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
         
         /* Assign our properties */
-        numberOfPhotos = dictionary[Keys.numberOfPhotos] as! NSNumber
-        numberOfPins = dictionary[Keys.numberOfPins] as! NSNumber
-
+        funMode = dictionary[Keys.funMode] as! Bool
+        loadingIndicator = dictionary[Keys.loadingIndicator] as! Bool
     }
 }
 

@@ -14,8 +14,8 @@ import CoreData
  * for storing the AppSettings globally while avoiding memory and thread issues.
 */
 class AppSettings: NSObject {
-    var numberOfPhotos: NSNumber = 0
-    var numberOfPins: NSNumber = 0
+    var funMode: Bool = false
+    var loadingIndicator: Bool = true
     
     struct GlobalConfig {
         static var Settings = AppSettings()
@@ -23,8 +23,8 @@ class AppSettings: NSObject {
     
     func dictionaryForSettings() -> [String: AnyObject] {
         let settingsDict: [String : AnyObject] = [
-            "numberOfPhotos": AppSettings.GlobalConfig.Settings.numberOfPhotos,
-            "numberOfPins": AppSettings.GlobalConfig.Settings.numberOfPins
+            "funMode": AppSettings.GlobalConfig.Settings.funMode,
+            "loadingIndicator": AppSettings.GlobalConfig.Settings.loadingIndicator
         ]
         return settingsDict
     }
@@ -35,12 +35,11 @@ class AppSettings: NSObject {
         
         let fetchRequest =  NSFetchRequest (entityName: "Settings")
         
-        
         do {
             if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
                 settings = fetchedResults[0]
-                AppSettings.GlobalConfig.Settings.numberOfPins = settings.numberOfPins
-                AppSettings.GlobalConfig.Settings.numberOfPhotos = settings.numberOfPhotos
+                AppSettings.GlobalConfig.Settings.funMode = settings.funMode
+                AppSettings.GlobalConfig.Settings.loadingIndicator = settings.loadingIndicator
             }
         } catch let error {
             print(error)

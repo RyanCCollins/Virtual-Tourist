@@ -27,7 +27,6 @@
 		1F27FBC21C016A5F00839C10 /* ExtendsUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */; };
 		1F44B1B81C5D2F7D004E196D /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F44B1B71C5D2F7D004E196D /* AppSettings.swift */; };
 		1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C971C024FEB0043CE15 /* ImageCache.swift */; };
-		1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C991C02516E0043CE15 /* Config.swift */; };
 		1FAB2C9C1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */; };
 		1FC3CF3A1C405D8B005882A6 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3CF391C405D8B005882A6 /* SettingsViewController.swift */; };
 		1FC3CF3C1C405E79005882A6 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC3CF3B1C405E79005882A6 /* Settings.swift */; };
@@ -82,7 +81,6 @@
 		1F27FBC11C016A5F00839C10 /* ExtendsUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtendsUIViewController.swift; sourceTree = "<group>"; };
 		1F44B1B71C5D2F7D004E196D /* AppSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		1FAB2C971C024FEB0043CE15 /* ImageCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
-		1FAB2C991C02516E0043CE15 /* Config.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		1FAB2C9B1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumCollectionViewCell.swift; sourceTree = "<group>"; };
 		1FC3CF391C405D8B005882A6 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		1FC3CF3B1C405E79005882A6 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
@@ -187,7 +185,6 @@
 				1F27FBA31C00023B00839C10 /* Pin.swift */,
 				1F27FBA51C00024A00839C10 /* Photo.swift */,
 				1FAB2C971C024FEB0043CE15 /* ImageCache.swift */,
-				1FAB2C991C02516E0043CE15 /* Config.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -262,6 +259,7 @@
 				1F27F8261BFFFE5600839C10 /* Resources */,
 				908D357FA5366E1485736B1F /* Embed Pods Frameworks */,
 				864485073E4EC05AE13530B6 /* Copy Pods Resources */,
+				1F6314621C5E97AE0013B488 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -385,6 +383,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1F6314621C5E97AE0013B488 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Fabric/run\" 18d2b9b35389912f2a9f30e2f947a70a64a84564 d7ef80ba6cec513fd2afcf4953749bdbc91ec7b3b162621360433b8b4093afc3 ";
+		};
 		54CAEBCDA0AC1D08D5EE0F60 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -439,7 +450,6 @@
 			files = (
 				1F27FBA61C00024A00839C10 /* Photo.swift in Sources */,
 				1FAB2C981C024FEB0043CE15 /* ImageCache.swift in Sources */,
-				1FAB2C9A1C02516E0043CE15 /* Config.swift in Sources */,
 				1FAB2C9C1C02C4260043CE15 /* PhotoAlbumCollectionViewCell.swift in Sources */,
 				1F27FBA81C00027200839C10 /* PhotoAlbumViewController.swift in Sources */,
 				1F27FBA41C00023B00839C10 /* Pin.swift in Sources */,

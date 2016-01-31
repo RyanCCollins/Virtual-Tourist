@@ -1,4 +1,7 @@
 PODS:
+  - Crashlytics (3.6.0):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.4)
   - PhotoSlider (0.10.0):
     - SDWebImage
   - SDWebImage (3.7.3):
@@ -7,6 +10,8 @@ PODS:
   - Spring (1.0.3)
 
 DEPENDENCIES:
+  - Crashlytics
+  - Fabric
   - PhotoSlider
   - Spring (from `https://github.com/MengTo/Spring.git`, branch `swift2`)
 
@@ -21,6 +26,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/MengTo/Spring.git
 
 SPEC CHECKSUMS:
+  Crashlytics: e4e8d02914f2608fbc7bf42b1a7af838b0db67a2
+  Fabric: ed41fd62173c6bdea24ab02c9d7707161eabb750
   PhotoSlider: d02e2eaf018fad8e25ea1abc3258d5e8bce462da
   SDWebImage: 1d2b1a1efda1ade1b00b6f8498865f8ddedc8a84
   Spring: 3f02b5dc3308572ef177b3cad0fa7bbc4b0706f7

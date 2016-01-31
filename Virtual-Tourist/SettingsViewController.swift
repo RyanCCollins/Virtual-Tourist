@@ -18,8 +18,9 @@ protocol SettingsPickerDelegate {
 class SettingsViewController: UIViewController {
     
     @IBOutlet weak var modalView: SpringView!
-    @IBOutlet weak var savedPhotosLabel: UILabel!
-    @IBOutlet weak var savedPinsLabel: UILabel!
+    @IBOutlet weak var loadingIndicatorToggle: UISwitch!
+
+    @IBOutlet weak var funModeToggle: UISwitch!
     
     var delegate: SettingsPickerDelegate?
     
@@ -38,11 +39,30 @@ class SettingsViewController: UIViewController {
         self.presentingViewController!.view.transformOut(self)
     }
     
+    /* Toggle the two different settings and then save to core data 
+     * Note: we are determining whether the sender is on or not
+     * because just setting the value equal to sender.on was causing issues
+    */
+    @IBAction func didToggleFunMode(sender: UISwitch) {
+        if sender.on == true {
+            AppSettings.GlobalConfig.Settings.funMode = true
+        } else {
+            AppSettings.GlobalConfig.Settings.funMode = false
+        }
+    }
+    
+    @IBAction func didToggleLoadingIndicator(sender: UISwitch) {
+        if sender.on == true {
+            AppSettings.GlobalConfig.Settings.loadingIndicator = true
+        } else {
+            AppSettings.GlobalConfig.Settings.loadingIndicator = false
+        }
+        AppSettings.GlobalConfig.Settings.saveSettings()
+    }
+    
     /* When you tap the clear button, we need to tell the global seetins that we need to clear the data */
     @IBAction func didTapClearUpInside(sender: AnyObject) {
-        AppSettings.GlobalConfig.Settings.numberOfPhotos = 0
-        AppSettings.GlobalConfig.Settings.numberOfPins = 0
-        AppSettings.GlobalConfig.Settings.saveSettings()
+
         delegate?.didDeleteAll()
         closeSettingsView()
     }
@@ -57,8 +77,8 @@ class SettingsViewController: UIViewController {
     }
     
     func updateSettingsView(){
-        savedPhotosLabel.text = String(AppSettings.GlobalConfig.Settings.numberOfPhotos)
-        savedPinsLabel.text = String(AppSettings.GlobalConfig.Settings.numberOfPins)
+        funModeToggle.on = AppSettings.GlobalConfig.Settings.funMode
+        loadingIndicatorToggle.on = AppSettings.GlobalConfig.Settings.loadingIndicator
     }
     
     
