@@ -85,7 +85,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
                 self.pinToAdd!.coordinate = coordinate
                 self.pinToAdd!.didChangeValueForKey("coordinate")
             })
-            print("> Changing the pin location coordinate")
             
         case .Ended :
             print("Ended pin drop")
@@ -138,22 +137,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     /* Fetched Results controller for Pin entities */
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
-        
-        fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
-        let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
-        
-        do {
-            try fetchResultsController.performFetch()
-        } catch let error {
-            print(error)
-        }
-        
-        return fetchResultsController
-    }()
-    
-    
-    lazy var settingsFetchController: NSFetchedResultsController = {
-        let fetch = NSFetchRequest(entityName: "Settings")
         
         fetch.sortDescriptors = [NSSortDescriptor(key: "latitude", ascending: true)]
         let fetchResultsController = NSFetchedResultsController(fetchRequest: fetch, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -265,17 +248,17 @@ extension PinLocationViewController: MKMapViewDelegate {
             
             /* Delete pins when edit button is toggled */
             let pin = view.annotation as! Pin
-            
-            pin.deleteAllAssociatedPhotos()
-            
-            CoreDataStackManager.sharedInstance().saveContext()
+        
+            sharedContext.performBlockAndWait({
+                pin.deleteAllAssociatedPhotos()
+                CoreDataStackManager.sharedInstance().saveContext()
+            })
             
         }
     }
     
-    /* create a mapView indicator */
+    /* Create a mapView pin indicator */
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
-        
         if let annotation = annotation as? Pin {
             
             let pinId = "pin"
@@ -310,8 +293,11 @@ extension PinLocationViewController: SettingsPickerDelegate {
             
             self.sharedContext.deleteObject(pin)
             self.mapView.removeAnnotation(pin)
-        
         }
-        CoreDataStackManager.sharedInstance().saveContext()
+        
+        sharedContext.performBlockAndWait({
+            CoreDataStackManager.sharedInstance().saveContext()
+        })
+        
     }
 }

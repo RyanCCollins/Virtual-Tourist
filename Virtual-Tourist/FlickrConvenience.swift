@@ -27,16 +27,18 @@ extension FlickrClient {
                 if results != nil {
                     if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages], currentPage = photosDictionary[JSONResponseKeys.Page] {
                         
+                        self.sharedContext.performBlockAndWait({
+                            pin.countOfPhotoPages = (pages as? NSNumber)!
+                            pin.currentPage = currentPage as? NSNumber
+                            
+                            /* Map the photo dictionary to Photo objects */
+                            let photos = photoArray.map(){
+                                Photo(dictionary: $0, pin: pin, context: self.sharedContext)
+                            }
+                            
+                            completionHandler(success: true, photos: photos, error: nil)
+                        })
                         
-                        pin.countOfPhotoPages = (pages as? NSNumber)!
-                        pin.currentPage = currentPage as? NSNumber
-                        
-                        /* Map the photo dictionary to Photo objects */
-                        let photos = photoArray.map(){
-                            Photo(dictionary: $0, pin: pin, context: self.sharedContext)
-                        }
-                        
-                        completionHandler(success: true, photos: photos, error: nil)
                         
                     }
                     

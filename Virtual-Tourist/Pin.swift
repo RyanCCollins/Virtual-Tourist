@@ -148,28 +148,31 @@ class Pin: NSManagedObject, MKAnnotation {
                     callback(success: true, error: nil)
                 } else {
                     
-                    for photo in photos! {
-                        photo.imageForPhoto({success, error in
-                            
-                            if success == true {
-                                
-                                counter++
-                            } else {
-                                self.loadingStatus.isLoading = false
-                                callback(success: false, error: error)
-                                
-                            }
-                            /* Call success only when our loop finishes */
-                            if counter == photos?.count {
-                                self.loadingStatus.noPhotosFound = false
-                                
-                                self.loadingStatus.isLoading = false
-                                callback(success: true, error: nil)
-                            }
-                            
-                        })
-                    }
                     
+                    self.sharedContext.performBlockAndWait({
+                        for photo in photos! {
+                            photo.imageForPhoto({success, error in
+                                
+                                if success == true {
+                                    
+                                    counter++
+                                } else {
+                                    self.loadingStatus.isLoading = false
+                                    callback(success: false, error: error)
+                                    
+                                }
+                                /* Call success only when our loop finishes */
+                                if counter == photos?.count {
+                                    self.loadingStatus.noPhotosFound = false
+                                    
+                                    self.loadingStatus.isLoading = false
+                                    callback(success: true, error: nil)
+                                }
+                                
+                            })
+                        }
+                    })
+
                 }
 
             }

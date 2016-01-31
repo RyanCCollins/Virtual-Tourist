@@ -38,7 +38,7 @@ class AppSettings: NSObject {
         do {
             if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
                 settings = fetchedResults[0]
-                AppSettings.GlobalConfig.Settings.funMode = settings.funMode
+                AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
                 AppSettings.GlobalConfig.Settings.loadingIndicator = settings.loadingIndicator
             }
         } catch let error {

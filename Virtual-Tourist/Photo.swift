@@ -73,9 +73,12 @@ class Photo: NSManagedObject {
                     callback(success: false, error: error)
                 }
             } else {
+                
                 self.image = image
                 if let callback = completionHandler {
+                
                     callback(success: true, error: nil)
+                
                 }
             }
         })
