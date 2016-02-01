@@ -251,6 +251,8 @@ extension PinLocationViewController: MKMapViewDelegate {
         
             sharedContext.performBlockAndWait({
                 pin.deleteAllAssociatedPhotos()
+                self.sharedContext.deleteObject(pin)
+                self.mapView.removeAnnotation(pin)
                 CoreDataStackManager.sharedInstance().saveContext()
             })
             

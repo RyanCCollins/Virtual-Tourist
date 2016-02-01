@@ -69,22 +69,15 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     /* Show loading indicator while performing fetch */
     func performInitialFetch() {
-        dispatch_async(GlobalMainQueue, {
-            
-            self.performFetch({success, error in
-                if error != nil {
-                    self.handleErrors(forPin: self.selectedPin, error: error!)
-                } else {
-                    
-                    self.configureDisplay()
-                }
-            })
-
+        sharedContext.performBlockAndWait({
+            self.performFetch()
+            self.configureDisplay()
         })
     }
     
     /* Handles all of the display logic for various life cycle methods */
     func configureDisplay(){
+        
         dispatch_async(GlobalMainQueue, {
             
             if self.selectedPin.loadingStatus.isLoading == true {
@@ -96,7 +89,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             } else {
                 self.noPhotosLabel.hidden = true
                 self.loadingView.hidden = true
-                print("Got some photos")
+
                 self.collectionView.reloadData()
             }
             
@@ -117,8 +110,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     func didFinishLoading() {
         print("called did finish loading in photo album view")
-
-        
         configureDisplay()
     }
     
@@ -133,7 +124,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
     }
     
-    func performFetch(completionHandler: CallbackHandler?) {
+    func performFetch() {
 
             do {
                 
@@ -141,14 +132,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 
             } catch let error as NSError {
                 self.alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-                    self.performFetch(nil)
+                    self.performFetch()
                     }])
             }
-            
-
-        if let completionHandler = completionHandler {
-            completionHandler(success: true, error: nil)
-        }
 
     }
     
@@ -157,10 +143,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         /* Set loading and configure display */
         selectedPin.loadingStatus.isLoading = true
-        self.configureDisplay()
+        configureDisplay()
         if selectedIndexPaths.count == 0 {
             
-
             for photo in fetchedResultsController.fetchedObjects as! [Photo] {
                 sharedContext.deleteObject(photo)
                 print("Deleting Photos")
@@ -175,11 +160,11 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     self.handleErrors(forPin: self.selectedPin, error: error!)
                     
                 } else {
-                    dispatch_async(GlobalMainQueue, {
-                        CoreDataStackManager.sharedInstance().saveContext()
-                        self.collectionView.reloadData()
-                    })
                     
+                    self.sharedContext.performBlockAndWait({
+                        self.performFetch()
+                        self.configureDisplay()
+                    })
                 }
             })
  
@@ -204,7 +189,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     /* Handle logic for getting new photos for a pin and manage errors */
     func getImagesForPin(completionHandler: CallbackHandler?){
 
-        
         /* Make sure that there are photos left.  If not, then set the no photos label */
         guard selectedPin.hasPhotosLeft() else {
             noPhotosLabel.text = "No photos left"
@@ -215,23 +199,23 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         selectedPin.paginate()
         
-        selectedPin.fetchAndStoreImages({success, error in
 
+        selectedPin.fetchAndStoreImages({success, error in
+            
             if let callback = completionHandler {
                 if error != nil {
                     
                     callback(success: false, error: error)
                     
                 } else {
-                    
+                    CoreDataStackManager.sharedInstance().saveContext()
                     callback(success: true, error: nil)
                     
                 }
             }
             
         })
-    
-        CoreDataStackManager.sharedInstance().saveContext()
+
 
     }
     
@@ -273,15 +257,15 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             return
         }
 
-            self.collectionView.performBatchUpdates({
-                
-                self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
-                
-                self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
-                
-                self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
-                
-                }, completion: nil)
+        self.collectionView.performBatchUpdates({
+            
+            self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
+            
+            self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
+            
+            self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
+            
+            }, completion: nil)
 
     }
     
