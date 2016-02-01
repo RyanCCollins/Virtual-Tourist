@@ -162,7 +162,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 } else {
                     
                     self.sharedContext.performBlockAndWait({
-                        self.performFetch()
                         self.configureDisplay()
                     })
                 }
