@@ -24,7 +24,7 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
         }
         
         /* If selected, fade out */
-        if selected {
+        if selected == true {
             self.fadeOut()
         } else {
             self.fadeIn()
