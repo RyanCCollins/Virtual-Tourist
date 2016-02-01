@@ -98,6 +98,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 
     }
     
+    /* The image loading notifications solve the issue where the collectionview would not update after imgaes loaded 
+     * The
+    */
     func subscribeToImageLoadingNotifications() {
         print("Subscribed to image loading notifications")
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoading", name: Notifications.PinDidFinishLoading, object: selectedPin)
@@ -166,11 +169,14 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
  
         } else {
             /* Delete the selected photos and save the context */
-            for index in selectedIndexPaths {
-                
-                let photoToDelete = fetchedResultsController.objectAtIndexPath(index) as! NSManagedObject
-                sharedContext.deleteObject(photoToDelete)
-            }
+            sharedContext.performBlockAndWait({
+                for index in self.selectedIndexPaths {
+                    
+                    let photoToDelete = self.fetchedResultsController.objectAtIndexPath(index) as! NSManagedObject
+                    self.sharedContext.deleteObject(photoToDelete)
+                }
+            })
+           
 
             selectedIndexPaths.removeAll()
             configureCollectionButton()
@@ -265,19 +271,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             noPhotosLabel.hidden = false
             return
         }
-        
-        self.collectionView.performBatchUpdates({
-            
-            self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
-            
-            self.collectionView.deleteItemsAtIndexPaths(self.deletedIndexPaths)
-            
-            self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
-            
-            }, completion: {Void in
-                self.collectionView.reloadData()
-                self.configureDisplay()
-        })
+        self.configureDisplay()
 
     }
     
@@ -306,6 +300,8 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
 }
 
+
+/* Collection view delegate and data source methods */
 extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
@@ -315,11 +311,12 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
 
     }
     
+    /* Return the count of the sections within the collection view */
     func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         return self.fetchedResultsController.sections?.count ?? 0
     }
 
-    
+    /* Configure each cell when there are new photos */
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! PhotoAlbumCollectionViewCell
         
@@ -328,6 +325,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         return cell
     }
     
+    /* Refactor to keep cell logic out of data source methods. :) */
     func configureCell(cell: PhotoAlbumCollectionViewCell, atIndexPath indexPath: NSIndexPath){
         
         if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
@@ -336,6 +334,8 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
                 cell.imageView.image = photo.image
                 cell.imageView.fadeIn()
             } else {
+                
+                /* If fun mode is on, set the image to be something fun :) */
                 if AppSettings.GlobalConfig.Settings.funMode == true {
                     cell.imageView.image = UIImage(named: "fun-mode")
                 } else {
@@ -359,7 +359,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         return true
     }
 
-    
+    /* handle logic for selecting table view cells */
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
         

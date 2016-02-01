@@ -38,18 +38,21 @@ class AppSettings: NSObject {
         var settings = Settings(dictionary: dictionaryForSettings(), context: sharedContext)
         
         let fetchRequest =  NSFetchRequest (entityName: "Settings")
+        let sortDesciptors = NSSortDescriptor(key: "timeStamp", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDesciptors]
         
         do {
             if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
+                print(fetchedResults)
                 settings = fetchedResults[0]
                 AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
-                print("Executed fetch request")
                 AppSettings.GlobalConfig.Settings.loadingIndicator = Bool(settings.loadingIndicator)
             }
         } catch let error {
             print(error)
         }
-        
+    
     }
     
     func executeFetch() {
@@ -69,8 +72,6 @@ class AppSettings: NSObject {
     func saveSettings (){
         
         let settingsDict = dictionaryForSettings()
-        executeFetch()
-        
         sharedContext.performBlockAndWait({
             
             let settings = Settings(dictionary: settingsDict, context: self.sharedContext)

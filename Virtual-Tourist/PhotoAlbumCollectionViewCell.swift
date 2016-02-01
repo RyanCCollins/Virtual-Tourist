@@ -19,6 +19,7 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
     
     /* If updating, don't allow selection */
     func isSelected(selected: Bool) {
+        /* don't allow selection while updating */
         if isUpdating {
             return
         }
