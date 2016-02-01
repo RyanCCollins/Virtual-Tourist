@@ -43,7 +43,7 @@ class AppSettings: NSObject {
             if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
                 settings = fetchedResults[0]
                 AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
-
+                print("Executed fetch request")
                 AppSettings.GlobalConfig.Settings.loadingIndicator = Bool(settings.loadingIndicator)
             }
         } catch let error {
@@ -57,12 +57,14 @@ class AppSettings: NSObject {
         
         let fetchRequest = NSFetchRequest(entityName: "Settings")
         
+        sharedContext.performBlockAndWait({
+    
+        })
         do {
             if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
                 for setting in fetchedResults {
                     print("Deleting an object at")
                     sharedContext.deleteObject(setting)
-                    
                     CoreDataStackManager.sharedInstance().saveContext()
                 }
             }

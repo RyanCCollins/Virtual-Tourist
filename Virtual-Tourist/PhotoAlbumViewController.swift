@@ -220,7 +220,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     callback(success: false, error: error)
                     
                 } else {
-                    print("Calling the callback for success")
+                    
                     callback(success: true, error: nil)
                     
                 }

@@ -8,7 +8,8 @@
 
 import UIKit
 import CoreData
-
+import Fabric
+import Crashlytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         /* Fetch our application settings */
-        
+        Fabric.with([Crashlytics.self])
         AppSettings.GlobalConfig.Settings.fetchAppSettings()
         return true
     }
