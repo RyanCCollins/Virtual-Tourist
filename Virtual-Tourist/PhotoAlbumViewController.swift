@@ -81,12 +81,17 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         dispatch_async(GlobalMainQueue, {
             
             if self.selectedPin.loadingStatus.isLoading == true {
+                
                 self.loadingView.hidden = false
                 self.noPhotosLabel.hidden = true
+                
             } else if self.selectedPin.loadingStatus.noPhotosFound == true {
+                
                 self.noPhotosLabel.hidden = false
                 self.loadingView.hidden = true
+                
             } else {
+                
                 self.noPhotosLabel.hidden = true
                 self.loadingView.hidden = true
                 
@@ -113,6 +118,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func didFinishLoading() {
         print("called did finish loading in photo album view")
         configureDisplay()
+        if selectedPin.loadingError != nil {
+            handleErrors(forPin: selectedPin, error: selectedPin.loadingError!)
+        }
     }
     
     /* Setup flowlayout upon layout of subviews */

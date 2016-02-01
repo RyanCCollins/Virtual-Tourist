@@ -98,20 +98,23 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     
     func fetchNewPhotos(forPin pin: Pin) {
         
+        /* Create a notification for updating the UI once photos have finished loading */
+        let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
+        
             self.pinToAdd!.fetchAndStoreImages({success, error in
                 if success == true {
                     dispatch_async(GlobalMainQueue, {
                         
-                        /* Create a notification for updating the UI once photos have finished loading */
-                        let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
-                        
-                        print("Calling the success completion block")
-                        
                         NSNotificationCenter.defaultCenter().postNotification(DidFinishLoadingNotification)
+                        
                     })
-
+                    CoreDataStackManager.sharedInstance().saveContext()
+                } else {
+                    pin.loadingError = error
+                    NSNotificationCenter.defaultCenter().postNotification(DidFinishLoadingNotification)
+                    
                 }
-            CoreDataStackManager.sharedInstance().saveContext()
+            
         })
     }
     
