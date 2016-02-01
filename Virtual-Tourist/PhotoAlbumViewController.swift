@@ -89,8 +89,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             } else {
                 self.noPhotosLabel.hidden = true
                 self.loadingView.hidden = true
-
-                self.collectionView.reloadData()
+                
             }
             
         })
@@ -124,6 +123,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
     }
     
+    /* perform our fetch with the fetched results controller */
     func performFetch() {
 
             do {
@@ -146,13 +146,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         configureDisplay()
         if selectedIndexPaths.count == 0 {
             
-            for photo in fetchedResultsController.fetchedObjects as! [Photo] {
-                sharedContext.deleteObject(photo)
-                print("Deleting Photos")
-            }
-
-            /* Delete photos and get new ones */
-            selectedPin.deleteAllAssociatedPhotos()
+            deletePhotos()
             
             getImagesForPin({success, error in
                 if error != nil {
@@ -162,8 +156,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                 } else {
                     print("Got images for pin")
                     self.sharedContext.performBlockAndWait({
-                        self.configureDisplay()
+                        
                         CoreDataStackManager.sharedInstance().saveContext()
+                        self.configureDisplay()
                         print("Received successful callback in getImagesForPin")
                     })
                 }
@@ -183,6 +178,19 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             CoreDataStackManager.sharedInstance().saveContext()
             self.configureDisplay()
         }
+    }
+    
+    func deletePhotos(){
+        for photo in fetchedResultsController.fetchedObjects as! [Photo] {
+            self.sharedContext.deleteObject(photo)
+            
+            print("Deleting Photos")
+        }
+        /* Delete photos and get new ones */
+        selectedPin.deleteAllAssociatedPhotos()
+        CoreDataStackManager.sharedInstance().saveContext()
+        
+       
     }
     
 
@@ -257,7 +265,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             noPhotosLabel.hidden = false
             return
         }
-
+        
         self.collectionView.performBatchUpdates({
             
             self.collectionView.insertItemsAtIndexPaths(self.insertedIndexPaths)
@@ -266,27 +274,23 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             
             self.collectionView.reloadItemsAtIndexPaths(self.updatedIndexPaths)
             
-            }, completion: nil)
+            }, completion: {Void in
+                self.collectionView.reloadData()
+                self.configureDisplay()
+        })
 
     }
     
-    /* Refresh our indices when controller changes content */
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
-
-        insertedIndexPaths = [NSIndexPath]()
-        deletedIndexPaths = [NSIndexPath]()
-        updatedIndexPaths = [NSIndexPath]()
-        
-    }
     
+    /* For keeping track of our index paths with the fetched results controller */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
+        case .Update :
+            updatedIndexPaths.append(indexPath!)
         case .Insert:
             insertedIndexPaths.append(newIndexPath!)
         case .Delete:
             deletedIndexPaths.append(indexPath!)
-        case .Update :
-            updatedIndexPaths.append(indexPath!)
         default :
             break
         }
@@ -306,7 +310,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         let sectionInfo = fetchedResultsController.sections![section]
-        
+        print(section)
         return sectionInfo.numberOfObjects
 
     }
