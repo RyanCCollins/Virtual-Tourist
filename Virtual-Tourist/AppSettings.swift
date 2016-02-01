@@ -52,32 +52,31 @@ class AppSettings: NSObject {
         
     }
     
+    func executeFetch() {
+        let fetchRequest = NSFetchRequest(entityName: "Settings")
+        
+        do {
+                let fetchedResults = try self.sharedContext.executeFetchRequest(fetchRequest) as? [Settings]
+                for setting in fetchedResults! {
+                    sharedContext.deleteObject(setting)
+                }
+            
+            } catch let error as NSError {
+                print(error)
+            }
+    }
 
     func saveSettings (){
         
-        let fetchRequest = NSFetchRequest(entityName: "Settings")
-        
-        sharedContext.performBlockAndWait({
-    
-        })
-        do {
-            if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
-                for setting in fetchedResults {
-                    print("Deleting an object at")
-                    sharedContext.deleteObject(setting)
-                    CoreDataStackManager.sharedInstance().saveContext()
-                }
-            }
-            
-        } catch let error {
-            print(error)
-        }
-
-        
         let settingsDict = dictionaryForSettings()
+        executeFetch()
+        
         sharedContext.performBlockAndWait({
+            
             let settings = Settings(dictionary: settingsDict, context: self.sharedContext)
+
         })
+
         
         CoreDataStackManager.sharedInstance().saveContext()
         

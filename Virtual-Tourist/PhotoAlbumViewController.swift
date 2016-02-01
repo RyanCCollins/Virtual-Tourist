@@ -160,9 +160,11 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     self.handleErrors(forPin: self.selectedPin, error: error!)
                     
                 } else {
-                    
+                    print("Got images for pin")
                     self.sharedContext.performBlockAndWait({
                         self.configureDisplay()
+                        CoreDataStackManager.sharedInstance().saveContext()
+                        print("Received successful callback in getImagesForPin")
                     })
                 }
             })
@@ -198,16 +200,16 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         selectedPin.paginate()
         
-
         selectedPin.fetchAndStoreImages({success, error in
             
             if let callback = completionHandler {
+                
                 if error != nil {
                     
                     callback(success: false, error: error)
                     
                 } else {
-                    CoreDataStackManager.sharedInstance().saveContext()
+                    
                     callback(success: true, error: nil)
                     
                 }
@@ -325,6 +327,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     func configureCell(cell: PhotoAlbumCollectionViewCell, atIndexPath indexPath: NSIndexPath){
         
         if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
+            
             if photo.image != nil {
                 cell.imageView.image = photo.image
                 cell.imageView.fadeIn()

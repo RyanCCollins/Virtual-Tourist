@@ -147,8 +147,7 @@ class Pin: NSManagedObject, MKAnnotation {
                     self.loadingStatus.noPhotosFound = true
                     callback(success: true, error: nil)
                 } else {
-                    
-                    
+                
                     self.sharedContext.performBlockAndWait({
                         for photo in photos! {
                             photo.imageForPhoto({success, error in
@@ -156,6 +155,7 @@ class Pin: NSManagedObject, MKAnnotation {
                                 if success == true {
                                     
                                     counter++
+                                    
                                 } else {
                                     self.loadingStatus.isLoading = false
                                     callback(success: false, error: error)

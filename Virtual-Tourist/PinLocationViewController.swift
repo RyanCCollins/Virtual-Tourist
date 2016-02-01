@@ -27,7 +27,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     let regionRadius: CLLocationDistance = 1000
     
-    /* Pin to add defined globally, for use when rearranging pins */
+    /* Pin to add defined globally, for use when rearranging and adding new pins */
     var pinToAdd: Pin? = nil
     
     override func viewDidLoad() {
