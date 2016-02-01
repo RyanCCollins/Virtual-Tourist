@@ -175,8 +175,10 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     self.handleErrors(forPin: self.selectedPin, error: error!)
                     
                 } else {
-                    
-                    self.configureDisplay()
+                    dispatch_async(GlobalMainQueue, {
+                        CoreDataStackManager.sharedInstance().saveContext()
+                        self.collectionView.reloadData()
+                    })
                     
                 }
             })
@@ -422,5 +424,6 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
         
     }
 }
+
 
 
