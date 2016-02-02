@@ -83,7 +83,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* Wait half a second to show the loading indicator */
         loadingView.hidden = !self.selectedPin.loadingStatus.isLoading
         
-        let loadingTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
+        let loadingTime = dispatch_time(DISPATCH_TIME_NOW, Int64(5 * Double(NSEC_PER_SEC)))
         
         /* Hide the loading label and only show it after 3 seconds if we are still loading */
         takingLongerLabel.hidden = true

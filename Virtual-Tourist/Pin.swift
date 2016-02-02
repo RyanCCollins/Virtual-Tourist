@@ -33,7 +33,6 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var photos: [Photo]?
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
-    private var location = CLLocationCoordinate2D(latitude: 0, longitude: 0)
 
     var loadingError: NSError?
     var coordinateDelta: Double?
@@ -64,43 +63,15 @@ class Pin: NSManagedObject, MKAnnotation {
     /* Convenience: Get and set a CLLocationCoordinate2D */
     var coordinate: CLLocationCoordinate2D {
         get {
-            return CLLocationCoordinate2DMake(Double(latitude), Double(longitude))
+            return CLLocationCoordinate2D(latitude: Double(latitude), longitude: Double(longitude))
+        }
+        set(newValue) {
+            /* Note, setting the coordinate here here will help us to drag the pin */
+            latitude = newValue.latitude
+            longitude = newValue.longitude
         }
     }
-    
-    func setCoordinate(newLocationCoordinate: CLLocationCoordinate2D) {
-        
-        /* Set a variable to hold the old location */
-        let oldLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
-        
-        /* Key value observation for setting the coordinate when moving a pin */
-        willChangeValueForKey("coordinate")
-        location = newLocationCoordinate
-        
-        /* Create a temporary CLLocation for calculating the coordinate delta */
-        let newLocation = CLLocation(latitude: location.longitude, longitude: location.latitude)
-        
-        /* Gives the delta from the last coordinate In Kilometers when a new location is set */
-        coordinateDelta = newLocation.distanceFromLocation(oldLocation) / 1000
-        
-        /* Sets the new latitude and longitude */
-        self.latitude = newLocation.coordinate.latitude
-        self.longitude = newLocation.coordinate.longitude
-        didChangeValueForKey("coordinate")
-    }
-    
-    /* Calculates whether we should go and delete all photos to get new ones */
-    var shouldGetNewPhotos: Bool {
-        get {
-            if coordinateDelta > 10 {
-                print("Yes, we should get new photos")
-                return true
-            } else {
-                print("No we should not get new photos")
-                return false
-            }
-        }
-    }
+
 
     /* Page through the returned values, setting a new value in order to get the next page of photos if possible */
     func paginate() -> Bool {

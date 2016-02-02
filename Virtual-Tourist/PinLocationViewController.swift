@@ -81,20 +81,13 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             
         case .Changed :
             
-            self.pinToAdd?.setCoordinate(coordinate)
+            
 
-            if pinToAdd!.shouldGetNewPhotos {
-                
-                sharedContext.performBlockAndWait({
-                    self.pinToAdd?.deleteAllAssociatedPhotos()
-                    self.fetchNewPhotos(forPin: self.pinToAdd!)
-                })
-            }
             
         case .Ended :
-            mapView.addAnnotation(pinToAdd!)
-            self.pinToAdd?.setCoordinate(coordinate)
+
             fetchNewPhotos(forPin: pinToAdd!)
+            print("Fetching Photos")
 
         default :
             return
@@ -264,6 +257,24 @@ extension PinLocationViewController: MKMapViewDelegate {
                 CoreDataStackManager.sharedInstance().saveContext()
             })
             
+        }
+    }
+    
+    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
+        switch(newState) {
+        case .Starting:
+            
+            if let newPin = view.annotation as? Pin {
+                /* Delete the associated photos for the pin */
+                newPin.deleteAllAssociatedPhotos()
+                
+            }
+            
+        case .Ending, .Canceling:
+            if let endPin = view.annotation as? Pin {
+                /* Get new photos for the newly dropped pin */
+                fetchNewPhotos(forPin: endPin)
+            }
         }
     }
     
