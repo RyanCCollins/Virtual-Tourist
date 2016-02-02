@@ -66,7 +66,11 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     
     /* Add an annotation to the map based on our custom Pin class */
     func addAnnotation(sender: UIGestureRecognizer) {
-
+        
+        /* Get out of here if we are editing, or nasty things will happen :). */
+        if _editing {
+            return
+        }
         let point: CGPoint = sender.locationInView(mapView)
         let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
 
@@ -80,12 +84,12 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             })
             
         case .Changed :
-            
+            pinToAdd?.willChangeValueForKey("coordinate")
             self.pinToAdd!.coordinate = coordinate
-
+            pinToAdd?.didChangeValueForKey("coordinate")
             
         case .Ended :
-
+            
             fetchNewPhotos(forPin: pinToAdd!)
             print("Fetching Photos")
 
@@ -248,15 +252,20 @@ extension PinLocationViewController: MKMapViewDelegate {
             
             /* Delete pins when edit button is toggled */
             let pin = view.annotation as! Pin
-        
-            sharedContext.performBlockAndWait({
-                pin.deleteAllAssociatedPhotos()
-                self.sharedContext.deleteObject(pin)
-                self.mapView.removeAnnotation(pin)
-                CoreDataStackManager.sharedInstance().saveContext()
-            })
+            
+            deletePinAndPhotos(pin)
             
         }
+    }
+    
+    /* Convenience method for deleting all associated photos and pin from the context */
+    func deletePinAndPhotos(pin: Pin) {
+        sharedContext.performBlockAndWait({
+            pin.deleteAllAssociatedPhotos()
+            self.sharedContext.deleteObject(pin)
+            CoreDataStackManager.sharedInstance().saveContext()
+        })
+ 
     }
     
     /* Watch for dragging of the pin and delete the photos when dragged.  Fetch new photos when complete */
@@ -264,16 +273,19 @@ extension PinLocationViewController: MKMapViewDelegate {
         switch(newState) {
         case .Starting:
             
-            if let newPin = view.annotation as? Pin {
+            if let oldPin = view.annotation as? Pin {
                 /* Delete the associated photos for the pin */
-                newPin.deleteAllAssociatedPhotos()
-                
+                oldPin.deleteAllAssociatedPhotos()
+                print("Deleting photos for pin")
             }
             
         case .Ending, .Canceling:
             if let endPin = view.annotation as? Pin {
                 /* Get new photos for the newly dropped pin */
+
                 fetchNewPhotos(forPin: endPin)
+                
+                
             }
         default: break
         }
