@@ -14,7 +14,6 @@ import CoreData
 class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     
-    @IBOutlet weak var takingLongerLabel: UILabel!
     @IBOutlet weak  var loadingView: UIActivityIndicatorView!
     @IBOutlet weak var noPhotosLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
@@ -59,7 +58,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        
+        dispatch_async(GlobalMainQueue, {
+            self.configureDisplay()
+        })
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -71,6 +72,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func performInitialFetch() {
         sharedContext.performBlockAndWait({
             self.performFetch()
+        })
+        dispatch_async(GlobalMainQueue, {
             self.configureDisplay()
         })
     }
@@ -82,18 +85,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         /* Wait half a second to show the loading indicator */
         loadingView.hidden = !self.selectedPin.loadingStatus.isLoading
-        
-        let loadingTime = dispatch_time(DISPATCH_TIME_NOW, Int64(5 * Double(NSEC_PER_SEC)))
-        
-        /* Hide the loading label and only show it after 3 seconds if we are still loading */
-        takingLongerLabel.hidden = true
-        /* So the taking longer than expected label after a second */
-        
-
-        dispatch_after(loadingTime, GlobalMainQueue, {
-
-            self.takingLongerLabel.hidden = !self.selectedPin.loadingStatus.isLoading
-        })
         
         if selectedPin.loadingStatus.error != nil {
             handleErrors(forPin: selectedPin, error: selectedPin.loadingStatus.error!)
@@ -119,7 +110,10 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     func didFinishLoading() {
         /* Configure the display after loading finishes */
-        configureDisplay()
+        
+        dispatch_async(GlobalMainQueue, {
+            self.configureDisplay()
+        })
     }
     
     /* Setup flowlayout upon layout of subviews */

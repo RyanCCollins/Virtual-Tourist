@@ -81,7 +81,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             
         case .Changed :
             
-            
+            self.pinToAdd!.coordinate = coordinate
 
             
         case .Ended :
@@ -96,7 +96,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchNewPhotos(forPin pin: Pin) {
-        
         
         /* Create a notification for updating the UI once photos have finished loading */
         let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
@@ -260,6 +259,7 @@ extension PinLocationViewController: MKMapViewDelegate {
         }
     }
     
+    /* Watch for dragging of the pin and delete the photos when dragged.  Fetch new photos when complete */
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
         switch(newState) {
         case .Starting:
@@ -275,6 +275,7 @@ extension PinLocationViewController: MKMapViewDelegate {
                 /* Get new photos for the newly dropped pin */
                 fetchNewPhotos(forPin: endPin)
             }
+        default: break
         }
     }
     
@@ -290,7 +291,6 @@ extension PinLocationViewController: MKMapViewDelegate {
             if let pinAnnotationView = mapView.dequeueReusableAnnotationViewWithIdentifier(pinId) as? MKPinAnnotationView {
                 
                 pinAnnotationView.annotation = annotation
-                
                 annotationViewToReturn = pinAnnotationView
             } else {
                 /* If new annotation view, configure and return */
@@ -308,15 +308,16 @@ extension PinLocationViewController: MKMapViewDelegate {
 
 extension PinLocationViewController: SettingsPickerDelegate {
     
+    /* Delete all pins and photos when the delegate method is called */
     func didDeleteAll() {
-        for pin in fetchedResultsController.fetchedObjects as! [Pin] {
-            pin.deleteAllAssociatedPhotos()
-            
-            self.sharedContext.deleteObject(pin)
-            self.mapView.removeAnnotation(pin)
-        }
         
         sharedContext.performBlockAndWait({
+            
+            for pin in self.fetchedResultsController.fetchedObjects as! [Pin] {
+                pin.deleteAllAssociatedPhotos()
+                
+                self.sharedContext.deleteObject(pin)
+            }
             CoreDataStackManager.sharedInstance().saveContext()
         })
         

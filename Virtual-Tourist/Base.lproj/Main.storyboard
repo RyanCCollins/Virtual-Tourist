@@ -155,12 +155,6 @@
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Vdq-pe-ZOL">
                                 <rect key="frame" x="282" y="281" width="37" height="37"/>
                             </activityIndicatorView>
-                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Taking a little longer than expected." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ckq-fs-UIP">
-                                <rect key="frame" x="164" y="326" width="273" height="26"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.90823972225189209" green="0.92638683319091797" blue="0.9317171573638916" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -168,11 +162,9 @@
                             <constraint firstItem="Vdq-pe-ZOL" firstAttribute="centerY" secondItem="6cq-km-yzd" secondAttribute="centerY" id="BWV-1R-scL"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="top" secondItem="7Tk-rh-XTF" secondAttribute="bottom" constant="-2" id="BfL-BP-tao"/>
                             <constraint firstAttribute="trailing" secondItem="mCN-iR-A90" secondAttribute="trailing" id="HTE-qd-dWO"/>
-                            <constraint firstItem="ckq-fs-UIP" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="IRz-Ke-byi"/>
                             <constraint firstItem="n6N-vt-vvR" firstAttribute="top" secondItem="mCN-iR-A90" secondAttribute="bottom" id="NPe-QD-thm"/>
                             <constraint firstItem="5n3-ie-TXe" firstAttribute="top" secondItem="9wF-2m-NNZ" secondAttribute="bottom" id="PCp-S6-4hm"/>
                             <constraint firstItem="Vdq-pe-ZOL" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="Upi-8i-hdB"/>
-                            <constraint firstItem="ckq-fs-UIP" firstAttribute="top" secondItem="Vdq-pe-ZOL" secondAttribute="bottom" constant="8" id="Uxm-lo-sN6"/>
                             <constraint firstItem="u8z-nt-Zd4" firstAttribute="centerX" secondItem="6cq-km-yzd" secondAttribute="centerX" id="ZHH-bw-Mf2"/>
                             <constraint firstItem="7Tk-rh-XTF" firstAttribute="top" secondItem="5n3-ie-TXe" secondAttribute="bottom" id="d0u-bg-voK"/>
                             <constraint firstItem="mCN-iR-A90" firstAttribute="leading" secondItem="6cq-km-yzd" secondAttribute="leading" id="fKV-nj-UCK"/>
@@ -189,7 +181,6 @@
                         <outlet property="loadingView" destination="Vdq-pe-ZOL" id="7b3-QH-dsC"/>
                         <outlet property="mapView" destination="5n3-ie-TXe" id="IBF-Fs-w5c"/>
                         <outlet property="noPhotosLabel" destination="u8z-nt-Zd4" id="5Zg-LA-uQz"/>
-                        <outlet property="takingLongerLabel" destination="ckq-fs-UIP" id="BWS-Ca-Hli"/>
                         <segue destination="avs-Bz-MbW" kind="presentation" identifier="showGallery" modalPresentationStyle="currentContext" modalTransitionStyle="crossDissolve" id="WgQ-Fi-bEh"/>
                     </connections>
                 </viewController>
