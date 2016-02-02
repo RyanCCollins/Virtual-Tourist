@@ -24,6 +24,7 @@ class Pin: NSManagedObject, MKAnnotation {
     struct Status {
         var isLoading: Bool = false
         var noPhotosFound: Bool = false
+        var error: NSError?
     }
     
     /* Create our managed variables */
@@ -33,7 +34,6 @@ class Pin: NSManagedObject, MKAnnotation {
     @NSManaged var countOfPhotoPages: NSNumber?
     @NSManaged var currentPage: NSNumber?
 
-    
     var loadingError: NSError?
     var coordinateDelta: Double?
     var loadingStatus = Status()
@@ -45,7 +45,7 @@ class Pin: NSManagedObject, MKAnnotation {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
     }
     
-    /* Custom init */
+    /* Custom init for our NSManagedObject */
     init(coordinate: CLLocationCoordinate2D, context: NSManagedObjectContext) {
         
         /* Get associated entity from our context */
@@ -127,9 +127,17 @@ class Pin: NSManagedObject, MKAnnotation {
         }
     }
     
+    func configureLoadingStatus(loading: Bool, noPhotos: Bool, error: NSError?) {
+        loadingStatus.isLoading = loading
+        loadingStatus.noPhotosFound = noPhotos
+        loadingStatus.error = error
+    }
+    
     /* Convenience method for fetching images from pin's photos, using NSNotifications to avoid messy callbacks */
     func fetchAndStoreImages(callback: CallbackHandler) {
-        loadingStatus.isLoading = true
+        
+        /* Set the loading status to a clean state to show loading */
+        configureLoadingStatus(true, noPhotos: false, error: nil)
         
         var counter = 0
         
@@ -137,15 +145,17 @@ class Pin: NSManagedObject, MKAnnotation {
                 
              if error != nil {
                 /* Call our callback with success false */
+                
+                self.configureLoadingStatus(false, noPhotos: false, error: error)
                 callback(success: false, error: error)
 
              } else {
                 
                 if photos == nil || photos!.count == 0 {
-                    print("Callback called")
-                    self.loadingStatus.isLoading = false
-                    self.loadingStatus.noPhotosFound = true
+
+                    self.configureLoadingStatus(false, noPhotos: true, error: nil)
                     callback(success: true, error: nil)
+                    
                 } else {
                 
                     self.sharedContext.performBlockAndWait({
@@ -156,16 +166,15 @@ class Pin: NSManagedObject, MKAnnotation {
                                     
                                     counter++
                                     
-                                } else {
-                                    self.loadingStatus.isLoading = false
+                                } else if error != nil {
+                                    
+                                    self.configureLoadingStatus(false, noPhotos: false, error: error)
                                     callback(success: false, error: error)
                                     
                                 }
                                 /* Call success only when our loop finishes */
                                 if counter == photos?.count {
-                                    self.loadingStatus.noPhotosFound = false
-                                    
-                                    self.loadingStatus.isLoading = false
+                                    self.configureLoadingStatus(false, noPhotos: false, error: nil)
                                     callback(success: true, error: nil)
                                 }
                                 

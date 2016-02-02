@@ -18,7 +18,6 @@ protocol SettingsPickerDelegate {
 class SettingsViewController: UIViewController {
     
     @IBOutlet weak var modalView: SpringView!
-    @IBOutlet weak var loadingIndicatorToggle: UISwitch!
 
     @IBOutlet weak var funModeToggle: UISwitch!
     
@@ -53,15 +52,6 @@ class SettingsViewController: UIViewController {
         AppSettings.GlobalConfig.Settings.saveSettings()
     }
     
-    @IBAction func didToggleLoadingIndicator(sender: UISwitch) {
-        if sender.on == true {
-            AppSettings.GlobalConfig.Settings.loadingIndicator = true
-        } else {
-            AppSettings.GlobalConfig.Settings.loadingIndicator = false
-        }
-        AppSettings.GlobalConfig.Settings.saveSettings()
-    }
-    
     /* When you tap the clear button, we need to tell the global seetins that we need to clear the data */
     @IBAction func didTapClearUpInside(sender: AnyObject) {
 
@@ -79,8 +69,15 @@ class SettingsViewController: UIViewController {
     }
     
     func updateSettingsView(){
-        funModeToggle.on = AppSettings.GlobalConfig.Settings.funMode
-        loadingIndicatorToggle.on = AppSettings.GlobalConfig.Settings.loadingIndicator
+        sharedContext.performBlockAndWait({
+            AppSettings.GlobalConfig.Settings.fetchAppSettings()
+            self.funModeToggle.on = AppSettings.GlobalConfig.Settings.funMode
+        })
+    }
+    
+    /* Convenience for getting the managedObjectContext singleton */
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
     }
     
     

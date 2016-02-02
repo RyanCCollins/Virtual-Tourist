@@ -8,10 +8,11 @@
 
 import CoreData
 
+@objc(Settings)
+
 class Settings: NSManagedObject {
 
     @NSManaged var funMode: NSNumber
-    @NSManaged var loadingIndicator: NSNumber
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -19,7 +20,6 @@ class Settings: NSManagedObject {
     
     struct Keys {
         static let funMode = "funMode"
-        static let loadingIndicator = "loadingIndicator"
     }
     
     /* Custom init */
@@ -33,7 +33,6 @@ class Settings: NSManagedObject {
         
         /* Assign our properties */
         funMode = dictionary[Keys.funMode] as! NSNumber
-        loadingIndicator = dictionary[Keys.loadingIndicator] as! NSNumber
     }
 }
 

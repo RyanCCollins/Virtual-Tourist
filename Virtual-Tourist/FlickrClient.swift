@@ -93,15 +93,15 @@ class FlickrClient: NSObject {
                     }
                 }
                 
+                /* Here we are simply creating an image and returning it via the completionhandler */
                 if let imageData = data {
                     
                     if let imageToReturn = UIImage(data: imageData) {
-
                         completionHandler(image: imageToReturn, error: nil)
                     }
                     
                 } else {
-                    
+                    /* If we get a network error, return a callback */
                     completionHandler(image: nil, error: Errors.constructError(domain: "FlickrClient", userMessage: "Unable to get an image from Network.  Please try again."))
                 
                 }

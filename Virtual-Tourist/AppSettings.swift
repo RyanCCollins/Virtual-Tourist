@@ -28,7 +28,6 @@ class AppSettings: NSObject {
             * See here:http://stackoverflow.com/questions/24333507/swift-coredata-can-not-set-a-bool-on-nsmanagedobject-subclass-bug?lq=1
             */
             "funMode": NSNumber(bool: AppSettings.GlobalConfig.Settings.funMode),
-            "loadingIndicator": NSNumber(bool: AppSettings.GlobalConfig.Settings.loadingIndicator)
         ]
         return settingsDict
     }
@@ -43,15 +42,15 @@ class AppSettings: NSObject {
         fetchRequest.sortDescriptors = [sortDesciptors]
         
         do {
-            if let fetchedResults = try sharedContext.executeFetchRequest(fetchRequest) as? [Settings] {
-                print(fetchedResults)
-                settings = fetchedResults[0]
-                AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
-                AppSettings.GlobalConfig.Settings.loadingIndicator = Bool(settings.loadingIndicator)
-            }
-        } catch let error {
+            /* Type cast the settings array to bridge gap between NS and Swift */
+            var settingsArray: [Settings] = [Settings]()
+            settingsArray = try sharedContext.executeFetchRequest(fetchRequest) as! [Settings]
+            settings = settingsArray[0]
+        } catch let error as NSError? {
             print(error)
         }
+        
+        AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
     
     }
     
@@ -68,17 +67,19 @@ class AppSettings: NSObject {
                 print(error)
             }
     }
-
+    
+    /* Saves the settings to core data, bridging the gap between our model classes */
     func saveSettings (){
         
         let settingsDict = dictionaryForSettings()
+        print(settingsDict)
+        /* Keep all core data on a concurent thread */
         sharedContext.performBlockAndWait({
             
             let settings = Settings(dictionary: settingsDict, context: self.sharedContext)
 
         })
 
-        
         CoreDataStackManager.sharedInstance().saveContext()
         
     }

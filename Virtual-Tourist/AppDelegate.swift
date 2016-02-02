@@ -24,6 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppSettings.GlobalConfig.Settings.fetchAppSettings()
         return true
     }
+    
+    var sharedContext: NSManagedObjectContext {
+        return CoreDataStackManager.sharedInstance().managedObjectContext
+    }
 
 }
 

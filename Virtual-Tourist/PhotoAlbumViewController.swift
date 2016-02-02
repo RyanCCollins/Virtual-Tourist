@@ -14,6 +14,7 @@ import CoreData
 class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate  {
     @IBOutlet weak var mapView: MKMapView!
     
+    @IBOutlet weak var takingLongerLabel: UILabel!
     @IBOutlet weak  var loadingView: UIActivityIndicatorView!
     @IBOutlet weak var noPhotosLabel: UILabel!
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
@@ -59,7 +60,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        configureDisplay()
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -77,38 +77,40 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     
     /* Handles all of the display logic for various life cycle methods */
     func configureDisplay(){
+    
+        noPhotosLabel.hidden = !self.selectedPin.loadingStatus.noPhotosFound
         
-        dispatch_async(GlobalMainQueue, {
-            
-            if self.selectedPin.loadingStatus.isLoading == true {
-                
-                self.loadingView.hidden = false
-                self.noPhotosLabel.hidden = true
-                
-            } else if self.selectedPin.loadingStatus.noPhotosFound == true {
-                
-                self.noPhotosLabel.hidden = false
-                self.loadingView.hidden = true
-                
-            } else {
-                
-                self.noPhotosLabel.hidden = true
-                self.loadingView.hidden = true
-                
-            }
-            
+        /* Wait half a second to show the loading indicator */
+        loadingView.hidden = !self.selectedPin.loadingStatus.isLoading
+        
+        let loadingTime = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
+        
+        /* Hide the loading label and only show it after 3 seconds if we are still loading */
+        takingLongerLabel.hidden = true
+        /* So the taking longer than expected label after a second */
+        
+
+        dispatch_after(loadingTime, GlobalMainQueue, {
+
+            self.takingLongerLabel.hidden = !self.selectedPin.loadingStatus.isLoading
         })
+        
+        if selectedPin.loadingStatus.error != nil {
+            handleErrors(forPin: selectedPin, error: selectedPin.loadingStatus.error!)
+        }
+    
+        
         /* Note, calling reload data fixes a bug that was causing bad access issues.  Must be called outside of global queue. */
         collectionView.reloadData()
 
     }
     
-    /* The image loading notifications solve the issue where the collectionview would not update after imgaes loaded 
-     * The
+    /* The image loading notifications solve the issue where the collectionview would not update after imgaes loaded
     */
     func subscribeToImageLoadingNotifications() {
-        print("Subscribed to image loading notifications")
+
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoading", name: Notifications.PinDidFinishLoading, object: selectedPin)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoadingWithErrors", name: Notifications.PinDidFinishLoadingWithErrors, object: selectedPin)
     }
     
     func unsubscribeToImageLoadingNotifications() {
@@ -116,11 +118,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     func didFinishLoading() {
-        print("called did finish loading in photo album view")
+        /* Configure the display after loading finishes */
         configureDisplay()
-        if selectedPin.loadingError != nil {
-            handleErrors(forPin: selectedPin, error: selectedPin.loadingError!)
-        }
     }
     
     /* Setup flowlayout upon layout of subviews */
@@ -153,26 +152,37 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* If there are no selected index paths, download new photos for the selected pin */
         
         /* Set loading and configure display */
-        selectedPin.loadingStatus.isLoading = true
-        configureDisplay()
+        
+        dispatch_async(GlobalMainQueue, {
+            /* Configure the display to show loading */
+            self.configureDisplay()
+        })
+
         if selectedIndexPaths.count == 0 {
             
             deletePhotos()
             
             getImagesForPin({success, error in
+                
+                
                 if error != nil {
+                    /* Configure the display to show errors */
+                    dispatch_async(GlobalMainQueue, {
+                        self.configureDisplay()
+                    })
                     
-                    self.handleErrors(forPin: self.selectedPin, error: error!)
                     
                 } else {
-                    print("Got images for pin")
+                    
                     self.sharedContext.performBlockAndWait({
                         
                         CoreDataStackManager.sharedInstance().saveContext()
                         self.configureDisplay()
-                        print("Received successful callback in getImagesForPin")
                     })
+                   
                 }
+                
+                
             })
  
         } else {
@@ -183,14 +193,17 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     let photoToDelete = self.fetchedResultsController.objectAtIndexPath(index) as! NSManagedObject
                     self.sharedContext.deleteObject(photoToDelete)
                 }
+                dispatch_async(GlobalMainQueue, {
+                    self.configureDisplay()
+                })
             })
            
-
+            /* remove the selected index paths, reconfigure the collection button and save the context */
             selectedIndexPaths.removeAll()
             configureCollectionButton()
             
             CoreDataStackManager.sharedInstance().saveContext()
-            self.configureDisplay()
+            
         }
     }
     
@@ -203,20 +216,17 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* Delete photos and get new ones */
         selectedPin.deleteAllAssociatedPhotos()
         CoreDataStackManager.sharedInstance().saveContext()
-        
-       
     }
     
 
     
     /* Handle logic for getting new photos for a pin and manage errors */
-    func getImagesForPin(completionHandler: CallbackHandler?){
+    func getImagesForPin(completionHandler: (success: Bool, error: NSError?) -> Void) {
 
         /* Make sure that there are photos left.  If not, then set the no photos label */
         guard selectedPin.hasPhotosLeft() else {
-            noPhotosLabel.text = "No photos left"
-            noPhotosLabel.hidden = false
-            print("No photos left")
+
+            completionHandler(success: false, error: nil)
             return
         }
         
@@ -224,18 +234,16 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
         selectedPin.fetchAndStoreImages({success, error in
             
-            if let callback = completionHandler {
+            if error != nil {
                 
-                if error != nil {
-                    
-                    callback(success: false, error: error)
-                    
-                } else {
-                    
-                    callback(success: true, error: nil)
-                    
-                }
+                completionHandler(success: false, error: error!)
+                
+            } else {
+                
+                completionHandler(success: true, error: nil)
+                
             }
+
             
         })
 
@@ -246,7 +254,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func handleErrors(forPin pin: Pin, error: NSError) {
         view.fadeIn()
         alertController(withTitles: ["OK", "Retry"], message: error.localizedDescription, callbackHandler: [nil, {Void in
-            self.getImagesForPin(nil)
+            self.didTapCollectionButtonUpInside(self)
         }])
     }
     

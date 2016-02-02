@@ -27,6 +27,7 @@ extension FlickrClient {
                 if results != nil {
                     if let photosDictionary = results![JSONResponseKeys.Photos] as? [String : AnyObject], photoArray = photosDictionary[JSONResponseKeys.Photo] as? [[String : AnyObject]], pages = photosDictionary[JSONResponseKeys.Pages], currentPage = photosDictionary[JSONResponseKeys.Page] {
                         
+                        /* Make sure we are doing any core data off the main thread */
                         self.sharedContext.performBlockAndWait({
                             pin.countOfPhotoPages = (pages as? NSNumber)!
                             pin.currentPage = currentPage as? NSNumber
@@ -49,7 +50,7 @@ extension FlickrClient {
         }
     }
     
-    
+    /* Build our dictionary for our flickr search */
     func dictionaryForGetImages(forPin pin: Pin) -> [String : AnyObject] {
         
         let parameters: [String : AnyObject ] = [

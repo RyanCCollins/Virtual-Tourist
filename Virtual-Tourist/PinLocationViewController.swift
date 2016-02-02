@@ -102,17 +102,15 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
         
             self.pinToAdd!.fetchAndStoreImages({success, error in
-                if success == true {
+                
+                /* Either way, call the DidFinishLoadingNotification and handle errors on the next view. */
+                if success == true || error != nil {
                     dispatch_async(GlobalMainQueue, {
                         
                         NSNotificationCenter.defaultCenter().postNotification(DidFinishLoadingNotification)
                         
                     })
                     CoreDataStackManager.sharedInstance().saveContext()
-                } else {
-                    pin.loadingError = error
-                    NSNotificationCenter.defaultCenter().postNotification(DidFinishLoadingNotification)
-                    
                 }
             
         })

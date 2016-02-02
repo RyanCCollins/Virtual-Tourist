@@ -22,13 +22,7 @@ class Photo: NSManagedObject {
     @NSManaged var url_m: String?
     @NSManaged var fullImageURL : String?
     @NSManaged var thumbnailURL : String?
-    var loadingStatus = Status()
-    
-    struct Status {
-        var isLoading: Bool = false
-        var loaded: Bool = false
-        var error: NSError?
-    }
+
     
     /* Include standard Core Data init method */
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
@@ -64,9 +58,9 @@ class Photo: NSManagedObject {
         }
     }
 
-    
+    /* Convenience for loading the image for the photo */
     func imageForPhoto(completionHandler: CallbackHandler?) {
-        loadingStatus.isLoading = true
+
         FlickrClient.sharedInstance().taskForGETImageFromURL(self.url_m!, completionHandler: {image, error in
             if image == nil || error != nil {
                 if let callback = completionHandler {
