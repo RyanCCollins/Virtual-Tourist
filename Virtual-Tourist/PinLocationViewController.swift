@@ -64,6 +64,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         self.presentViewController(controller, animated: true, completion: nil)
     }
     
+    /* Add an annotation to the map based on our custom Pin class */
     func addAnnotation(sender: UIGestureRecognizer) {
 
         let point: CGPoint = sender.locationInView(mapView)
@@ -80,14 +81,19 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             
         case .Changed :
             
-            dispatch_async(GlobalMainQueue, {
-                self.pinToAdd!.willChangeValueForKey("coordinate")
-                self.pinToAdd!.coordinate = coordinate
-                self.pinToAdd!.didChangeValueForKey("coordinate")
-            })
+            self.pinToAdd?.setCoordinate(coordinate)
+
+            if pinToAdd!.shouldGetNewPhotos {
+                
+                sharedContext.performBlockAndWait({
+                    self.pinToAdd?.deleteAllAssociatedPhotos()
+                    self.fetchNewPhotos(forPin: self.pinToAdd!)
+                })
+            }
             
         case .Ended :
-            print("Ended pin drop")
+            mapView.addAnnotation(pinToAdd!)
+            self.pinToAdd?.setCoordinate(coordinate)
             fetchNewPhotos(forPin: pinToAdd!)
 
         default :
@@ -97,6 +103,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     func fetchNewPhotos(forPin pin: Pin) {
+        
         
         /* Create a notification for updating the UI once photos have finished loading */
         let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
