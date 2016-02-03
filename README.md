@@ -7,8 +7,8 @@ Technologies used
 - Developer: Ryan Collins 
 
 ## Project Setup
-- To install, download the project and open the Virtual-Tourist.xcworkspace file in XCode version 7.0+
-- Run the following from the command line from within the project directory
+- To install, download the project and open the Virtual-Tourist.xcworkspace file in XCode version 7.0+ (opening the .xcprojectfile will NOT work)
+- Run the following from the command line from within the root of the project directory
 
 ```
 pod install
