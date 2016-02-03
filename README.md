@@ -26,12 +26,21 @@ pod install
 -  Double tap a photo to view full screen
 
 ##__Technologies and Best Practices__
-During the development of this application, I experimented with many different technologies and I utilized best practices.  I used CocoaPods to extend the capabilities of the app.  I used the 1Password extension to allow for easy login with a 1password account.  The main feature of this application is showing the usage of Core Data and networking in Swift.  Read the description below to find out more.
+During the development of this application, I experimented with many different technologies and I utilized best practices.  I used CocoaPods to extend the capabilities of the app.  The main feature of this application is showing the usage of Core Data and networking in Swift.  Read the description below to find out more.
 
 
 ##__Running the App__
 ---
-To run this app, please download the [project file]({{page.downloads.zip}}), open the on-the-map.xcworkspace workspace file, select a device to run it on and press the run button.  Then, feel free to walk through and see all of the features.  Please get in touch with me if you have any issues.  Make sure to play around with all of the functionality and see all of the great features I added.
+To run this app, please download the [project file]({{page.downloads.zip}}), open the Virtual-Tourist.xcworkspace workspace file, select a device to run it on and press the run button.  
+
+As noted above, you need to run 
+```
+pod install
+```
+
+from the root directory of the project in order to install project dependencies.
+
+Then, feel free to walk through and see all of the features.  Please get in touch with me if you have any issues.  Make sure to play around with all of the functionality and see all of the great features I added.
 
 Here is the flow of the applications
 1.  Log in to the application through Udacity or Facebook.  You can use the 1Password extension if it is available on your device.
