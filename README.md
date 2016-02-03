@@ -8,6 +8,12 @@ Technologies used
 
 ## Project Setup
 - To install, download the project and run in XCode version 7.0+
+- Run the following from the command line from within the project directory
+
+```
+pod install
+```
+
 - Runs best on an iPhone 6 or later with Swift 2.0 and iOS version 8.0+
 
 ##__Features__
