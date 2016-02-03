@@ -287,6 +287,11 @@ extension PinLocationViewController: MKMapViewDelegate {
         /* Create a temporary reference to our pin */
         pinToAdd = view.annotation as? Pin
         
+        /* Guard against moving the pin when loading */
+        guard pinToAdd?.loadingStatus.isLoading == false else {
+            return
+        }
+        
         switch(newState) {
         case .Starting:
             
