@@ -137,7 +137,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             mapView.addAnnotation(pin)
         case .Delete :
             mapView.removeAnnotation(pin)
-            
+            print("Map view did remove annotation")
         default :
             break
         }
@@ -260,6 +260,8 @@ extension PinLocationViewController: MKMapViewDelegate {
             
             deletePinAndPhotos(pin)
             
+            /* Note, the fetched results controller handles removing the annotation, but we are using this to make sure that the change happens immediately. */
+            mapView.removeAnnotation(pin)
         }
     }
     
