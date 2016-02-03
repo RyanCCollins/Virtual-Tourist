@@ -24,7 +24,8 @@ class FullImageViewController: UIViewController {
     @IBOutlet weak var imageTitleLabel: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        /* Make sure that the view's alpha is set */
         imageView.alpha = 1.0
         
         view.backgroundColor = UIColor.blackColor()

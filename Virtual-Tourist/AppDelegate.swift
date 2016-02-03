@@ -21,9 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         /* Fetch our application settings */
         Fabric.with([Crashlytics.self])
-        AppSettings.GlobalConfig.Settings.fetchAppSettings()
         return true
     }
+    
     
     var sharedContext: NSManagedObjectContext {
         return CoreDataStackManager.sharedInstance().managedObjectContext

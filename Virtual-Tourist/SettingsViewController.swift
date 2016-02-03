@@ -43,13 +43,11 @@ class SettingsViewController: UIViewController {
      * because just setting the value equal to sender.on was causing issues
     */
     @IBAction func didToggleFunMode(sender: UISwitch) {
-        if sender.on == true {
-            AppSettings.GlobalConfig.Settings.funMode = true
-        } else {
-            AppSettings.GlobalConfig.Settings.funMode = false
-        }
-        
-        AppSettings.GlobalConfig.Settings.saveSettings()
+
+        AppSettings.sharedSettings().saveSettings(funModeToggle.on)
+        sharedContext.performBlockAndWait({
+            CoreDataStackManager.sharedInstance().saveContext()
+        })
     }
     
     /* When you tap the clear button, we need to tell the global seetins that we need to clear the data */
@@ -69,10 +67,16 @@ class SettingsViewController: UIViewController {
     }
     
     func updateSettingsView(){
-        sharedContext.performBlockAndWait({
-            AppSettings.GlobalConfig.Settings.fetchAppSettings()
-            self.funModeToggle.on = AppSettings.GlobalConfig.Settings.funMode
-        })
+        
+        if let appSettings = AppSettings.sharedSettings().fetchAppSettings() {
+            
+            funModeToggle.on = Bool(appSettings.funMode)
+        } else {
+            /* Setup initial settings */
+            AppSettings.sharedSettings().saveSettings(false)
+            funModeToggle.on = false
+        }
+  
     }
     
     /* Convenience for getting the managedObjectContext singleton */
@@ -86,3 +90,4 @@ class SettingsViewController: UIViewController {
     }
     
 }
+

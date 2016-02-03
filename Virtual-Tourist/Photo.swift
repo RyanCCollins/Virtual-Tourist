@@ -57,6 +57,21 @@ class Photo: NSManagedObject {
             FlickrClient.Caches.imageCache.storeImage(newValue, withIdentifier: filePath!)
         }
     }
+    
+    /* Delete associated backing image files automatically. */
+    override func prepareForDeletion() {
+
+        let fileName = filePath!.lastPathComponent
+            
+        let dirPath = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+        let pathArray = [dirPath, fileName]
+        let fileURL = NSURL.fileURLWithPathComponents(pathArray)!
+        
+        do {
+            try NSFileManager.defaultManager().removeItemAtURL(fileURL)
+        } catch _ {
+        }
+    }
 
     /* Convenience for loading the image for the photo */
     func imageForPhoto(completionHandler: CallbackHandler?) {
@@ -78,4 +93,18 @@ class Photo: NSManagedObject {
         })
     }
     
+}
+
+
+/* Added to help bridge the gap for finding the last path component in Swift
+Reference are here: https://forums.developer.apple.com/thread/13580 */
+
+extension String {
+    
+    var lastPathComponent: String {
+        
+        get {
+            return (self as NSString).lastPathComponent
+        }
+    }
 }

@@ -14,67 +14,89 @@ import CoreData
  * for storing the AppSettings globally while avoiding memory and thread issues.
 */
 class AppSettings: NSObject {
-    var funMode: Bool = false
-    var loadingIndicator: Bool = true
+    /* Initialize the global settings to be accessed externally */
+    var GlobalSettings: Settings?
     
-    struct GlobalConfig {
-        static var Settings = AppSettings()
+    class func sharedSettings() -> AppSettings {
+        struct singleton {
+            static var sharedInstance = AppSettings()
+        }
+        return singleton.sharedInstance
     }
     
-    func dictionaryForSettings() -> [String: AnyObject] {
+    func dictionaryForSettings(funMode: Bool) -> [String: AnyObject] {
         let settingsDict: [String : AnyObject] = [
             
             /* Need to do a bit of core data sorcery here in order to avoid bad access issue:
             * See here:http://stackoverflow.com/questions/24333507/swift-coredata-can-not-set-a-bool-on-nsmanagedobject-subclass-bug?lq=1
             */
-            "funMode": NSNumber(bool: AppSettings.GlobalConfig.Settings.funMode),
-
+            "funMode": NSNumber(bool: funMode),
         ]
         return settingsDict
     }
     
-    func fetchAppSettings() {
-        /* Initialize the settings here so that it runs the first time we perform the action */
-        var settings = Settings(dictionary: dictionaryForSettings(), context: sharedContext)
+    func fetchAppSettings() -> Settings? {
         
-        let fetchRequest =  NSFetchRequest (entityName: "Settings")
-        let sortDesciptors = NSSortDescriptor(key: "timeStamp", ascending: false)
-        
-        fetchRequest.sortDescriptors = [sortDesciptors]
-        
-        do {
-            /* Type cast the settings array to bridge gap between NS and Swift */
-            var settingsArray: [Settings] = [Settings]()
-            settingsArray = try sharedContext.executeFetchRequest(fetchRequest) as! [Settings]
-            settings = settingsArray[0]
-            print(settings)
-        } catch let error as NSError? {
-            print(error)
+        if let newestSetting = performFetch() {
+            return newestSetting
+        } else {
+            return nil
         }
-        
-        AppSettings.GlobalConfig.Settings.funMode = Bool(settings.funMode)
-    
     }
     
-    /* Get our most recent settings from the fetchedResultsController */
-    func executeFetch() {
-        let fetchRequest = NSFetchRequest(entityName: "Settings")
+    
+    /* Performs a fetch to get only the most recent setting */
+    func performFetch() -> Settings? {
+        let fetch = NSFetchRequest(entityName: "Settings")
+        let entity = NSEntityDescription.entityForName("Settings", inManagedObjectContext: sharedContext)
         
-            do {
-                let fetchedResults = try self.sharedContext.executeFetchRequest(fetchRequest) as? [Settings]
-                for setting in fetchedResults! {
-                    sharedContext.deleteObject(setting)
+        fetch.sortDescriptors = [NSSortDescriptor(key: "timeStamp", ascending: false)]
+        
+        fetch.entity = entity
+        
+        do {
+            /* Find the results and delete all but the first / most recent one */
+            if let results = try sharedContext.executeFetchRequest(fetch) as? [Settings] {
+                
+                /* Return nil if no settings are existing yet */
+                guard results.count > 0 else {
+                    return nil
                 }
-            
-            } catch let error as NSError {
-                print(error)
+                
+                let resultToReturn = results[0]
+                
+                /* Handle the computation on the main thread for saving to coredata */
+                sharedContext.performBlockAndWait({
+                    for result in results.enumerate() {
+                        let settingToDelete = result.element
+                        if result.index != 0 {
+                            self.sharedContext.deleteObject(settingToDelete)
+                        }
+                        
+                    }
+                CoreDataStackManager.sharedInstance().saveContext()
+                })
+                
+                
+                return resultToReturn
             }
+            
+        } catch {
+            let fetchError = error as NSError
+            print(fetchError)
+            
+        }
+        return nil
+    }
+    
+    func createInitialSettings() {
+        saveSettings(false)
     }
     
     /* Saves the settings to core data, bridging the gap between our model classes */
-    func saveSettings (){
+    func saveSettings (funMode: Bool){
         
-        let settingsDict = dictionaryForSettings()
+        let settingsDict = dictionaryForSettings(funMode)
         print(settingsDict)
         /* Keep all core data on a concurent thread */
         sharedContext.performBlockAndWait({

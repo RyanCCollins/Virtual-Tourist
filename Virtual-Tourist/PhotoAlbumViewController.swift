@@ -37,6 +37,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     var deletedIndexPaths = [NSIndexPath]()
     var updatedIndexPaths = [NSIndexPath]()
     
+    /* MARK: Lifecycle methods */
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -112,7 +113,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         if selectedPin.loadingStatus.error != nil {
             handleErrors(forPin: selectedPin, error: selectedPin.loadingStatus.error!)
         }
-    
+        
+        /* Disable the collection button if the fetched results controller has yet to receive any objects. */
         collectionButton.enabled = fetchedResultsController.fetchedObjects!.count > 0
         /* Note, calling reload data fixes a bug that was causing bad access issues.  Must be called outside of global queue. */
         collectionView.reloadData()
@@ -133,6 +135,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         if let index = indexPath {
             let cell = collectionView.cellForItemAtIndexPath(index) as! PhotoAlbumCollectionViewCell
             if selectedIndexPaths.contains(index) {
+                
                 cell.selected = false
                 cell.setSelectedState()
                 
@@ -152,7 +155,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 
     }
 
-        /* Double taps will show the photo in fullscreen */
+    /* Double taps will show the photo in fullscreen */
     func handleDoubleTap(gestureRecognizer: UITapGestureRecognizer) {
         
         if gestureRecognizer.state != UIGestureRecognizerState.Ended {
@@ -220,7 +223,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         
     }
     
-    /* perform our fetch with the fetched results controller */
+    /* Perform our fetch with the fetched results controller */
     func performFetch() {
 
             do {
@@ -234,10 +237,10 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             }
 
     }
-    
+
+    /* When the collection button is tapped, get new photos from FLICKR for the pin using the Pin's getImagesForPin method. */
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
 
-        
         /* Set loading and configure display */
         dispatch_async(GlobalMainQueue, {
             /* Configure the display to show loading */
@@ -265,6 +268,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                         CoreDataStackManager.sharedInstance().saveContext()
                         self.configureDisplay()
                     })
+                    
                    
                 }
                 
@@ -289,8 +293,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             selectedIndexPaths.removeAll()
             configureCollectionButton()
             
-    
-            
         }
     }
     
@@ -311,13 +313,14 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
 
         /* Make sure that there are photos left.  If not, then set the no photos label */
         guard selectedPin.hasPhotosLeft() else {
-
+            selectedPin.loadingStatus.noPhotosFound = true
             completionHandler(success: false, error: nil)
             return
         }
         
         selectedPin.paginate()
         
+        /* Call the pin's fetchAndStoreImages method and handle the results */
         selectedPin.fetchAndStoreImages({success, error in
             
             if error != nil {
@@ -374,8 +377,31 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
             collectionButton.enabled = false
             return
         }
-        self.configureDisplay()
+        
+        
+        collectionView.performBatchUpdates({
+            for indexPath in self.insertedIndexPaths {
+                self.collectionView.insertItemsAtIndexPaths([indexPath])
+            }
+            
+            for indexPath in self.deletedIndexPaths {
+                self.collectionView.deleteItemsAtIndexPaths([indexPath])
+            }
+            
+            for indexPath in self.updatedIndexPaths {
+                self.collectionView.reloadItemsAtIndexPaths([indexPath])
+            }
+            }, completion: {Void in
+                self.configureDisplay()
+        })
 
+    }
+    
+    /* Refresh our index paths to avoid serious core data application errors */
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        insertedIndexPaths = [NSIndexPath]()
+        deletedIndexPaths  = [NSIndexPath]()
+        updatedIndexPaths  = [NSIndexPath]()
     }
     
     
@@ -451,8 +477,12 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
                 cell.setUpdatingState(true)
                 
                 /* If fun mode is on, set the image to be something fun :) */
-                if AppSettings.GlobalConfig.Settings.funMode == true {
-                    cell.imageView.image = UIImage(named: "fun-mode")
+                if let appSettings = AppSettings.sharedSettings().fetchAppSettings() {
+                    if appSettings.funMode == true {
+                        cell.imageView.image = UIImage(named: "fun-mode")
+                    } else {
+                        cell.imageView.image = UIImage(named: "missing-resource")
+                    }
                 } else {
                     cell.imageView.image = UIImage(named: "missing-resource")
                 }

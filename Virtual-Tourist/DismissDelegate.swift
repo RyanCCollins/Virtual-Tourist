@@ -10,12 +10,14 @@ import UIKit
 
 class DismissalAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     
+    /* The opening frame shows the view zooming out */
     var openingFrame: CGRect?
     
     func transitionDuration(transitionContext: UIViewControllerContextTransitioning?) -> NSTimeInterval {
         return 0.5
     }
     
+    /* Define the transition elements, from, to, container, etc. for dismissing the animation */
     func animateTransition(transitionContext: UIViewControllerContextTransitioning) {
         let fromViewController = transitionContext.viewControllerForKey(UITransitionContextFromViewControllerKey)!
         let toViewController = transitionContext.viewControllerForKey(UITransitionContextToViewControllerKey)!
@@ -29,9 +31,10 @@ class DismissalAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         fromViewController.view.alpha = 0.0
         
         UIView.animateWithDuration(animationDuration, animations: { () -> Void in
+            /* Set the snapshotview for showing transition */
             snapshotView.frame = self.openingFrame!
             snapshotView.alpha = 0.0
-            }) { (finished) -> Void in
+            }) {finished in
                 snapshotView.removeFromSuperview()
                 fromViewController.view.removeFromSuperview()
                 transitionContext.completeTransition(!transitionContext.transitionWasCancelled())

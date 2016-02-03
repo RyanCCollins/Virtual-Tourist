@@ -58,8 +58,10 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     @IBAction func didTapSettingsUpInside(sender: AnyObject) {
+        /* Instantiate the settings view controller for showing the settings view */
         let controller = storyboard?.instantiateViewControllerWithIdentifier("SettingsViewController") as! SettingsViewController
         
+        /* Set us as the controllers delegate */
         controller.delegate = self
         self.presentViewController(controller, animated: true, completion: nil)
     }
@@ -122,7 +124,9 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
 
-    /* When the fetched results controller changes pins, handle the mapview insertion and deletion */
+    /* When the fetched results controller changes pins, handle the mapview insertion and deletion (The only time that this is used presently is when we remove all annoations, but we can
+     * use this for later purposes if we have multiple sources for the pins.
+    */
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         let pin = anObject as! Pin
         switch type {
@@ -140,7 +144,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     
-    /* Fetched Results controller for Pin entities */
+    /* Fetched Results controller for Pin entities will return all entities for the pin */
     lazy var fetchedResultsController: NSFetchedResultsController = {
         let fetch = NSFetchRequest(entityName: "Pin")
         
@@ -156,7 +160,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         return fetchResultsController
     }()
     
-    /* Convenience for remove and adding all mapview annotations */
+    /* Convenience for removing and adding all mapview annotations */
     func configureAllAnnotations() {
         
         mapView.removeAnnotations(mapView.annotations)
@@ -165,7 +169,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     }
     
     @IBAction func didTapEditingUpInside(sender: AnyObject) {
-        /* Switch editing state */
+        /* Switch editing state when the editing button is tapped */
         _editing = !_editing
         
         if _editing {
@@ -241,13 +245,12 @@ extension PinLocationViewController: MKMapViewDelegate {
     
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
         if !_editing {
-        
-            let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
             
+            /* When not editing, open the gallery view controller */
+            let galleryViewController = storyboard?.instantiateViewControllerWithIdentifier("PhotoAlbumViewController") as! PhotoAlbumViewController
             let pin = view.annotation as! Pin
 
             galleryViewController.pinLocation(self, didPickPin: pin)
-
             navigationController?.pushViewController(galleryViewController, animated: true)
             
         } else {
@@ -262,12 +265,11 @@ extension PinLocationViewController: MKMapViewDelegate {
     
     /* Convenience method for deleting all associated photos and pin from the context */
     func deletePinAndPhotos(pin: Pin) {
-        sharedContext.performBlockAndWait({
+        dispatch_async(GlobalMainQueue, {
             pin.deleteAllAssociatedPhotos()
             self.sharedContext.deleteObject(pin)
             CoreDataStackManager.sharedInstance().saveContext()
         })
- 
     }
     
     /* Watch for dragging of the pin and delete the photos when dragged.  Fetch new photos when complete */
@@ -325,18 +327,18 @@ extension PinLocationViewController: SettingsPickerDelegate {
     /* Delete all pins and photos when the delegate method is called */
     func didDeleteAll() {
         print("Deleting photos and pins")
-        sharedContext.performBlockAndWait({
+
             
-            /* Remove all annotations and delete the fetchedObejects */
-            
-            for pin in self.fetchedResultsController.fetchedObjects as! [Pin] {
-                pin.deleteAllAssociatedPhotos()
-                print("Deleting photos and pins")
-                self.sharedContext.deleteObject(pin)
+        /* Remove all annotations and delete the fetchedObejects */
+        
+        if let pins = self.fetchedResultsController.fetchedObjects as? [Pin] {
+            for pin in pins {
+                self.deletePinAndPhotos(pin)
             }
-            CoreDataStackManager.sharedInstance().saveContext()
-            self.configureAllAnnotations()
-        })
+            
+        }
+        CoreDataStackManager.sharedInstance().saveContext()
+
         
     }
 }
