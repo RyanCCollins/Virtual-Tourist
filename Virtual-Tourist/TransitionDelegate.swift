@@ -20,6 +20,7 @@ class TransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
     func animationControllerForPresentedController(presented: UIViewController, presentingController presenting: UIViewController, sourceController source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         let presentationAnimator = PhotoPresentationAnimator()
         presentationAnimator.openingFrame = openingFrame!
+        presented.view.alpha = 1.0
         return presentationAnimator
     }
     

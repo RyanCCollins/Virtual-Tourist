@@ -92,8 +92,6 @@ class Pin: NSManagedObject, MKAnnotation {
         let total = countOfPhotoPages as! Int, current = currentPage as! Int
         
         if current < total {
-            print("Current page is: \(current)")
-            print("Total pages is: \(total)")
             return true
         } else {
             return false

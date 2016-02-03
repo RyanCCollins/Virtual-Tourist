@@ -38,6 +38,7 @@ class PhotoPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning
         
         
         toViewController.dimView.alpha = 0.0
+        toViewController.view.alpha = 0.0
         
         containerView!.addSubview(toViewController.view)
         

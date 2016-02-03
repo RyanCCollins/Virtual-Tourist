@@ -11,7 +11,7 @@ import MapKit
 import Spring
 import CoreData
 
-class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate  {
+class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControllerDelegate, UIGestureRecognizerDelegate {
     @IBOutlet weak var mapView: MKMapView!
     
     @IBOutlet weak  var loadingView: UIActivityIndicatorView!
@@ -49,7 +49,28 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             self.mapView.addAnnotation(self.selectedPin)
             self.centerMapOnLocation(forPin: self.selectedPin)
         })
+        
+        
         performInitialFetch()
+        
+        configureGestureRecognizers()
+  
+    }
+    
+    func configureGestureRecognizers(){
+        /* Create a long press gesture recognizer for handling long presses to open photos. */
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
+        longPressGestureRecognizer.minimumPressDuration = 0.5
+        longPressGestureRecognizer.delaysTouchesBegan = true
+        longPressGestureRecognizer.delegate = self
+        
+        collectionView.addGestureRecognizer(longPressGestureRecognizer)
+        
+        let doubleTapRecognizer = UITapGestureRecognizer(target: self, action: "handleDoubleTap:")
+        doubleTapRecognizer.numberOfTapsRequired = 2
+        doubleTapRecognizer.delegate = self
+        collectionView.addGestureRecognizer(doubleTapRecognizer)
+        
     }
     
     /* Life cycle */
@@ -96,6 +117,76 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         /* Note, calling reload data fixes a bug that was causing bad access issues.  Must be called outside of global queue. */
         collectionView.reloadData()
 
+    }
+    
+    /* Long taps will configure the cell to be deleted */
+    func handleLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
+        
+        /* Ensure that the touch doesn't register unless ended */
+        if gestureRecognizer.state != UIGestureRecognizerState.Ended {
+            return
+        }
+
+        let point = gestureRecognizer.locationInView(collectionView)
+        let indexPath = collectionView.indexPathForItemAtPoint(point)
+        
+        if let index = indexPath {
+            let cell = collectionView.cellForItemAtIndexPath(index) as! PhotoAlbumCollectionViewCell
+            if selectedIndexPaths.contains(index) {
+                cell.selected = false
+                cell.setSelectedState()
+                
+                let index = selectedIndexPaths.indexOf(index)
+                selectedIndexPaths.removeAtIndex(index!)
+                print(selectedIndexPaths)
+            } else {
+                selectedIndexPaths.append(index)
+                cell.selected = true
+                cell.setSelectedState()
+            }
+            
+            /* Configure cell and update UI */
+            configureCollectionButton()
+            
+        }
+
+    }
+
+        /* Double taps will show the photo in fullscreen */
+    func handleDoubleTap(gestureRecognizer: UITapGestureRecognizer) {
+        
+        if gestureRecognizer.state != UIGestureRecognizerState.Ended {
+            return
+        }
+        let point = gestureRecognizer.locationInView(collectionView)
+        let indexPath = collectionView.indexPathForItemAtPoint(point)
+        
+        if let index = indexPath {
+            let cell = collectionView.cellForItemAtIndexPath(index) as! PhotoAlbumCollectionViewCell
+            
+            /* Guard that the cell is not selected to ensure that a double tap works only when cell is not selected */
+            openImageFullscreen(forCell: cell, atIndexPath: index)
+            
+        }
+    }
+    
+    func openImageFullscreen(forCell cell: PhotoAlbumCollectionViewCell, atIndexPath indexPath: NSIndexPath) {
+        /* Define our attributes for the animation within the frame */
+        let attributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)
+        let attributesFrame = attributes?.frame
+        
+        
+        /* Define a frame for the collectionview cell we want to open */
+        let frameOfImageToOpenFrom = collectionView.convertRect(attributesFrame!, toView: collectionView.superview)
+        transitionDelegate.openingFrame = frameOfImageToOpenFrom
+        
+        let fullImageController = storyboard?.instantiateViewControllerWithIdentifier("FullImageViewController") as! FullImageViewController
+        
+        fullImageController.transitioningDelegate = transitionDelegate
+        fullImageController.modalPresentationStyle = .Custom
+        fullImageController.photo = cell.photo
+        
+        presentViewController(fullImageController, animated: true, completion: nil)
     }
     
     /* The image loading notifications solve the issue where the collectionview would not update after imgaes loaded
@@ -145,10 +236,9 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     }
     
     @IBAction func didTapCollectionButtonUpInside(sender: AnyObject) {
-        /* If there are no selected index paths, download new photos for the selected pin */
+
         
         /* Set loading and configure display */
-        
         dispatch_async(GlobalMainQueue, {
             /* Configure the display to show loading */
             self.configureDisplay()
@@ -303,11 +393,16 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         }
     }
     
+    /* Toggle the delete / show collection button */
     func configureCollectionButton() {
         if selectedIndexPaths.count > 0 {
+            
             collectionButton.setTitle("Delete Selected Images", forState: .Normal)
+        
         } else {
+        
             collectionButton.setTitle("New Collection", forState: .Normal)
+        
         }
     }
     
@@ -319,7 +414,6 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         let sectionInfo = fetchedResultsController.sections![section]
-        print(section)
         return sectionInfo.numberOfObjects
 
     }
@@ -382,38 +476,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
 
     /* Handle logic for selecting table view cells */
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
-        
-        /* Define our attributes for the animation within the frame */
-        let attributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)
-        let attributesFrame = attributes?.frame
-        
-        
-        /* Define a frame for the collectionview cell we want to open */
-        let frameOfImageToOpenFrom = collectionView.convertRect(attributesFrame!, toView: collectionView.superview)
-        transitionDelegate.openingFrame = frameOfImageToOpenFrom
-        
-        let fullImageController = storyboard?.instantiateViewControllerWithIdentifier("FullImageViewController") as! FullImageViewController
-        
-        fullImageController.transitioningDelegate = transitionDelegate
-        fullImageController.modalPresentationStyle = .Custom
-        fullImageController.photo = cell.photo
-        
-        presentViewController(fullImageController, animated: true, completion: nil)
-        
-        if selectedIndexPaths.contains(indexPath) {
-            cell.isSelected(false)
-            
-            let index = selectedIndexPaths.indexOf(indexPath)
-            selectedIndexPaths.removeAtIndex(index!)
-            print(selectedIndexPaths)
-        } else {
-            selectedIndexPaths.append(indexPath)
-            cell.isSelected(true)
-        }
-        
-        /* Configure cell and update UI */
-        configureCollectionButton()
+
     }
 
 }

@@ -252,12 +252,6 @@
                             <view alpha="0.84999999999999998" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pw1-q0-BMe">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Tap to dismiss" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ice-WS-xrh">
-                                        <rect key="frame" x="238" y="8" width="125" height="21"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nDK-d8-Ril">
                                         <rect key="frame" x="0.0" y="71" width="600" height="457"/>
                                     </imageView>
@@ -267,10 +261,15 @@
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tap anywhere to dismiss" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ice-WS-xrh">
+                                        <rect key="frame" x="206" y="42" width="189" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstItem="ice-WS-xrh" firstAttribute="top" secondItem="pw1-q0-BMe" secondAttribute="top" constant="8" id="5SB-cR-KTX"/>
                                     <constraint firstItem="nDK-d8-Ril" firstAttribute="centerY" secondItem="pw1-q0-BMe" secondAttribute="centerY" id="D3U-26-MlQ"/>
                                     <constraint firstItem="nDK-d8-Ril" firstAttribute="top" secondItem="pw1-q0-BMe" secondAttribute="top" constant="71" id="Nwu-r0-fav"/>
                                     <constraint firstAttribute="trailing" secondItem="6Xn-rM-i54" secondAttribute="trailing" constant="20" id="QY9-tK-RIh"/>
@@ -279,6 +278,7 @@
                                     <constraint firstItem="nDK-d8-Ril" firstAttribute="centerX" secondItem="pw1-q0-BMe" secondAttribute="centerX" id="kyX-Oa-xIJ"/>
                                     <constraint firstAttribute="bottom" secondItem="nDK-d8-Ril" secondAttribute="bottom" constant="72" id="lTT-nQ-6hH"/>
                                     <constraint firstItem="6Xn-rM-i54" firstAttribute="leading" secondItem="pw1-q0-BMe" secondAttribute="leading" constant="20" id="rPG-sB-IBE"/>
+                                    <constraint firstItem="nDK-d8-Ril" firstAttribute="top" secondItem="ice-WS-xrh" secondAttribute="bottom" constant="8" id="uy9-0l-Oyf"/>
                                 </constraints>
                             </view>
                         </subviews>

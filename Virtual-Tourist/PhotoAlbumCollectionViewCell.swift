@@ -18,21 +18,19 @@ class PhotoAlbumCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
     }
     
-    /* If updating, don't allow selection */
-    func isSelected(selected: Bool) {
-        /* don't allow selection while updating */
-        if isUpdating {
+    /* Conveniently set the selected state. If updating, don't allow selection */
+    func setSelectedState() {
+        if isUpdating == true {
             return
         }
         
-        /* If selected, fade out */
         if selected == true {
             self.fadeOut()
         } else {
             self.fadeIn()
         }
     }
-    
+
     /* Handle the cell's updating state here */
     func setUpdatingState(updatingState: Bool){
         if updatingState == true {

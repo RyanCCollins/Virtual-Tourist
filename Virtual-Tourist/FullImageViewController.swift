@@ -12,7 +12,6 @@
 
 
 import UIKit
-import QuartzCore
 
 class FullImageViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
@@ -25,7 +24,10 @@ class FullImageViewController: UIViewController {
     @IBOutlet weak var imageTitleLabel: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.alpha = 1.0
+
+        imageView.alpha = 1.0
+        
+        view.backgroundColor = UIColor.blackColor()
         
         imageTitleLabel.text = photo.titleString
         imageView.image = photo.image!
