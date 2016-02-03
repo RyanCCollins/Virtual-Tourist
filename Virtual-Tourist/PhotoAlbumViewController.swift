@@ -24,6 +24,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     let regionRadius: CLLocationDistance = 1000
     var selectedPin: Pin!
     
+    let transitionDelegate: TransitioningDelegate = TransitioningDelegate()
+    
     /* Pin picker delegate method, selects the photo and subscribes to image loading notifs */
     func pinLocation(pinPicker: PinLocationViewController, didPickPin pin: Pin) {
         selectedPin = pin
@@ -90,7 +92,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             handleErrors(forPin: selectedPin, error: selectedPin.loadingStatus.error!)
         }
     
-        
+        collectionButton.enabled = fetchedResultsController.fetchedObjects!.count > 0
         /* Note, calling reload data fixes a bug that was causing bad access issues.  Must be called outside of global queue. */
         collectionView.reloadData()
 
@@ -186,28 +188,28 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
                     
                     let photoToDelete = self.fetchedResultsController.objectAtIndexPath(index) as! NSManagedObject
                     self.sharedContext.deleteObject(photoToDelete)
+                    CoreDataStackManager.sharedInstance().saveContext()
                 }
                 dispatch_async(GlobalMainQueue, {
                     self.configureDisplay()
                 })
             })
            
-            /* remove the selected index paths, reconfigure the collection button and save the context */
+            /* Remove the selected index paths, reconfigure the collection button and save the context */
             selectedIndexPaths.removeAll()
             configureCollectionButton()
             
-            CoreDataStackManager.sharedInstance().saveContext()
+    
             
         }
     }
     
     func deletePhotos(){
+        
         for photo in fetchedResultsController.fetchedObjects as! [Photo] {
             self.sharedContext.deleteObject(photo)
-            
-            print("Deleting Photos")
         }
-        /* Delete photos and get new ones */
+        /* Delete all associated photos and get new ones */
         selectedPin.deleteAllAssociatedPhotos()
         CoreDataStackManager.sharedInstance().saveContext()
     }
@@ -279,6 +281,7 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         if controller.fetchedObjects?.count < 0 {
             print("No images fetched")
             noPhotosLabel.hidden = false
+            collectionButton.enabled = false
             return
         }
         self.configureDisplay()
@@ -340,10 +343,18 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         
         if let photo = fetchedResultsController.fetchedObjects![indexPath.row] as? Photo {
             
+            /* Set the cells photo to pass to the full image view */
+            
+            cell.photo = photo
             if photo.image != nil {
+                
+                /* Set the image and fade the image in with the setUpdating Call */
                 cell.imageView.image = photo.image
-                cell.imageView.fadeIn()
+                cell.setUpdatingState(false)
             } else {
+                
+                /* Make sure to fade the cell out when updating */
+                cell.setUpdatingState(true)
                 
                 /* If fun mode is on, set the image to be something fun :) */
                 if AppSettings.GlobalConfig.Settings.funMode == true {
@@ -369,9 +380,26 @@ extension PhotoAlbumViewController: UICollectionViewDataSource, UICollectionView
         return true
     }
 
-    /* handle logic for selecting table view cells */
+    /* Handle logic for selecting table view cells */
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let cell = collectionView.cellForItemAtIndexPath(indexPath) as! PhotoAlbumCollectionViewCell
+        
+        /* Define our attributes for the animation within the frame */
+        let attributes = collectionView.layoutAttributesForItemAtIndexPath(indexPath)
+        let attributesFrame = attributes?.frame
+        
+        
+        /* Define a frame for the collectionview cell we want to open */
+        let frameOfImageToOpenFrom = collectionView.convertRect(attributesFrame!, toView: collectionView.superview)
+        transitionDelegate.openingFrame = frameOfImageToOpenFrom
+        
+        let fullImageController = storyboard?.instantiateViewControllerWithIdentifier("FullImageViewController") as! FullImageViewController
+        
+        fullImageController.transitioningDelegate = transitionDelegate
+        fullImageController.modalPresentationStyle = .Custom
+        fullImageController.photo = cell.photo
+        
+        presentViewController(fullImageController, animated: true, completion: nil)
         
         if selectedIndexPaths.contains(indexPath) {
             cell.isSelected(false)

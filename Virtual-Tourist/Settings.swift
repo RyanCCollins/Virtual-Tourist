@@ -13,6 +13,7 @@ import CoreData
 class Settings: NSManagedObject {
 
     @NSManaged var funMode: NSNumber
+    @NSManaged var timeStamp: NSDate
     
     override init(entity: NSEntityDescription, insertIntoManagedObjectContext context: NSManagedObjectContext?) {
         super.init(entity: entity, insertIntoManagedObjectContext: context)
@@ -20,6 +21,14 @@ class Settings: NSManagedObject {
     
     struct Keys {
         static let funMode = "funMode"
+    }
+    
+    /* Automagically insert the current time stamp */
+    override func awakeFromInsert() {
+        super.awakeFromInsert()
+        
+        let date = NSDate()
+        self.timeStamp = date
     }
     
     /* Custom init */

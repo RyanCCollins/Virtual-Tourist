@@ -28,6 +28,7 @@ class AppSettings: NSObject {
             * See here:http://stackoverflow.com/questions/24333507/swift-coredata-can-not-set-a-bool-on-nsmanagedobject-subclass-bug?lq=1
             */
             "funMode": NSNumber(bool: AppSettings.GlobalConfig.Settings.funMode),
+
         ]
         return settingsDict
     }
@@ -46,6 +47,7 @@ class AppSettings: NSObject {
             var settingsArray: [Settings] = [Settings]()
             settingsArray = try sharedContext.executeFetchRequest(fetchRequest) as! [Settings]
             settings = settingsArray[0]
+            print(settings)
         } catch let error as NSError? {
             print(error)
         }
@@ -54,10 +56,11 @@ class AppSettings: NSObject {
     
     }
     
+    /* Get our most recent settings from the fetchedResultsController */
     func executeFetch() {
         let fetchRequest = NSFetchRequest(entityName: "Settings")
         
-        do {
+            do {
                 let fetchedResults = try self.sharedContext.executeFetchRequest(fetchRequest) as? [Settings]
                 for setting in fetchedResults! {
                     sharedContext.deleteObject(setting)

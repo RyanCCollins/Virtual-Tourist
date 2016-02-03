@@ -13,7 +13,12 @@ import CoreData
 class FlickrClient: NSObject {
     
     typealias CompletionHandler = (result: AnyObject!, error: NSError?) -> Void
-        
+    
+    
+    /* The flickrclient class totally abstracts away all logic for connecting to the FLICKR API for the purposes of
+     * downloading photos for dropped pins
+    */
+    
     /* Task returned for GETting data from the server */
     func taskForGETMethod(var urlString: String, parameters: [String : AnyObject]?, completionHandler: CompletionHandler) -> NSURLSessionDataTask {
             
@@ -29,7 +34,6 @@ class FlickrClient: NSObject {
         }
     
         let url = NSURL(string: urlString)!
-
         let request = NSMutableURLRequest(URL: url)
         
         request.HTTPMethod = HTTPRequest.GET
@@ -134,12 +138,10 @@ class FlickrClient: NSObject {
 
             var components = [String]()
             
-            
             if parameters != nil {
                 components.append(URLString(fromParameters: parameters!, withSeperator: "="))
 
             }
-            
             
             return (!components.isEmpty ? "?" : "") + components.joinWithSeparator("&")
             
@@ -203,7 +205,7 @@ class FlickrClient: NSObject {
             guard let statusCode = response?.statusCode where statusCode >= 200 && statusCode <= 299 else {
                 var statusError: NSError?
                 
-                /* IF not, what was our status code?  Provide appropriate error message and return */
+                /* If not, what was our status code?  Provide appropriate error message and return */
                 if let response = response {
                     if response.statusCode >= 400 && response.statusCode <= 599 {
                         statusError = Errors.constructError(domain: "FlickrClient", userMessage: ErrorMessages.Status.Auth)

@@ -15,7 +15,7 @@
     </entity>
     <entity name="Settings" representedClassName="Settings" syncable="YES">
         <attribute name="funMode" optional="YES" attributeType="Boolean" syncable="YES"/>
-        <attribute name="timeStamp" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="timeStamp" optional="YES" attributeType="Date" defaultDateTimeInterval="476158560" syncable="YES"/>
     </entity>
     <elements>
         <element name="Photo" positionX="-9" positionY="36" width="128" height="105"/>

@@ -68,12 +68,13 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     func addAnnotation(sender: UIGestureRecognizer) {
         
         /* Get out of here if we are editing, or nasty things will happen :). */
-        if _editing {
+        guard _editing != true else {
             return
         }
+        
         let point: CGPoint = sender.locationInView(mapView)
         let coordinate: CLLocationCoordinate2D = mapView.convertPoint(point, toCoordinateFromView: mapView)
-
+    
         switch sender.state {
         case .Began :
 
@@ -84,10 +85,11 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
             })
             
         case .Changed :
+            /* Use Key Value Observation for changing our coordinate */
             pinToAdd?.willChangeValueForKey("coordinate")
             self.pinToAdd!.coordinate = coordinate
             pinToAdd?.didChangeValueForKey("coordinate")
-            
+            print("Changing")
         case .Ended :
             
             fetchNewPhotos(forPin: pinToAdd!)
@@ -104,7 +106,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         /* Create a notification for updating the UI once photos have finished loading */
         let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
         
-            self.pinToAdd!.fetchAndStoreImages({success, error in
+            pin.fetchAndStoreImages({success, error in
                 
                 /* Either way, call the DidFinishLoadingNotification and handle errors on the next view. */
                 if success == true || error != nil {
@@ -270,23 +272,23 @@ extension PinLocationViewController: MKMapViewDelegate {
     
     /* Watch for dragging of the pin and delete the photos when dragged.  Fetch new photos when complete */
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, didChangeDragState newState: MKAnnotationViewDragState, fromOldState oldState: MKAnnotationViewDragState) {
+        
+        /* If we are editing, get out of here to avoid issues */
+        guard _editing == false else {
+            return
+        }
+        
+        /* Create a temporary reference to our pin */
+        pinToAdd = view.annotation as? Pin
+        
         switch(newState) {
         case .Starting:
             
-            if let oldPin = view.annotation as? Pin {
-                /* Delete the associated photos for the pin */
-                oldPin.deleteAllAssociatedPhotos()
-                print("Deleting photos for pin")
-            }
+            pinToAdd!.deleteAllAssociatedPhotos()
             
         case .Ending, .Canceling:
-            if let endPin = view.annotation as? Pin {
-                /* Get new photos for the newly dropped pin */
 
-                fetchNewPhotos(forPin: endPin)
-                
-                
-            }
+            fetchNewPhotos(forPin: pinToAdd!)
         default: break
         }
     }
@@ -322,15 +324,18 @@ extension PinLocationViewController: SettingsPickerDelegate {
     
     /* Delete all pins and photos when the delegate method is called */
     func didDeleteAll() {
-        
+        print("Deleting photos and pins")
         sharedContext.performBlockAndWait({
+            
+            /* Remove all annotations and delete the fetchedObejects */
             
             for pin in self.fetchedResultsController.fetchedObjects as! [Pin] {
                 pin.deleteAllAssociatedPhotos()
-                
+                print("Deleting photos and pins")
                 self.sharedContext.deleteObject(pin)
             }
             CoreDataStackManager.sharedInstance().saveContext()
+            self.configureAllAnnotations()
         })
         
     }
