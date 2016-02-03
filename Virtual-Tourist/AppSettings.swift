@@ -72,7 +72,7 @@ class AppSettings: NSObject {
                         }
                         
                     }
-                CoreDataStackManager.sharedInstance().saveContext()
+                    CoreDataStackManager.sharedInstance().saveContext()
                 })
                 
                 

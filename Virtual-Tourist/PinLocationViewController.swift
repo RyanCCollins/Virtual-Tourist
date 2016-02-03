@@ -24,7 +24,7 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
     /* Creating my own editing var because included is being changed randomly */
     var _editing: Bool = false
     
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+
     let regionRadius: CLLocationDistance = 1000
     
     /* Pin to add defined globally, for use when rearranging and adding new pins */
