@@ -8,11 +8,22 @@ Technologies used
 
 ## Project Setup
 - To install, download the project and open the Virtual-Tourist.xcworkspace file in XCode version 7.0+ (opening the .xcprojectfile will NOT work)
-- Run the following from the command line from within the root of the project directory
+- Follow the steps below to install the CocoaPods dependencies.
 
+Fist, make sure you have cocoapods installed
+```
+gem install cocoapods
+```
+Then
+```
+cd /whatever/directory/theproject/isin/Virtual-Tourist
+```
+run this to install the dependencies
 ```
 pod install
 ```
+
+If this does not work, follow the steps located below in Troubleshooting.
 
 - Runs best on an iPhone 6 or later with Swift 2.0 and iOS version 8.0+
 
@@ -76,3 +87,5 @@ Tapping the back button should return the user to the Map view.
 
 If the user selects a pin that already has a photo album then the Photo Album view should display the album and the New Collection button should be enabled.
 
+### Troubleshooting
+If for some reason, you run into issues installing, please see the [troubleshooting guide](https://guides.cocoapods.org/using/troubleshooting.html)
