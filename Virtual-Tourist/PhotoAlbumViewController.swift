@@ -196,7 +196,6 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func subscribeToImageLoadingNotifications() {
 
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoading", name: Notifications.PinDidFinishLoading, object: selectedPin)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didFinishLoadingWithErrors", name: Notifications.PinDidFinishLoadingWithErrors, object: selectedPin)
     }
     
     func unsubscribeToImageLoadingNotifications() {
