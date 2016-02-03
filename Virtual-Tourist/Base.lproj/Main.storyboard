@@ -339,16 +339,6 @@
                                             <action selector="didToggleFunMode:" destination="Vzs-yO-JhJ" eventType="valueChanged" id="527-o9-Nce"/>
                                         </connections>
                                     </switch>
-                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Rp-Q4-l6w">
-                                        <rect key="frame" x="8" y="104" width="180" height="30"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="180" id="FSx-mS-A82"/>
-                                        </constraints>
-                                        <state key="normal" title="Clear All Saved Data"/>
-                                        <connections>
-                                            <action selector="didTapClearUpInside:" destination="Vzs-yO-JhJ" eventType="touchUpInside" id="akh-rm-sfh"/>
-                                        </connections>
-                                    </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Settings" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dIm-QI-rj4">
                                         <rect key="frame" x="96" y="30" width="108" height="28"/>
                                         <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="20"/>
@@ -360,15 +350,12 @@
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="pOu-jm-faM" secondAttribute="bottom" id="2ue-sU-I4L"/>
                                     <constraint firstItem="pOu-jm-faM" firstAttribute="leading" secondItem="07t-q5-QtB" secondAttribute="leading" constant="-290" id="4CW-WR-fBg"/>
-                                    <constraint firstItem="0Rp-Q4-l6w" firstAttribute="width" secondItem="td0-RN-lGn" secondAttribute="width" id="CZe-tQ-7ka"/>
                                     <constraint firstAttribute="width" constant="300" id="WfT-0T-IKT"/>
-                                    <constraint firstItem="0Rp-Q4-l6w" firstAttribute="top" secondItem="td0-RN-lGn" secondAttribute="bottom" constant="8" id="ari-dx-4BQ"/>
                                     <constraint firstItem="dIm-QI-rj4" firstAttribute="top" secondItem="07t-q5-QtB" secondAttribute="top" constant="30" id="c6r-uv-cK2"/>
                                     <constraint firstItem="kiK-um-CCb" firstAttribute="leading" secondItem="td0-RN-lGn" secondAttribute="trailing" constant="8" id="dvu-vA-NXG"/>
                                     <constraint firstItem="pOu-jm-faM" firstAttribute="top" secondItem="07t-q5-QtB" secondAttribute="top" id="eLK-cf-AlZ"/>
                                     <constraint firstAttribute="centerX" secondItem="dIm-QI-rj4" secondAttribute="centerX" id="g3m-us-qaM"/>
                                     <constraint firstItem="td0-RN-lGn" firstAttribute="top" secondItem="dIm-QI-rj4" secondAttribute="bottom" constant="10" id="v11-n7-CcU"/>
-                                    <constraint firstItem="0Rp-Q4-l6w" firstAttribute="leading" secondItem="07t-q5-QtB" secondAttribute="leading" constant="8" id="xEd-VB-DZV"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="string" keyPath="animation" value="squeezeRight"/>

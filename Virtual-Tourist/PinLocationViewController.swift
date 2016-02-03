@@ -62,7 +62,6 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         let controller = storyboard?.instantiateViewControllerWithIdentifier("SettingsViewController") as! SettingsViewController
         
         /* Set us as the controllers delegate */
-        controller.delegate = self
         self.presentViewController(controller, animated: true, completion: nil)
     }
     
@@ -325,26 +324,3 @@ extension PinLocationViewController: MKMapViewDelegate {
     
 }
 
-extension PinLocationViewController: SettingsPickerDelegate {
-    
-    /* Delete all pins and photos when the delegate method is called */
-    func didDeleteAll() {
-        print("Deleting photos and pins")
-        
-        /* Note: This is here because of a slight issue where the pins don't always update right away, but really, the pin is being removed in the fetchedresults controller delegate method */
-        
-        /* Remove all annotations and delete the fetchedObejects */
-        
-        if let pins = self.fetchedResultsController.fetchedObjects as? [Pin] {
-            for pin in pins {
-                self.deletePinAndPhotos(pin)
-                
-            }
-            
-        }
-        
-        CoreDataStackManager.sharedInstance().saveContext()
-        self.configureAllAnnotations()
-        
-    }
-}

@@ -21,8 +21,6 @@ class SettingsViewController: UIViewController {
 
     @IBOutlet weak var funModeToggle: UISwitch!
     
-    var delegate: SettingsPickerDelegate?
-    
     /* Access to view for transformation */
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,13 +46,6 @@ class SettingsViewController: UIViewController {
         sharedContext.performBlockAndWait({
             CoreDataStackManager.sharedInstance().saveContext()
         })
-    }
-    
-    /* When you tap the clear button, we need to tell the global seetins that we need to clear the data */
-    @IBAction func didTapClearUpInside(sender: AnyObject) {
-
-        delegate?.didDeleteAll()
-        closeSettingsView()
     }
     
     func closeSettingsView() {

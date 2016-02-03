@@ -8,6 +8,11 @@
 
 
 /* This class is responsible for presenting the photo when a collection view is tapped */
+/*
+* NOTE: I originally created this following the tutorial located here: http://zappdesigntemplates.com/uiviewcontroller-transition-from-uicollectionviewcell/
+* I do not claim that I created the transitions, but I customized it and did a lot of research in order to implement a custom transition.
+*/
+
 
 import UIKit
 
