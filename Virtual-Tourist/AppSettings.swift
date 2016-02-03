@@ -14,8 +14,6 @@ import CoreData
  * for storing the AppSettings globally while avoiding memory and thread issues.
 */
 class AppSettings: NSObject {
-    /* Initialize the global settings to be accessed externally */
-    var GlobalSettings: Settings?
     
     class func sharedSettings() -> AppSettings {
         struct singleton {
