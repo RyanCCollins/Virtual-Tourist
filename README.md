@@ -88,4 +88,6 @@ Tapping the back button should return the user to the Map view.
 If the user selects a pin that already has a photo album then the Photo Album view should display the album and the New Collection button should be enabled.
 
 ### Troubleshooting
-If for some reason, you run into issues installing, please see the [troubleshooting guide](https://guides.cocoapods.org/using/troubleshooting.html)
+If for some reason, you run into issues installing, it's likely due to cocoapods.  What cocoapods does is it manages package dependencies for the project.  You need to make sure that you upen the .xcworkspace project because that is a requirement of cocoapods. 
+
+If you still have difficulties, please see the [CocoaPods troubleshooting guide](https://guides.cocoapods.org/using/troubleshooting.html)
