@@ -53,16 +53,6 @@ from the root directory of the project in order to install project dependencies.
 
 Then, feel free to walk through and see all of the features.  Please get in touch with me if you have any issues.  Make sure to play around with all of the functionality and see all of the great features I added.
 
-Here is the flow of the applications
-1.  Log in to the application through Udacity or Facebook.  You can use the 1Password extension if it is available on your device.
-2.  View pins on the map and click them to see students locations and submitted URLs
-3.  Post a location and URL by pressing the Pin button in the right hand side of the navigation bar.
-4.  Press the Udacity button to zoom into the Udacity headquarters on the map.
-5.  Press refresh to fetch new submissions.
-6.  Look at the submissions in the table view by selecting the table view button.
-7.  Refresh by pulling down on the table.
-8.  When you post a location, a Push Notification is sent showing that it was successful.
-
 ##__Description & Specifications__
 ---
 
