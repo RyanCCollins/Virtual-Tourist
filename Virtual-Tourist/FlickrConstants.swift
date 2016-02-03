@@ -8,6 +8,8 @@
 
 import Foundation
 
+/* A collection of flickr client constants.  Although not all are used, we are preserving them in case we need to use at a later time */
+
 extension FlickrClient {
     
     struct Constants {
@@ -16,7 +18,6 @@ extension FlickrClient {
         static let Base_URL_Secure = "https://api.flickr.com/services/rest/"
         static let API_Key = "9a20ed67f3b6ca6c9f8a5c66e62903f0"
         static let Photo_Source_URL = "https://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}"
-        
         
         struct Keys {
             static let Latitude = "latitude"

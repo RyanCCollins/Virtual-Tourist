@@ -6,6 +6,8 @@
 //  Copyright © 2015 Tech Rapport. All rights reserved.
 //
 
+/* Global constants.  Note, although not all are being used, we are preserving them for a later time */
+
 import Foundation
 
 /* Helper properties to get a_sync queues */

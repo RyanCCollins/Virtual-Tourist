@@ -107,13 +107,14 @@ class PinLocationViewController: UIViewController, NSFetchedResultsControllerDel
         
         /* Create a notification for updating the UI once photos have finished loading */
         let DidFinishLoadingNotification = NSNotification(name: Notifications.PinDidFinishLoading, object: pin)
-        
+            editButton.enabled = false
             pin.fetchAndStoreImages({success, error in
                 
                 /* Either way, call the DidFinishLoadingNotification and handle errors on the next view. */
                 if success == true || error != nil {
                     dispatch_async(GlobalMainQueue, {
                         
+                        self.editButton.enabled = true
                         NSNotificationCenter.defaultCenter().postNotification(DidFinishLoadingNotification)
                         
                     })
@@ -263,11 +264,13 @@ extension PinLocationViewController: MKMapViewDelegate {
         }
     }
     
-    /* Convenience method for deleting all associated photos and pin from the context */
+    /* Convenience method for deleting all associated photos and pin from the context.   */
     func deletePinAndPhotos(pin: Pin) {
         dispatch_async(GlobalMainQueue, {
-            pin.deleteAllAssociatedPhotos()
-            self.sharedContext.deleteObject(pin)
+            if !pin.loadingStatus.isLoading {
+                pin.deleteAllAssociatedPhotos()
+                self.sharedContext.deleteObject(pin)
+            }
             CoreDataStackManager.sharedInstance().saveContext()
         })
     }
@@ -327,18 +330,21 @@ extension PinLocationViewController: SettingsPickerDelegate {
     /* Delete all pins and photos when the delegate method is called */
     func didDeleteAll() {
         print("Deleting photos and pins")
-
-            
+        
+        /* Note: This is here because of a slight issue where the pins don't always update right away, but really, the pin is being removed in the fetchedresults controller delegate method */
+        
         /* Remove all annotations and delete the fetchedObejects */
         
         if let pins = self.fetchedResultsController.fetchedObjects as? [Pin] {
             for pin in pins {
                 self.deletePinAndPhotos(pin)
+                
             }
             
         }
+        
         CoreDataStackManager.sharedInstance().saveContext()
-
+        self.configureAllAnnotations()
         
     }
 }

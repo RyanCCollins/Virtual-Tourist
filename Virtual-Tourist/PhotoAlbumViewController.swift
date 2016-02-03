@@ -51,9 +51,8 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
             self.centerMapOnLocation(forPin: self.selectedPin)
         })
         
-        
+        /* Perform the initial fetch and add the gesture recognizers */
         performInitialFetch()
-        
         configureGestureRecognizers()
   
     }
@@ -115,7 +114,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
         }
         
         /* Disable the collection button if the fetched results controller has yet to receive any objects. */
-        collectionButton.enabled = fetchedResultsController.fetchedObjects!.count > 0
+        collectionButton.enabled = !selectedPin.loadingStatus.isLoading
         /* Note, calling reload data fixes a bug that was causing bad access issues.  Must be called outside of global queue. */
         collectionView.reloadData()
 
@@ -125,7 +124,7 @@ class PhotoAlbumViewController: UIViewController, PinLocationPickerViewControlle
     func handleLongPress(gestureRecognizer: UILongPressGestureRecognizer) {
         
         /* Ensure that the touch doesn't register unless ended */
-        if gestureRecognizer.state != UIGestureRecognizerState.Ended {
+        if gestureRecognizer.state != UIGestureRecognizerState.Began {
             return
         }
 
